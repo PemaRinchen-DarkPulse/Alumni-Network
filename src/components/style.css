@@ -1,0 +1,141 @@
+/* Navbar Stylesing Strat from Here*/
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem 0;
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+}
+
+header h1 {
+    margin: 0;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 1rem;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+/* Navbar Stylesing Ends Here*/
+
+
+/* Hero STyling Start */
+.hero {
+    background-image: url("C:\Users\123sa\OneDrive\Documents\New folder\Alumni-network\my-react-app\public\backgroud-image.jpg");
+    padding: 2rem 0;
+}
+.hero .container {
+    text-align: center;
+}
+
+.hero h2 {
+    margin: 0;
+}
+
+/* hero Styling End */
+.about {
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.about h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.about p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.cta-link {
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s;
+    color: black;
+}
+
+.featured-news {
+    padding: 3rem 1rem;
+}
+
+.featured-news h2 {
+    font-size: 2rem;
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 2rem;
+}
+
+.news-grid {
+    display: flex;
+    gap: 20px;
+    justify-content: space-around;
+}
+
+.news-grid article {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.news-grid h3 {
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+
+.news-grid p {
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.news-grid a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.news-grid a:hover {
+    color: #0056b3;
+}
+
+
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+footer a {
+    color: #fff;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.myLink {
+    text-align: left;  /* Aligns text to the left */
+    display: block;    /* Makes the button fill its container width */
+    padding-left: 0;   /* Removes left padding for closer alignment */
+  }
+  
