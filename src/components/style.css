@@ -36,7 +36,7 @@ nav ul li a {
 
 /* Hero STyling Start */
 .hero {
-    background-image: url("C:\Users\123sa\OneDrive\Documents\New folder\Alumni-network\my-react-app\public\backgroud-image.jpg");
+
     padding: 2rem 0;
 }
 .hero .container {
@@ -139,3 +139,13 @@ footer a:hover {
     padding-left: 0;   /* Removes left padding for closer alignment */
   }
   
+
+  .auth-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
