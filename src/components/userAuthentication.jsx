@@ -70,13 +70,6 @@ export const Login = () => {
 }
 
 export const SignUpAsMentor = () => {
-    const [selectedBackground, setSelectedBackground] = useState([]);
-
-    const handleBackgroundChange = (e) => {
-        const options = Array.from(e.target.selectedOptions, option => option.value);
-        setSelectedBackground(options);
-    };
-
     return (
         <div>
             <h2>Sign Up as a Mentor</h2>
@@ -107,12 +100,24 @@ export const SignUpAsMentor = () => {
                 </FormGroup>
                 <Button color="primary" block>Sign Up</Button>
             </Form>
-            <p>Sign Up as Mentee? <Link to="/register">Click Here</Link>.</p>
         </div>
     );
 };
 export const SignUpAsMentee=()=>{
     return (
-        <h1>Hello</h1>
+        <div>
+            <h2>Sign Up as a Mentee</h2>
+            <Form>
+                <FormGroup>
+                    <Label for="name" className="fw-bold">Name:</Label>
+                    <Input id="name" name="name" placeholder="John Doe" type="text" required />
+                </FormGroup>
+                <FormGroup>
+                    <Label for="email" className="fw-bold">Email:</Label>
+                    <Input id="email" name="email" placeholder="johndoe@example.com" type="email" required />
+                </FormGroup>
+                <Button color="primary" block>Sign Up</Button>
+            </Form>
+        </div>
     );
 }
