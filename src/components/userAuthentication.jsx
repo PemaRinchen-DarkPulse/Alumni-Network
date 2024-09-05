@@ -21,7 +21,7 @@ export const SignUp = () => {
             console.log(err)
         }
     }
-
+andamda
     return (
         <div className="auth-container">
             <h2 className="text-center fw-bold">Sign Up</h2>
