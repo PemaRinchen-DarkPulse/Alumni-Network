@@ -1,25 +1,26 @@
 import React from "react";
-import "./style.css"
+import { Link } from "react-router-dom";
+import "./style.css";
 
-const Header=()=>{
-    return (
-      <header>
-        <div className="container">
-            <h1>Alumni Network</h1>
-            <nav>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="directory.html">Directory</a></li>
-                    <li><a href="events.html">Events</a></li>
-                    <li><a href="mentoring.html">Mentoring</a></li>
-                    <li><a href="news.html">News</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                    <li><a href="login.html">Login</a></li>
-                </ul>
-            </nav>
-        </div>
+const Header = () => {
+  return (
+    <header>
+      <div className="container">
+        <h1>Alumni Network</h1>
+        <nav>
+          <ul>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/directory">Directory</Link></li>
+            <li><Link to="/events">Events</Link></li>
+            <li><Link to="/mentoring">Mentoring</Link></li>
+            <li><Link to="/news">News</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
+            <li><Link to="/login">Login</Link></li>
+          </ul>
+        </nav>
+      </div>
     </header>
-    );
-}
+  );
+};
 
 export default Header;

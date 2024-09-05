@@ -68,3 +68,51 @@ export const Login = () => {
         </div>
     );
 }
+
+export const SignUpAsMentor = () => {
+    const [selectedBackground, setSelectedBackground] = useState([]);
+
+    const handleBackgroundChange = (e) => {
+        const options = Array.from(e.target.selectedOptions, option => option.value);
+        setSelectedBackground(options);
+    };
+
+    return (
+        <div>
+            <h2>Sign Up as a Mentor</h2>
+            <Form>
+                <FormGroup>
+                    <Label for="name" className="fw-bold">Name:</Label>
+                    <Input id="name" name="name" placeholder="John Doe" type="text" required />
+                </FormGroup>
+                <FormGroup>
+                    <Label for="email" className="fw-bold">Email:</Label>
+                    <Input id="email" name="email" placeholder="johndoe@example.com" type="email" required />
+                </FormGroup>
+
+                <FormGroup>
+                    <Label for="background" className="fw-bold">Professional Background:</Label>
+                    <Input id="background" name="background" type="select" required>
+                        <option value="Software Development">Software Development</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Project Management">Project Management</option>
+                        <option value="Design">Design</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Finance">Finance</option>
+                    </Input>
+                </FormGroup>
+                <FormGroup>
+                <Label for="availability">Availability (Hours Per Week):</Label>
+                <Input type="number" id="availability" name="availability" min="1" required/>
+                </FormGroup>
+                <Button color="primary" block>Sign Up</Button>
+            </Form>
+            <p>Sign Up as Mentee? <Link to="/register">Click Here</Link>.</p>
+        </div>
+    );
+};
+export const SignUpAsMentee=()=>{
+    return (
+        <h1>Hello</h1>
+    );
+}

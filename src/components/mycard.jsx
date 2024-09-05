@@ -1,7 +1,44 @@
 import React from "react";
 import { Card, CardTitle, CardText, Button, Row, Col } from "reactstrap";
 import "./style.css";
-export const MyCard = () => {
+export const News = () => {
+  return (
+    <Row className="container-fluid">
+      <h1 className="text-center color-primary">Recent News</h1>
+      <Col sm="4">
+        <Card body>
+          <CardTitle tag="h5" className="fw-bold">Alumni Spotlight: Jane Smith</CardTitle>
+          <CardText>
+            <p>Jane Smith, Class of 2015, shares her journey from student to CEO of a leading tech startup.</p>
+          </CardText>
+          <Button color="link" style={{ textAlign: 'left', display: 'block', paddingLeft: 0 }}>Learn More</Button>
+        </Card>
+      </Col>
+      <Col sm="4">
+        <Card body>
+          <CardTitle tag="h5" className="fw-bold">Annual Alumni Gala</CardTitle>
+          <CardText>
+            <span>Date: November 20, 2024</span> <br/>
+            <span>Location: University Campus</span>
+          </CardText>
+          <Button color="link" style={{ textAlign: 'left', display: 'block', paddingLeft: 0 }}>Learn More</Button>
+        </Card>
+      </Col>
+      <Col sm="4">
+        <Card body>
+          <CardTitle tag="h5" className="fw-bold">Networking Night</CardTitle>
+          <CardText>
+            <span>Date: December 10, 2024</span><br/>
+            <span>Location: City Center</span>
+          </CardText>
+          <Button color="link" style={{ textAlign: 'left', display: 'block', paddingLeft: 0 }}>Learn More</Button>
+        </Card>
+      </Col>
+    </Row>
+  );
+}
+
+export const Events = () => {
   return (
     <Row className="container-fluid">
       <h1 className="text-center color-primary">Upcoming Events</h1>
@@ -39,7 +76,7 @@ export const MyCard = () => {
   );
 }
 
-export const MySecondCard=()=>{
+export const Testimonials=()=>{
     return (
         <Row>
         <h1 className="text-center">What Our Alumni Say</h1>
