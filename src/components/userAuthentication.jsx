@@ -116,6 +116,10 @@ export const SignUpAsMentee=()=>{
                     <Label for="email" className="fw-bold">Email:</Label>
                     <Input id="email" name="email" placeholder="johndoe@example.com" type="email" required />
                 </FormGroup>
+                <FormGroup>
+                    <Label for="name" className="fw-bold">Name:</Label>
+                    <Input id="name" name="name" placeholder="John Doe" type="text" required />
+                </FormGroup>
                 <Button color="primary" block>Sign Up</Button>
             </Form>
         </div>
