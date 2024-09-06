@@ -21,7 +21,10 @@ export const MyHero = () => {
                 <h5>Welcome to the Royal Academy Hub! Immerse yourself in a dynamic community where the
                     spirit of excellence extends far beyond our historic halls. Reconnect with fellow alumni, discover
                     fresh avenues for growth, and stay updated on the latest innovations and groundbreaking research
-                    emanating from the Royal Academy.</h5>
+                    emanating from the Royal Academy.
+                </h5>
+                <Button>Join Mentoring Program</Button>{" "}
+                <Button>View Upcoming Events</Button>
             </div>
         </section>
     );

@@ -12,38 +12,20 @@ function Mentoring() {
             <Header />
             <MentoringHeader />
 
-            {/* Toggle buttons for switching between Mentor and Mentee form */}
             <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <button 
                     onClick={() => setShowMentorForm(true)} 
-                    style={{ 
-                        marginRight: "10px", 
-                        backgroundColor: showMentorForm ? "#007bff" : "#ccc",
-                        color: "white",
-                        padding: "10px 20px",
-                        border: "none",
-                        cursor: "pointer"
-                    }}
                 >
                     Sign Up as Mentor
                 </button>
                 <button 
                     onClick={() => setShowMentorForm(false)} 
-                    style={{ 
-                        backgroundColor: !showMentorForm ? "#007bff" : "#ccc",
-                        color: "white",
-                        padding: "10px 20px",
-                        border: "none",
-                        cursor: "pointer"
-                    }}
                 >
                     Sign Up as Mentee
                 </button>
             </div>
 
-            {/* Conditionally render forms based on the state */}
             {showMentorForm ? <SignUpAsMentor /> : <SignUpAsMentee />}
-
             <MatchingProcess />
             <Footer />
         </>
