@@ -3,6 +3,7 @@ import Header from "./header"
 import Footer from "./footer"
 import { MyHero,About,GetInvolved} from "./hero";
 import {News,Events,Testimonials} from "./mycard"
+import { Contact } from "./userAuthentication";
 function Home(){
     return (
         <>
@@ -13,6 +14,7 @@ function Home(){
         <Events/>
         <Testimonials/>
         <GetInvolved/>
+        <Contact/>
         <Footer/>
         </>
     );
