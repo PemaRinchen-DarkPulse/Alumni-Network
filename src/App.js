@@ -5,6 +5,7 @@ import './app.css';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Home from './components/home.jsx';
 import Mentoring from './components/mentoring.jsx';
+import Directory from './components/directory.jsx';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/signupasmenteor' element={<SignUpAsMentor/>}/>
         <Route path='/signupasmentee' element={<SignUpAsMentee/>}/>
+        <Route path='/directory' element={<Directory/>}/>
       </Routes>
     </BrowserRouter>
   );
