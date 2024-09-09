@@ -3,7 +3,7 @@ import { Card, CardTitle, CardText, Button, Row, Col, CardBody, CardSubtitle, Ca
 import "./style.css";
 export const News = () => {
   return (
-    <Row className="container-fluid">
+    <Row className="container-fluid mt-4">
       <h1 className="text-center color-primary">Recent News</h1>
       <Col sm="4">
         <Card body>
@@ -16,20 +16,18 @@ export const News = () => {
       </Col>
       <Col sm="4">
         <Card body>
-          <CardTitle tag="h5" className="fw-bold">Annual Alumni Gala</CardTitle>
+          <CardTitle tag="h5" className="fw-bold">Alumni Spotlight: Jane Smith</CardTitle>
           <CardText>
-            <span>Date: November 20, 2024</span> <br />
-            <span>Location: University Campus</span>
+            <p>Jane Smith, Class of 2015, shares her journey from student to CEO of a leading tech startup.</p>
           </CardText>
           <Button color="link" style={{ textAlign: 'left', display: 'block', paddingLeft: 0 }}>Learn More</Button>
         </Card>
       </Col>
       <Col sm="4">
         <Card body>
-          <CardTitle tag="h5" className="fw-bold">Networking Night</CardTitle>
+          <CardTitle tag="h5" className="fw-bold">Alumni Spotlight: Jane Smith</CardTitle>
           <CardText>
-            <span>Date: December 10, 2024</span><br />
-            <span>Location: City Center</span>
+            <p>Jane Smith, Class of 2015, shares her journey from student to CEO of a leading tech startup.</p>
           </CardText>
           <Button color="link" style={{ textAlign: 'left', display: 'block', paddingLeft: 0 }}>Learn More</Button>
         </Card>
@@ -40,9 +38,8 @@ export const News = () => {
 
 export const Events = () => {
   return (
-    <>
+    <section className="container UpcomingEvents m-5">
       <h1 className="text-center">Upcoming Events</h1>
-
       <div className="row container mx-auto">
         <div className="col-4">
           <Card>
@@ -85,13 +82,13 @@ export const Events = () => {
         </div>
       </div>
 
-    </>
+    </section>
   );
 }
 
 export const Testimonials = () => {
   return (
-    <Row>
+    <Row className="mt-5">
       <h1 className="text-center">What Our Alumni Say</h1>
       <Col sm="4">
         <Card body>
@@ -106,15 +103,6 @@ export const Testimonials = () => {
         <Card body>
           <CardText>
             <b>"Participating in the mentoring program was an incredibly rewarding experience. I highly recommend it to all alumni."</b> <br />
-            <p>- John Doe, Class of 2020</p>
-            <span>Read More</span>
-          </CardText>
-        </Card>
-      </Col>
-      <Col sm="4">
-        <Card body>
-          <CardText>
-            <b>"The annual alumni events are always a highlight of my year. It's a great way to catch up with everyone and stay connected."</b><br />
             <p>- John Doe, Class of 2020</p>
             <span>Read More</span>
           </CardText>

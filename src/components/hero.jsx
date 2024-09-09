@@ -33,13 +33,13 @@ export const MyHero = () => {
 // GetInvolved Component
 export const GetInvolved = () => {
     return (
-        <section className="cta-section">
+        <div className="cta-section mt-5">
             <div className="container">
                 <h2 color="primary">Get Involved Today</h2>
                 <p>Whether you’re looking to mentor a student, attend an event, or simply reconnect with fellow alumni, our network has something for everyone.</p>
                 <Button color="primary" outline>Join the Alumni Network</Button>
             </div>
-        </section>
+        </div>
     );
 }
 
@@ -47,7 +47,7 @@ export const GetInvolved = () => {
 export const About = () => {
     return (
         <section className="about">
-            <div className="container">
+            <div className="container about">
                 <h2>About the Alumni Network</h2>
                 <p>Our Alumni Network is dedicated to fostering lifelong connections among our graduates. We aim to support professional growth, provide mentoring opportunities, and build a strong community that continues to thrive long after graduation.</p>
                 <a href="about.html" className="cta-link">Learn More</a>

@@ -13,7 +13,7 @@ export const SignUp = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("http://localhost:8080/register", { name, email, password, confirmPassword }) // Fixed typo here
+        axios.post("http://localhost:8080/register", { name, email, password, confirmPassword }) 
         try{
             console.log("successful")
         }

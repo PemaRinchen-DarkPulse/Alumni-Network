@@ -156,3 +156,8 @@ footer a:hover {
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+
+.about, .UpcomingEvents{
+    background-color: #f0f0f0;
+}
