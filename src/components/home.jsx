@@ -3,7 +3,7 @@ import Header from "./header"
 import Footer from "./footer"
 import { MyHero,About,GetInvolved} from "./hero";
 import {News,Events,Testimonials} from "./mycard"
-import { Contact } from "./userAuthentication";
+import { Contact } from "./login/userAuthentication.jsx";
 function Home(){
     return (
         <>
