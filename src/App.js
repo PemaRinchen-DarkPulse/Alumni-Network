@@ -1,11 +1,11 @@
 
 import {Login, SignUp, SignUpAsMentee, SignUpAsMentor} from './components/userAuthentication.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './app.css';
+import './App.css';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Home from './components/home.jsx';
 import Mentoring from './components/mentoring.jsx';
-import Directory from './components/directory.jsx';
+import Directory from './userViews/directory.jsx'
 
 function App() {
   return (
