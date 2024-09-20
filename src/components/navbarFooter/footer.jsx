@@ -3,11 +3,11 @@ import "./style.css";
 function Footer(){
     return (
         <footer>
-        <div class="container">
+        <div className="container">
             <p>&copy; 2024 Alumni Network. All rights reserved.</p>
             <p>Contact us at: <a href="mailto:info@alumninetwork.com">info@alumninetwork.com</a></p>
         </div>
-    </footer>
+        </footer>
     );
 }
 

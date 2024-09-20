@@ -125,51 +125,51 @@ export const SignUpAsMentee=()=>{
     );
 }
 
-export const Contact=()=>{
+export const Contact = () => {
     return (
-        <section id="contact-me" class="mb-5">
-        <div class="container-md contact-form">
-            <div class="d-flex justify-content-center">
-                <div class="col-md-8">
-                    <h1 class="text-center">Leave Your Message</h1>
-                    <form action="">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="first-name" class="form-label">First Name</label>
-                                <input type="text" id="first-name" class="form-control"/>
+        <section id="contact-me" className="mb-5">
+            <div className="container-md contact-form">
+                <div className="d-flex justify-content-center">
+                    <div className="col-md-8">
+                        <h1 className="text-center">Leave Your Message</h1>
+                        <form action="">
+                            <div className="row mb-3">
+                                <div className="col-md-6">
+                                    <label htmlFor="first-name" className="form-label">First Name</label>
+                                    <input type="text" id="first-name" className="form-control" />
+                                </div>
+                                <div className="col-md-6">
+                                    <label htmlFor="last-name" className="form-label">Last Name</label>
+                                    <input type="text" id="last-name" className="form-control" />
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="last-name" class="form-label">Last Name</label>
-                                <input type="text" id="last-name" class="form-control"/>
+                            <div className="row mb-3">
+                                <div className="col-md-12">
+                                    <label htmlFor="email" className="form-label">Email</label>
+                                    <input type="email" id="email" className="form-control" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" id="email" class="form-control"/>
+                            <div className="row mb-3">
+                                <div className="col-md-12">
+                                    <label htmlFor="phone-number" className="form-label">Phone Number</label>
+                                    <input type="number" id="phone-number" className="form-control" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label for="phone-number" class="form-label">Phone Number</label>
-                                <input type="number" id="phone-number" class="form-control"/>
+                            <div className="row mb-3">
+                                <div className="col-md-12">
+                                    <label htmlFor="message" className="form-label">Message</label>
+                                    <textarea id="message" className="form-control" rows="6"></textarea>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-12">
-                                <label for="message" class="form-label">Message</label>
-                                <textarea name="" id="" class="form-control" rows="6"></textarea>
+                            <div className="row">
+                                <div className="col-md-12 text-center">
+                                    <button type="submit" className="btn btn-primary">Contact Us</button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 text-center">
-                                <button type="submit" class="btn btn-primary">Contact Us</button>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
     );
-}
+};
