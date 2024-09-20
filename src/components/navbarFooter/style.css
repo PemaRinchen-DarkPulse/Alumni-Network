@@ -31,98 +31,9 @@ nav ul li {
 }
 
 nav ul li a {
-    color: #fff;
-    text-decoration: none;
-}
-/* Navbar Stylesing Ends Here*/
-
-
-/* Hero STyling Start */
-.pema {
-    background-color: rgba(255, 255, 255, 0.8);
-    max-width: 800px;
-  }
-.hero {
-
-    padding: 2rem 0;
-}
-.hero .container {
-    text-align: center;
-}
-
-.hero h2 {
-    margin: 0;
-}
-
-/* hero Styling End */
-.about {
-    padding: 3rem 1rem;
-    text-align: center;
-}
-
-.about h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.about p {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-}
-
-.cta-link {
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.3s;
     color: black;
-}
-
-.featured-news {
-    padding: 3rem 1rem;
-}
-
-.featured-news h2 {
-    font-size: 2rem;
-    text-align: center;
-    color: #007bff;
-    margin-bottom: 2rem;
-}
-
-.news-grid {
-    display: flex;
-    gap: 20px;
-    justify-content: space-around;
-}
-
-.news-grid article {
-    flex: 1;
-    background-color: #f9f9f9;
-    padding: 1.5rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.news-grid h3 {
-    color: #007bff;
-    margin-bottom: 1rem;
-}
-
-.news-grid p {
-    color: #555;
-    margin-bottom: 1rem;
-}
-
-.news-grid a {
-    color: #007bff;
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s;
 }
-
-.news-grid a:hover {
-    color: #0056b3;
-}
-
 
 footer {
     background-color: #333;
@@ -138,26 +49,4 @@ footer a {
 
 footer a:hover {
     text-decoration: underline;
-}
-
-.myLink {
-    text-align: left;  /* Aligns text to the left */
-    display: block;    /* Makes the button fill its container width */
-    padding-left: 0;   /* Removes left padding for closer alignment */
-  }
-  
-
-  .auth-container {
-    max-width: 400px;
-    margin: 100px auto;
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-
-.about, .UpcomingEvents{
-    background-color: #f0f0f0;
 }

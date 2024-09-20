@@ -1,4 +1,29 @@
-/* Navbar Stylesing Strat from Here*/
+/* Auth Component Styles */
+.auth-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Contact Form Styles */
+.contact-form {
+    margin: 2rem auto;
+}
+
+.contact-form h1 {
+    margin-bottom: 1.5rem;
+}
+
+/* General Button Styles */
+button {
+    margin: 0.5rem 0; /* Space between buttons */
+}
+
+/* Navbar Styles */
 header {
     background-color: #333;
     color: #fff;
@@ -34,27 +59,8 @@ nav ul li a {
     color: #fff;
     text-decoration: none;
 }
-/* Navbar Stylesing Ends Here*/
 
-
-/* Hero STyling Start */
-.pema {
-    background-color: rgba(255, 255, 255, 0.8);
-    max-width: 800px;
-  }
-.hero {
-
-    padding: 2rem 0;
-}
-.hero .container {
-    text-align: center;
-}
-
-.hero h2 {
-    margin: 0;
-}
-
-/* hero Styling End */
+/* About Section Styles */
 .about {
     padding: 3rem 1rem;
     text-align: center;
@@ -70,94 +76,8 @@ nav ul li a {
     margin-bottom: 1.5rem;
 }
 
-.cta-link {
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.3s;
-    color: black;
-}
-
-.featured-news {
-    padding: 3rem 1rem;
-}
-
-.featured-news h2 {
-    font-size: 2rem;
-    text-align: center;
-    color: #007bff;
-    margin-bottom: 2rem;
-}
-
-.news-grid {
-    display: flex;
-    gap: 20px;
-    justify-content: space-around;
-}
-
-.news-grid article {
-    flex: 1;
-    background-color: #f9f9f9;
-    padding: 1.5rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.news-grid h3 {
-    color: #007bff;
-    margin-bottom: 1rem;
-}
-
-.news-grid p {
-    color: #555;
-    margin-bottom: 1rem;
-}
-
-.news-grid a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s;
-}
-
-.news-grid a:hover {
-    color: #0056b3;
-}
-
-
-footer {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem 0;
-    text-align: center;
-}
-
-footer a {
-    color: #fff;
-    text-decoration: none;
-}
-
-footer a:hover {
-    text-decoration: underline;
-}
-
-.myLink {
-    text-align: left;  /* Aligns text to the left */
-    display: block;    /* Makes the button fill its container width */
-    padding-left: 0;   /* Removes left padding for closer alignment */
-  }
-  
-
-  .auth-container {
-    max-width: 400px;
-    margin: 100px auto;
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-
-.about, .UpcomingEvents{
-    background-color: #f0f0f0;
+/* Additional Section Styles */
+.pema {
+    background-color: rgba(255, 255, 255, 0.8);
+    max-width: 800px;
 }

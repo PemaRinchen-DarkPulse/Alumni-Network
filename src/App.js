@@ -1,5 +1,5 @@
 
-import {Login, SignUp, SignUpAsMentee, SignUpAsMentor} from './components/userAuthentication.jsx';
+import {Login, SignUp, SignUpAsMentee, SignUpAsMentor} from './components/login/userAuthentication.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import {BrowserRouter, Routes, Route} from 'react-router-dom';
