@@ -1,72 +1,147 @@
-import React from "react";
-import { useState } from "react";
-import { Form, FormGroup, Label, Button, Input } from 'reactstrap';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Form, FormGroup, Label, Button, Input } from "reactstrap";
+import axios from "axios";
 
-export const SignUp = () => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+export const Login = ({ setIsLoggedIn }) => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("http://localhost:8080/register", { name, email, password, confirmPassword }) 
-        try{
-            console.log("successful")
-        }
-        catch (err){
-            console.log(err)
-        }
-    }
 
-    return (
-        <div className="auth-container">
-            <h2 className="text-center fw-bold">Sign Up</h2>
-            <Form onSubmit={handleSubmit}>
-                <FormGroup row>
-                    <Label for="name" className="fw-bold">Name:</Label>
-                    <Input id="name" name="name" placeholder="John Doe" type="text" onChange={(e) => setName(e.target.value)} />
-                </FormGroup>
-                <FormGroup row>
-                    <Label for="email" className="fw-bold">Email:</Label>
-                    <Input id="email" name="email" placeholder="johndoe@example.com" type="email" onChange={(e) => setEmail(e.target.value)} />
-                </FormGroup>
-                <FormGroup row>
-                    <Label for="pass" className="fw-bold">Password:</Label>
-                    <Input id="pass" name="password" placeholder="password" type="password" onChange={(e) => setPassword(e.target.value)} />
-                </FormGroup>
-                <FormGroup row>
-                    <Label for="conpass" className="fw-bold">Confirm Password:</Label>
-                    <Input id="conpass" name="confirmPassword" placeholder="password" type="password" onChange={(e) => setConfirmPassword(e.target.value)} />
-                </FormGroup>
-                <Button color="primary" block>Sign Up</Button>
-            </Form>
-            <p>Already have an account? <Link to="/login">Login here</Link>.</p>
-        </div>
-    );
-}
+        axios.post("http://localhost:8080/login", { email, password })
+            .then(result => {
+                if (result.data.success) {
+                    setIsLoggedIn(true);
+                    const from = location.state?.from || "/";  // Redirect to the last page they were trying to access
+                    console.log("Redirecting to:", from); // Print the last page
+                    navigate(from);
+                } else {
+                    setErrorMessage(result.data.message);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+                setErrorMessage("An error occurred during login. Please try again.");
+            });
+    };
 
-export const Login = () => {
     return (
         <div className="auth-container">
             <h2 className="text-center fw-bold">Log In</h2>
-            <Form>
+            <Form onSubmit={handleSubmit}>
                 <FormGroup row>
                     <Label for="email" className="fw-bold">Email:</Label>
-                    <Input id="email" name="email" placeholder="johndoe@example.com" type="email" />
+                    <Input
+                        id="email"
+                        name="email"
+                        placeholder="johndoe@example.com"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
                 </FormGroup>
                 <FormGroup row>
-                    <Label for="pass" className="fw-bold">Password:</Label>
-                    <Input id="pass" name="password" placeholder="password" type="password" />
+                    <Label for="password" className="fw-bold">Password:</Label>
+                    <Input
+                        id="password"
+                        name="password"
+                        placeholder="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
                 </FormGroup>
+                {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
                 <Button color="primary" block>Log In</Button>
             </Form>
-            <p>Don't have an account? <Link to="/register">Sign up here</Link>.</p>
+            <p>Don't have an account? <a href="/register">Sign up here</a>.</p>
         </div>
     );
-}
+};
+
+
+
+export const SignUp = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Replace with your actual API endpoint
+      const response = await axios.post('http://localhost:8080/register', { name, email, password, confirmPassword });
+      
+      if (response.data.success) {
+        console.log('Registration successful');
+        // Navigate to login or home page after successful registration
+      }
+    } catch (err) {
+      setErrorMessage('Registration failed. Please try again.');
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <h2 className="text-center fw-bold">Sign Up</h2>
+      <Form onSubmit={handleSubmit}>
+        <FormGroup row>
+          <Label for="name" className="fw-bold">Name:</Label>
+          <Input
+            id="name"
+            name="name"
+            placeholder="John Doe"
+            type="text"
+            onChange={(e) => setName(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup row>
+          <Label for="email" className="fw-bold">Email:</Label>
+          <Input
+            id="email"
+            name="email"
+            placeholder="johndoe@example.com"
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup row>
+          <Label for="password" className="fw-bold">Password:</Label>
+          <Input
+            id="password"
+            name="password"
+            placeholder="password"
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup row>
+          <Label for="confirmPassword" className="fw-bold">Confirm Password:</Label>
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="password"
+            type="password"
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </FormGroup>
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        <Button color="primary" block>Sign Up</Button>
+      </Form>
+      <p>Already have an account? <a href="/login">Login here</a>.</p>
+    </div>
+  );
+};
+
 
 export const SignUpAsMentor = () => {
     return (
