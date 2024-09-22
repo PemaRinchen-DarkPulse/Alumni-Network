@@ -198,99 +198,49 @@ export const FilterComponent = ({ events, setFilteredEvents }) => {
     const eventTypes = ['Meeting', 'Workshop', 'Webinar', 'Social'];
     const times = ['Morning', 'Afternoon', 'Evening'];
 
-    const handleFilter = () => {
-        const filtered = events.filter(event => {
-            const matchesDay = selectedDay ? event.day === selectedDay : true;
-            const matchesType = selectedType ? event.type === selectedType : true;
-            const matchesTime = selectedTime ? event.time === selectedTime : true;
-
-            return matchesDay && matchesType && matchesTime;
-        });
-
-        setFilteredEvents(filtered);
-    };
-
-    const styles = {
-        filterContainer: {
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
+    const style = {
+        card: {
             padding: '20px',
-            backgroundColor: '#f9f9f9',
+            backgroundColor: '#f8f9fa',
             borderRadius: '8px',
-            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-            margin: '20px 0',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+            marginBottom: '20px',
         },
-        filterTitle: {
-            fontSize: '1.5rem',
-            marginBottom: '15px',
-            color: '#333',
-        },
-        filterDropdowns: {
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '10px',
-            marginBottom: '15px',
-        },
-        filterSelect: {
-            padding: '10px',
-            fontSize: '1rem',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            outline: 'none',
-            transition: 'border 0.3s',
-        },
-        filterButton: {
-            padding: '10px 15px',
-            fontSize: '1rem',
-            color: '#fff',
-            backgroundColor: '#007bff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s',
+        button: {
+            marginLeft: '10px',
         },
     };
 
     return (
-        <div style={styles.filterContainer}>
-            <div style={styles.filterDropdowns}>
-                <h1 className='text-start'>Upcoming Events</h1>
-                <select
-                    style={styles.filterSelect}
-                    value={selectedDay}
-                    onChange={e => setSelectedDay(e.target.value)}
-                >
-                    <option value="">Select Day</option>
-                    {days.map(day => (
-                        <option key={day} value={day}>{day}</option>
-                    ))}
-                </select>
+        <div style={style.card} className="card">
+            <div className="d-flex align-items-center mb-3">
+                <h1 className="col-5 text-start ms-3">Upcoming Events</h1>
+                <div className="d-flex gap-3 justify-content-between">
+                    <select className="form-select" style={{ width: 'auto' }} value={selectedDay} onChange={e => setSelectedDay(e.target.value)}>
+                        <option value="">Select Day</option>
+                        {days.map(day => (
+                            <option key={day} value={day}>{day}</option>
+                        ))}
+                    </select>
 
-                <select
-                    style={styles.filterSelect}
-                    value={selectedType}
-                    onChange={e => setSelectedType(e.target.value)}
-                >
-                    <option value="">Select Event Type</option>
-                    {eventTypes.map(type => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-                </select>
+                    <select className="form-select" style={{ width: 'auto' }} value={selectedType} onChange={e => setSelectedType(e.target.value)}>
+                        <option value="">Select Event Type</option>
+                        {eventTypes.map(type => (
+                            <option key={type} value={type}>{type}</option>
+                        ))}
+                    </select>
 
-                <select
-                    style={styles.filterSelect}
-                    value={selectedTime}
-                    onChange={e => setSelectedTime(e.target.value)}
-                >
-                    <option value="">Select Time</option>
-                    {times.map(time => (
-                        <option key={time} value={time}>{time}</option>
-                    ))}
-                </select>
-                <button style={styles.filterButton} onClick={handleFilter}>
-                    Filter
-                </button>
+                    <select className="form-select" style={{ width: 'auto' }}bvalue={selectedTime} onChange={e => setSelectedTime(e.target.value)}>
+                        <option value="">Select Time</option>
+                        {times.map(time => (
+                            <option key={time} value={time}>{time}</option>
+                        ))}
+                    </select>
+
+                    <button className="btn btn-primary" style={style.button}>
+                        Filter
+                    </button>
+                </div>
             </div>
         </div>
     );
