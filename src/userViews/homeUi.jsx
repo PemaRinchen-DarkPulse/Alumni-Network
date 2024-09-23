@@ -1,7 +1,6 @@
 import React from "react";
-import { useNavigate } from 'react-router-dom';
 import Header from "../components/navbarFooter/header";
-import { MyHero, About, GetInvolved } from "../components/hero/hero";
+import { MyHero, About, GetInvolved, Newsletter } from "../components/hero/hero";
 import { News, Events } from "../components/cards/mycard";
 import Footer from "../components/navbarFooter/footer";
 
@@ -12,11 +11,13 @@ function HomeUi({ isLoggedIn }) {
       <MyHero />
       <About />
       <News />
+      
+      {/* Conditionally render based on login status */}
+      {!isLoggedIn ? <GetInvolved /> : <Newsletter />}
+      
       <Events />
-      <GetInvolved />
       <Footer />
     </>
   );
 }
-
 export default HomeUi;

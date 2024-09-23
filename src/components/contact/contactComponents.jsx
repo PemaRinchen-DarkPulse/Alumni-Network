@@ -49,7 +49,7 @@ const Contact = () => {
             </Container>
 
             {/* Full-screen Map */}
-            <div className="map-fullscreen">
+            <div className="map-fullscreen mb-5">
                 <iframe 
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3565.989275221594!2d89.433769!3d27.3298568!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39e18300666868a7%3A0x1bd738cb644205f1!2sDungkar%20Dzong!5e0!3m2!1sen!2sbt!4v1692618762927!5m2!1sen!2sbt" 
                     width="100%" 

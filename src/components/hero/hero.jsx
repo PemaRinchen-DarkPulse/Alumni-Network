@@ -1,7 +1,9 @@
 import React from "react";
 import { Button } from "reactstrap";
 import "./style.css";
-
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Form,FormGroup,Input } from "reactstrap";
 // MyHero Component
 export const MyHero = () => {
     return (
@@ -23,8 +25,8 @@ export const MyHero = () => {
                     fresh avenues for growth, and stay updated on the latest innovations and groundbreaking research
                     emanating from the Royal Academy.
                 </h5>
-                <Button>Join Mentoring Program</Button>{" "}
-                <Button>View Upcoming Events</Button>
+                <Link to={"/mentoring"}><Button>Join Mentoring Program</Button></Link>
+                <Link to={"/events"}><Button>View Upcoming Events</Button></Link>
             </div>
         </section>
     );
@@ -33,28 +35,42 @@ export const MyHero = () => {
 // GetInvolved Component
 export const GetInvolved = () => {
     return (
-        <div className="cta-section mt-5">
+        <div className="cta-section mt-5 py-5 bg-secondary text-center mb-5">
             <div className="container">
-                <h2 color="primary">Get Involved Today</h2>
-                <p>Whether you’re looking to mentor a student, attend an event, or simply reconnect with fellow alumni, our network has something for everyone.</p>
-                <Button color="primary" outline>Join the Alumni Network</Button>
+                <h2 className="text-white mb-4 display-4 font-weight-bold">Get Involved Today</h2>
+                <p className="lead mb-4 text-light px-3">
+                    Whether you’re looking to mentor a student, attend an event, or simply reconnect with fellow alumni, 
+                    our network offers something for everyone.
+                </p>
+                <Link to={"/login"}>
+                    <Button color="primary" size="lg" className="px-5 py-3 shadow-lg">
+                        Join the Alumni Network
+                    </Button>
+                </Link>
             </div>
         </div>
     );
 }
-
 // About Component
 export const About = () => {
     return (
-        <section className="about">
-            <div className="container about">
-                <h2>About the Alumni Network</h2>
-                <p>Our Alumni Network is dedicated to fostering lifelong connections among our graduates. We aim to support professional growth, provide mentoring opportunities, and build a strong community that continues to thrive long after graduation.</p>
-                <a href="about.html" className="cta-link">Learn More</a>
+        <section className="about py-5 bg-light mb-5">
+            <div className="container text-center">
+                <h2 className="mb-4 display-4 font-weight-bold">About the Alumni Network</h2>
+                <p className="lead mb-4 text-muted">
+                    Our Alumni Network is dedicated to fostering lifelong connections among our graduates. We aim to support professional growth, 
+                    provide mentoring opportunities, and build a strong community that continues to thrive long after graduation.
+                </p>
+                <Link to={"/aboutus"}>
+                    <Button color="primary" size="lg" className="px-5 py-3 shadow-lg">
+                        Learn More
+                    </Button>
+                </Link>
             </div>
         </section>
     );
 }
+
 
 // MentoringHeader Component
 export const MentoringHeader = () => {
@@ -75,5 +91,42 @@ export const MatchingProcess = () => {
             <h3>How the Matching Process Works</h3>
             <p>Our coordinators will review your application and match you with a suitable mentor or mentee based on your preferences and availability.</p>
         </div>
+    );
+}
+
+export const Newsletter = () => {
+    const [email, setEmail] = useState('');
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Handle the email submission (e.g., send to backend or API)
+        alert(`Thank you for subscribing with: ${email}`);
+        setEmail(''); // Clear input after submission
+    };
+
+    return (
+        <section className="newsletter py-5 bg-secondary text-white text-center mb-5">
+            <div className="container">
+                <h2 className="mb-4 display-4 font-weight-bold">Join Our Newsletter</h2>
+                <p className="lead mb-4">
+                    Stay updated with the latest news, events, and updates from our Alumni Network. Sign up to our newsletter today!
+                </p>
+                <Form onSubmit={handleSubmit} className="d-flex justify-content-center">
+                    <FormGroup className="d-flex">
+                        <Input 
+                            type="email"
+                            placeholder="Enter your email"
+                            className="form-control-lg"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        <Button type="submit" color="primary" size="lg" className="ml-2 px-4">
+                            Subscribe
+                        </Button>
+                    </FormGroup>
+                </Form>
+            </div>
+        </section>
     );
 }
