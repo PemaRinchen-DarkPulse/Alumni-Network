@@ -3,10 +3,17 @@ import { Link } from "react-router-dom";
 import 'font-awesome/css/font-awesome.min.css'; // Import Font Awesome CSS
 
 const Header = ({ isLoggedIn }) => {
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isAlumniHubOpen, setAlumniHubOpen] = useState(false);
+  const [isProfileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!isDropdownOpen);
+  const toggleAlumniHubDropdown = () => {
+    setAlumniHubOpen(!isAlumniHubOpen);
+    setProfileDropdownOpen(false); // Close the profile dropdown if it's open
+  };
+
+  const toggleProfileDropdown = () => {
+    setProfileDropdownOpen(!isProfileDropdownOpen);
+    setAlumniHubOpen(false); // Close the alumni hub dropdown if it's open
   };
 
   return (
@@ -16,19 +23,30 @@ const Header = ({ isLoggedIn }) => {
         <nav>
           <ul>
             <li><Link to="/">Home</Link></li>
-            <li><Link to="/directory">Directory</Link></li>
+            <li className="directory">
+              <Link to="#" onClick={toggleAlumniHubDropdown}>
+                Directory
+              </Link>
+              {isAlumniHubOpen && (
+                <div className="dropdown alumni-hub-dropdown">
+                  <Link to="/directory/alumni">Connect With Alumni</Link>
+                  <Link to="/directory/connection">My Connection</Link>
+                  <Link to="/directory/forum">Discussion Forum</Link>
+                </div>
+              )}
+            </li>
             <li><Link to="/events">Events</Link></li>
             <li><Link to="/mentoring">Mentoring</Link></li>
             <li><Link to="/news">News</Link></li>
             <li><Link to="/contact">Contact</Link></li>
             <li><Link to="/aboutus">About Us</Link></li>
             {isLoggedIn ? (
-              <li className="profile-icon">
-                <Link to="#" onClick={toggleDropdown}>
+              <li className="profile-icon" onClick={toggleProfileDropdown}>
+                <Link to="#">
                   <i className="fa fa-user"></i>
                 </Link>
-                {isDropdownOpen && (
-                  <div className="dropdown">
+                {isProfileDropdownOpen && (
+                  <div className="dropdown profile-dropdown">
                     <Link to="/settings">Settings</Link>
                     <Link to="/logout">Log Out</Link>
                   </div>

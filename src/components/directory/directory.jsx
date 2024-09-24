@@ -1,50 +1,82 @@
-// src/App.js
 import React, { useState } from 'react';
-import './style.css';
+import './style.css'; // Make sure to import your CSS file
+
+const alumniData = [
+  {
+    id: 1,
+    name: 'Jane Doe',
+    graduationYear: 2015,
+    degree: 'Computer Science',
+    jobTitle: 'Software Engineer',
+    company: 'TechCorp',
+    location: 'San Francisco, CA',
+    bio: 'A passionate software developer specializing in frontend technologies.',
+    skills: ['JavaScript', 'React', 'CSS'],
+    profilePic: 'https://via.placeholder.com/150',
+  },
+  {
+    id: 2,
+    name: 'John Smith',
+    graduationYear: 2017,
+    degree: 'Business Administration',
+    jobTitle: 'Product Manager',
+    company: 'BizInc',
+    location: 'New York, NY',
+    bio: 'Experienced in product development and project management.',
+    skills: ['Project Management', 'Leadership', 'Agile'],
+    profilePic: 'https://via.placeholder.com/150',
+  },
+  {
+    id: 3,
+    name: 'Alice Johnson',
+    graduationYear: 2016,
+    degree: 'Marketing',
+    jobTitle: 'Marketing Specialist',
+    company: 'BrandCorp',
+    location: 'Los Angeles, CA',
+    bio: 'Creative marketer with a focus on digital branding strategies.',
+    skills: ['SEO', 'Social Media', 'Content Marketing'],
+    profilePic: 'https://via.placeholder.com/150',
+  },
+  // Add more alumni data here
+];
 
 export const AlumniDirectory = () => {
-  const initialAlumni = [
-    { id: 1, name: 'Alice Johnson', age: 28 },
-    { id: 2, name: 'Bob Smith', age: 30 },
-    { id: 3, name: 'Charlie Brown', age: 25 },
-    { id: 4, name: 'David Wilson', age: 35 },
-    { id: 5, name: 'Eve Davis', age: 29 },
-  ];
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const [alumni, setAlumni] = useState(initialAlumni);
-  const [filter, setFilter] = useState('');
-
-  const deleteAlumnus = (id) => {
-    setAlumni(alumni.filter(alumnus => alumnus.id !== id));
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
   };
 
-  const filteredAlumni = alumni.filter(alumnus =>
-    alumnus.name.toLowerCase().includes(filter.toLowerCase())
+  const filteredAlumni = alumniData.filter(
+    (alumni) =>
+      alumni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      alumni.graduationYear.toString().includes(searchTerm)
   );
 
   return (
-    <div className="container">
-      <h1>Alumni Directory</h1>
-      <div className="filter-container">
-        <input
-          type="text"
-          placeholder="Filter by Name"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="filter-input"
-        />
-      </div>
-      <div className="alumni-grid">
-        {filteredAlumni.map(alumnus => (
-          <div key={alumnus.id} className="alumni-card">
-            <div className="alumni-info">
-              <span className="alumni-name">{alumnus.name}</span>
-              <span className="alumni-age"> (Age: {alumnus.age})</span>
-            </div>
-            <div className="button-container">
-              <button className="action-button">View Profile</button>
-              <button className="action-button connect-button">Connect</button>
-              <button className="delete-button" onClick={() => deleteAlumnus(alumnus.id)}>Delete</button>
+    <div className="directory-container">
+      <h1 className="directory-header" style={{marginTop:"60px"}}>Alumni Directory</h1>
+      <input
+        type="text"
+        placeholder="Search by name or graduation year"
+        value={searchTerm}
+        onChange={handleSearch}
+        className="search-bar"
+      />
+
+      <div className="alumni-list">
+        {filteredAlumni.map((alumni) => (
+          <div key={alumni.id} className="alumni-card">
+            <img src={alumni.profilePic} alt={alumni.name} className="profile-pic" />
+            <div className="alumni-details">
+              <h2>{alumni.name}</h2>
+              <p className="graduation-year"><strong>Class of {alumni.graduationYear}</strong></p>
+              <p className="degree">{alumni.degree}</p>
+              <p className="job">{alumni.jobTitle} at {alumni.company}</p>
+              <p className="location">{alumni.location}</p>
+              <p className="bio">{alumni.bio}</p>
+              <button className="connect-button">Connect</button>
             </div>
           </div>
         ))}
@@ -53,10 +85,18 @@ export const AlumniDirectory = () => {
   );
 };
 
-export const Random=()=>{
-  return (
-    <div className='Hello'>
-      peasdasd
+export const AlumniMessage=()=>{
+  return(
+    <div >
+      <h1 style={{marginTop:"75px"}}>My message</h1>
     </div>
-  );
+  )
+}
+
+export const AlumniForum=()=>{
+  return(
+    <div >
+      <h1 style={{marginTop:"75px"}}>My Forum</h1>
+    </div>
+  )
 }

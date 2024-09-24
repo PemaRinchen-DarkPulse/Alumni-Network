@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomeUi from './userViews/homeUi.jsx';
-import DirectoryUi from './userViews/directoryUi.jsx';
+import DirectoryUi from './userViews/directoryUi.jsx'; // Keep the DirectoryUi import
 import MentoringUi from './userViews/mentoringUi.jsx';
 import EventsUi from './userViews/eventsUi.jsx';
 import NewsUi from './userViews/newsUi.jsx';
@@ -23,7 +22,7 @@ function App() {
         <Route path='/contact' element={<ContactUi isLoggedIn={isLoggedIn} />} />
         <Route path='/aboutus' element={<AboutUsUi isLoggedIn={isLoggedIn} />} />
         <Route path='/login' element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path='/directory' element={isLoggedIn ? <DirectoryUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
+        <Route path='/directory/*' element={isLoggedIn ? <DirectoryUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
         <Route path='/mentoring' element={isLoggedIn ? <MentoringUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
         <Route path='/register' element={<SignUp />} />
       </Routes>

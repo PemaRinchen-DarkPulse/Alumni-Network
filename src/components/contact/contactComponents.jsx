@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Card, CardBody, CardTitle, CardText, Button, Form, FormGroup, Label, Input } from 'reactstrap';
-import './Contact.css';  // Assuming you have an external CSS file for styling
+import './style.css';  // Assuming you have an external CSS file for styling
 
 const Contact = () => {
     return (

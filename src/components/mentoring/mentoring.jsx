@@ -3,7 +3,7 @@ import Header from "./header";
 import Footer from "./footer";
 import { MatchingProcess, MentoringHeader } from "./hero";
 import { SignUpAsMentee, SignUpAsMentor } from "./userAuthentication";
-
+import './style.css'
 function Mentoring() {
     const [showMentorForm, setShowMentorForm] = useState(true); // State to toggle forms
 

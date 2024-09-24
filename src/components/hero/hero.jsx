@@ -25,7 +25,7 @@ export const MyHero = () => {
                     fresh avenues for growth, and stay updated on the latest innovations and groundbreaking research
                     emanating from the Royal Academy.
                 </h5>
-                <Link to={"/mentoring"}><Button>Join Mentoring Program</Button></Link>
+                <Link to={"/mentoring"}><Button>Join Mentoring Program</Button></Link>{" "}
                 <Link to={"/events"}><Button>View Upcoming Events</Button></Link>
             </div>
         </section>
@@ -121,7 +121,7 @@ export const Newsletter = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
-                        <Button type="submit" color="primary" size="lg" className="ml-2 px-4">
+                        <Button type="submit" color="primary" size="lg" className="ml-2 px-4 ms-2">
                             Subscribe
                         </Button>
                     </FormGroup>

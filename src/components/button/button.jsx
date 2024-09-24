@@ -1,5 +1,5 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 export const PrevButton = ({ onClick, disabled }) => {
   return (
     <button
@@ -23,3 +23,14 @@ export const NextButton = ({ onClick, disabled }) => {
     </button>
   );
 };
+
+export const MyDropdown = () => {
+  return (
+    <div className="dropdown">
+      <Link to="/option1">Option 1</Link>
+      <Link to="/option2">Option 2</Link>
+      {/* Add more options as needed */}
+    </div>
+  );
+};
+

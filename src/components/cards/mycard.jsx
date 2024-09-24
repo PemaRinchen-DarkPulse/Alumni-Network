@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardTitle, CardText, Row, Col, CardBody, CardSubtitle } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { NextButton, PrevButton } from '../button/button';
-
+import './style.css'
 // Utility function to truncate text
 const truncateText = (text, length) => {
   return text.length > length ? text.substring(0, length) + '...' : text;

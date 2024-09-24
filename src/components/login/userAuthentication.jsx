@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Form, FormGroup, Label, Button, Input } from "reactstrap";
 import axios from "axios";
-
+import './style.css'
 export const Login = ({ setIsLoggedIn }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
