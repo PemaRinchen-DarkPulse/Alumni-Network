@@ -23,7 +23,7 @@ function App() {
         <Route path='/aboutus' element={<AboutUsUi isLoggedIn={isLoggedIn} />} />
         <Route path='/login' element={<Login setIsLoggedIn={setIsLoggedIn} />} />
         <Route path='/directory/*' element={isLoggedIn ? <DirectoryUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
-        <Route path='/mentoring' element={isLoggedIn ? <MentoringUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
+        <Route path='/mentoring/*' element={isLoggedIn ? <MentoringUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
         <Route path='/register' element={<SignUp />} />
       </Routes>
     </BrowserRouter>

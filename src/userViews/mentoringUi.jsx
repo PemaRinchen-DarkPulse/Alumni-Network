@@ -1,26 +1,20 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { useLocation, Outlet } from "react-router-dom";
 import Header from '../components/navbarFooter/header';
 import Footer from '../components/navbarFooter/footer';
-
+import { AlumniDirectory, AlumniForum, AlumniMessage } from "../components/directory/directory";
+import { BecomeMentor} from "../components/mentoring/mentor";
+import {Mentee} from "../components/mentoring/mentee";
 const MentoringUi = ({ isLoggedIn }) => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      console.log("Redirecting to login from:", window.location.pathname); // Log the current path
-      navigate('/login', { state: { from: window.location.pathname } });
-    }
-  }, [isLoggedIn, navigate]);
+  const location = useLocation();
 
   return (
     <>
       <Header isLoggedIn={isLoggedIn} />
-      <div style={{ height: "100vh" }}>
-        <h1 style={{ marginTop: "100px" }}>
-          Mentoring: Registration page or dashboard depending on user role
-        </h1>
-      </div>
+      {location.pathname === '/mentoring/becomeMentor' && <BecomeMentor />}
+      {location.pathname === '/mentoring/becomeMentee' && <Mentee />}
+      {/* The Outlet will render nested routes if necessary */}
+      <Outlet />
       <Footer />
     </>
   );

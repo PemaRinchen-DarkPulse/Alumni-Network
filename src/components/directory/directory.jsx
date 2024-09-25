@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './style.css'; // Make sure to import your CSS file
+import {UserFilter} from '../mentoring/mentee';
 
 const alumniData = [
   {
@@ -57,13 +58,7 @@ export const AlumniDirectory = () => {
   return (
     <div className="directory-container">
       <h1 className="directory-header" style={{marginTop:"60px"}}>Alumni Directory</h1>
-      <input
-        type="text"
-        placeholder="Search by name or graduation year"
-        value={searchTerm}
-        onChange={handleSearch}
-        className="search-bar"
-      />
+      <UserFilter/>
 
       <div className="alumni-list">
         {filteredAlumni.map((alumni) => (

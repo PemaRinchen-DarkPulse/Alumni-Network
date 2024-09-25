@@ -1,163 +1,123 @@
-/* Navbar Stylesing Strat from Here*/
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem 0;
-    position: fixed;
-    z-index: 100;
-    width: 100%;
+.hero-title {
+  font-size: 36px;
+  margin-bottom: 10px;
 }
 
-header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 1rem;
+.hero-description {
+  font-size: 18px;
+  margin-top: 20px;
 }
 
-header h1 {
-    margin: 0;
+.form-container {
+  background-color: white;
+  /* White background for form */
+  border-radius: 8px;
+  /* Rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
+  padding: 40px;
+  margin: 40px auto;
+  max-width: 600px;
+  /* Center and constrain width */
 }
 
-nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
+.form-title {
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
 }
 
-nav ul li {
-    margin-left: 1rem;
+.formGroup {
+  margin-bottom: 20px;
 }
 
-nav ul li a {
-    color: #fff;
-    text-decoration: none;
+label {
+  font-weight: bold;
 }
-/* Navbar Stylesing Ends Here*/
+
+textarea {
+  resize: none;
+  /* Disable resizing */
+}
+
+button {
+  font-size: 18px;
+}
 
 
-/* Hero STyling Start */
-.pema {
-    background-color: rgba(255, 255, 255, 0.8);
-    max-width: 800px;
+.mentor-directory-container {
+  padding: 20px;
+}
+
+.mentor-directory-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.filter-container {
+  margin-bottom: 20px;
+}
+
+.mentor-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  /* Dynamic columns */
+  gap: 20px;
+  /* Space between cards */
+}
+
+.mentor-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+  text-align: center;
+  /* Center align text and elements inside the card */
+}
+
+.mentor-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.mentor-profile-pic {
+  width: 175px;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  /* Center the image and add margin below */
+  display: block;
+  /* Ensures the image behaves as a block element */
+}
+
+.mentor-details {
+  text-align: center;
+}
+
+.mentor-connect-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.mentor-connect-button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mentor-list {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    /* Adjusts for smaller screens */
   }
-.hero {
-
-    padding: 2rem 0;
-}
-.hero .container {
-    text-align: center;
 }
 
-.hero h2 {
-    margin: 0;
-}
-
-/* hero Styling End */
-.about {
-    padding: 3rem 1rem;
-    text-align: center;
-}
-
-.about h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-}
-
-.about p {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-}
-
-.cta-link {
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.3s;
-    color: black;
-}
-
-.featured-news {
-    padding: 3rem 1rem;
-}
-
-.featured-news h2 {
-    font-size: 2rem;
-    text-align: center;
-    color: #007bff;
-    margin-bottom: 2rem;
-}
-
-.news-grid {
-    display: flex;
-    gap: 20px;
-    justify-content: space-around;
-}
-
-.news-grid article {
-    flex: 1;
-    background-color: #f9f9f9;
-    padding: 1.5rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.news-grid h3 {
-    color: #007bff;
-    margin-bottom: 1rem;
-}
-
-.news-grid p {
-    color: #555;
-    margin-bottom: 1rem;
-}
-
-.news-grid a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s;
-}
-
-.news-grid a:hover {
-    color: #0056b3;
-}
-
-
-footer {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem 0;
-    text-align: center;
-}
-
-footer a {
-    color: #fff;
-    text-decoration: none;
-}
-
-footer a:hover {
-    text-decoration: underline;
-}
-
-.myLink {
-    text-align: left;  /* Aligns text to the left */
-    display: block;    /* Makes the button fill its container width */
-    padding-left: 0;   /* Removes left padding for closer alignment */
+@media (max-width: 480px) {
+  .mentor-list {
+    grid-template-columns: 1fr;
+    /* 1 card per row on extra small screens */
   }
-  
-
-  .auth-container {
-    max-width: 400px;
-    margin: 100px auto;
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-
-.about, .UpcomingEvents{
-    background-color: #f0f0f0;
 }
