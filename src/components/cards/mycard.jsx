@@ -11,6 +11,7 @@ const truncateText = (text, length) => {
 
 // News Component
 export const News = () => {
+  // Dummy Data 
   const newsData = [
     {
       title: "Alumni Spotlight: Jane Smith",
@@ -74,15 +75,13 @@ export const News = () => {
       setStartIndex(startIndex - newsPerPage); // Decrement by newsPerPage
     }
   };
-
   // Slice the news data to display only the items for the current page
   const displayedNews = newsData.slice(startIndex, startIndex + newsPerPage);
-
   return (
     <section className="container mb-5">
       <div className='d-flex justify-content-between align-items-center mb-1'>
-        <h3 className="ms-2 color-primary font-weight-bold">Recent News</h3>
-        <Link to={"/news"} className='me-4 font-weight-bold'>See All</Link>
+        <h3 className="ms-1 ms-md-5 color-primary font-weight-bold">Recent News</h3>
+        <Link to={"/news"} className='font-weight-bold me-2 me-md-5'>See All</Link>
       </div>
 
       <div className="d-flex align-items-center justify-content-between">
@@ -112,10 +111,9 @@ export const News = () => {
   );
 };
 
-
-
 // Events Component
 export const Events = () => {
+  // Dummy Data
   const eventsData = [
     { title: "Event Title 1", date: "September 20, 2024", description: "Details about the event. Random notes can serve as a flexible tool for capturing ideas, reminders, or brainstorming sessions. They don't require structure or order, making them ideal for jotting down quick thoughts before they slip away. For example, you might record ideas for a project, important tasks, or questions to research later. Random notes can help organize fragmented ideas and may later be expanded into more comprehensive content. Over time, they can serve as a creative reservoir, sparking new insights or clarifying complex concepts. The beauty of random notes lies in their adaptability and ease of use...", imgUrl: "https://picsum.photos/318/180" },
     { title: "Event Title 2", date: "October 5, 2024", description: "Details about the event...", imgUrl: "https://picsum.photos/318/180" },
@@ -123,10 +121,8 @@ export const Events = () => {
     { title: "Event Title 4", date: "October 15, 2024", description: "Details about the event...", imgUrl: "https://picsum.photos/318/180" },
     { title: "Event Title 5", date: "October 20, 2024", description: "Details about the event...", imgUrl: "https://picsum.photos/318/180" },
   ];
-
   const [startIndex, setStartIndex] = useState(0);
   const [eventsPerPage, setEventsPerPage] = useState(getEventsPerPage());
-
   // Function to determine the number of events per page based on screen width
   function getEventsPerPage() {
     const width = window.innerWidth;
@@ -138,15 +134,12 @@ export const Events = () => {
       return 3; // Desktop - 3 events per page
     }
   }
-
   // Update eventsPerPage when window is resized
   useEffect(() => {
     const handleResize = () => {
       setEventsPerPage(getEventsPerPage());
     };
-
     window.addEventListener('resize', handleResize);
-
     // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -170,8 +163,8 @@ const displayedEvents = eventsData.slice(startIndex, startIndex + eventsPerPage)
 return (
   <section className="container mb-5">
     <div className='d-flex justify-content-between align-items-center mb-1'>
-      <h3 className="ms-5 color-primary font-weight-bold">Upcoming Events</h3>
-      <Link to={"/events"} className='me-5 font-weight-bold'>See All</Link>
+      <h3 className="ms-1 ms-md-5 color-primary font-weight-bold">Upcoming Events</h3>
+      <Link to={"/events"} className='me-1 me-md-5 font-weight-bold'>See All</Link>
     </div>
 
     <div className="d-flex align-items-center justify-content-between">
@@ -196,10 +189,7 @@ return (
       </div>
 
       {/* Next Button */}
-      <NextButton
-        onClick={handleNext}
-        disabled={startIndex + eventsPerPage >= eventsData.length}
-      />
+      <NextButton onClick={handleNext} disabled={startIndex + eventsPerPage >= eventsData.length}/>
     </div>
   </section>
 );
