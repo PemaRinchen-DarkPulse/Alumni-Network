@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Card, CardTitle, CardText, Row, Col, CardBody, CardSubtitle } from 'reactstrap';
+import React, { useState, useEffect } from 'react'; 
+import { Card, CardTitle, CardText, CardBody,CardSubtitle } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { NextButton, PrevButton } from '../button/button';
-import './style.css'
+import './style.css';
+
 // Utility function to truncate text
 const truncateText = (text, length) => {
   return text.length > length ? text.substring(0, length) + '...' : text;
@@ -13,7 +14,7 @@ export const News = () => {
   const newsData = [
     {
       title: "Alumni Spotlight: Jane Smith",
-      content: "Jane Smith, Class of 2015, shares her journey from student to CEO of a leading tech startup Random notes can serve as a flexible tool for capturing ideas, reminders, or brainstorming sessions. They don't require structure or order, making them ideal for jotting down quick thoughts before they slip away. For example, you might record ideas for a project, important tasks, or questions to research later. Random notes can help organize fragmented ideas and may later be expanded into more comprehensive content. Over time, they can serve as a creative reservoir, sparking new insights or clarifying complex concepts. The beauty of random notes lies in their adaptability and ease of use..",
+      content: "Jane Smith, Class of 2015, shares her journey from student to CEO of a leading tech startup Random notes can serve as a flexible tool for capturing ideas, reminders, or brainstorming sessions...",
     },
     {
       title: "Alumni Spotlight: John Doe",
@@ -30,21 +31,51 @@ export const News = () => {
   ];
 
   const maxContentLength = 100;
+  
   const [startIndex, setStartIndex] = useState(0);
-  const newsPerPage = 3;
+  const [newsPerPage, setNewsPerPage] = useState(getNewsPerPage());
 
+  // Function to determine the number of news items per page based on screen width
+  function getNewsPerPage() {
+    const width = window.innerWidth;
+    if (width < 768) {
+      return 3; // Mobile - 3 news item per page
+    } else if (width >= 768 && width < 992) {
+      return 2; // Tablet - 2 news items per page
+    } else {
+      return 3; // Desktop - 3 news items per page
+    }
+  }
+
+  // Update newsPerPage when window is resized
+  useEffect(() => {
+    const handleResize = () => {
+      setNewsPerPage(getNewsPerPage());
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Handle next button click
   const handleNext = () => {
     if (startIndex + newsPerPage < newsData.length) {
-      setStartIndex(startIndex + 1);
+      setStartIndex(startIndex + newsPerPage); // Increment by newsPerPage
     }
   };
 
+  // Handle previous button click
   const handlePrev = () => {
     if (startIndex > 0) {
-      setStartIndex(startIndex - 1);
+      setStartIndex(startIndex - newsPerPage); // Decrement by newsPerPage
     }
   };
 
+  // Slice the news data to display only the items for the current page
   const displayedNews = newsData.slice(startIndex, startIndex + newsPerPage);
 
   return (
@@ -55,13 +86,11 @@ export const News = () => {
       </div>
 
       <div className="d-flex align-items-center justify-content-between">
-        {/* Previous Button */}
         <PrevButton onClick={handlePrev} disabled={startIndex === 0} />
 
-        {/* News Cards */}
         <div className="row">
           {displayedNews.map((news, index) => (
-            <div className="col-4" key={index}>
+            <div className="col-12 col-md-6 col-lg-4 mb-3" key={index}>
               <Card body style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '250px' }}>
                 <CardBody style={{ flexGrow: 1 }}>
                   <CardTitle tag="h5" className="fw-bold" style={{ minHeight: '60px' }}>
@@ -77,15 +106,13 @@ export const News = () => {
           ))}
         </div>
 
-        {/* Next Button */}
-        <NextButton
-          onClick={handleNext}
-          disabled={startIndex + newsPerPage >= newsData.length}
-        />
+        <NextButton onClick={handleNext} disabled={startIndex + newsPerPage >= newsData.length} />
       </div>
     </section>
   );
 };
+
+
 
 // Events Component
 export const Events = () => {
@@ -98,56 +125,82 @@ export const Events = () => {
   ];
 
   const [startIndex, setStartIndex] = useState(0);
-  const eventsPerPage = 3;
+  const [eventsPerPage, setEventsPerPage] = useState(getEventsPerPage());
 
-  const handleNext = () => {
-    if (startIndex + eventsPerPage < eventsData.length) {
-      setStartIndex(startIndex + 1);
+  // Function to determine the number of events per page based on screen width
+  function getEventsPerPage() {
+    const width = window.innerWidth;
+    if (width < 768) {
+      return 3; // Mobile - 1 event per page
+    } else if (width >= 768 && width < 992) {
+      return 2; // Tablet - 2 events per page
+    } else {
+      return 3; // Desktop - 3 events per page
     }
-  };
+  }
 
-  const handlePrev = () => {
-    if (startIndex > 0) {
-      setStartIndex(startIndex - 1);
-    }
-  };
+  // Update eventsPerPage when window is resized
+  useEffect(() => {
+    const handleResize = () => {
+      setEventsPerPage(getEventsPerPage());
+    };
 
-  const displayedEvents = eventsData.slice(startIndex, startIndex + eventsPerPage);
+    window.addEventListener('resize', handleResize);
 
-  return (
-    <section className="container mb-5">
-      <div className='d-flex justify-content-between align-items-center mb-1'>
-        <h3 className="ms-5 color-primary font-weight-bold">Upcoming Events</h3>
-        <Link to={"/events"} className='me-5 font-weight-bold'>See All</Link>
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+const handleNext = () => {
+  if (startIndex + eventsPerPage < eventsData.length) {
+    setStartIndex(startIndex + 1);
+  }
+};
+
+const handlePrev = () => {
+  if (startIndex > 0) {
+    setStartIndex(startIndex - 1);
+  }
+};
+
+const displayedEvents = eventsData.slice(startIndex, startIndex + eventsPerPage);
+
+return (
+  <section className="container mb-5">
+    <div className='d-flex justify-content-between align-items-center mb-1'>
+      <h3 className="ms-5 color-primary font-weight-bold">Upcoming Events</h3>
+      <Link to={"/events"} className='me-5 font-weight-bold'>See All</Link>
+    </div>
+
+    <div className="d-flex align-items-center justify-content-between">
+      {/* Previous Button */}
+      <PrevButton onClick={handlePrev} disabled={startIndex === 0} />
+      <div className="row">
+        {displayedEvents.map((event, index) => (
+          <div className="col-12 col-md-6 col-lg-4 mb-3" key={index}>
+            <Card className="event-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '500px' }}>
+              <CardBody style={{ flexGrow: 1 }}>
+                <CardTitle tag="h5" style={{ minHeight: '30px' }}>{event.title}</CardTitle>
+                <CardSubtitle className="text-muted" tag="h6" style={{ minHeight: '10px' }}>{event.date}</CardSubtitle>
+              </CardBody>
+              <img alt="Event" src={event.imgUrl} width="100%" style={{ height: '200px', objectFit: 'cover' }} />
+              <CardBody style={{ flexGrow: 1 }}>
+                <CardText style={{ minHeight: '70px' }}>{truncateText(event.description, 100)}</CardText>
+                <Link to={`/events/${index}`}>Learn More</Link>
+              </CardBody>
+            </Card>
+          </div>
+        ))}
       </div>
 
-      <div className="d-flex align-items-center justify-content-between">
-        {/* Previous Button */}
-        <PrevButton onClick={handlePrev} disabled={startIndex === 0} />
-        <div className="row">
-          {displayedEvents.map((event, index) => (
-            <div className="col-4" key={index}>
-              <Card className="event-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '500px' }}>
-                <CardBody style={{ flexGrow: 1 }}>
-                  <CardTitle tag="h5" style={{ minHeight: '30px' }}>{event.title}</CardTitle>
-                  <CardSubtitle className="text-muted" tag="h6" style={{ minHeight: '10px' }}>{event.date}</CardSubtitle>
-                </CardBody>
-                <img alt="Event" src={event.imgUrl} width="100%" style={{ height: '200px', objectFit: 'cover' }} />
-                <CardBody style={{ flexGrow: 1 }}>
-                  <CardText style={{ minHeight: '70px' }}>{truncateText(event.description, 100)}</CardText>
-                  <Link to={`/events/${index}`}>Learn More</Link>
-                </CardBody>
-              </Card>
-            </div>
-          ))}
-        </div>
-
-        {/* Next Button */}
-        <NextButton
-          onClick={handleNext}
-          disabled={startIndex + eventsPerPage >= eventsData.length}
-        />
-      </div>
-    </section>
-  );
+      {/* Next Button */}
+      <NextButton
+        onClick={handleNext}
+        disabled={startIndex + eventsPerPage >= eventsData.length}
+      />
+    </div>
+  </section>
+);
 };

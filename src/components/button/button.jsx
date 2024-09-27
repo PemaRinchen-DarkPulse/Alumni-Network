@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 export const PrevButton = ({ onClick, disabled }) => {
   return (
     <button
-      className="btn btn-outline-primary"
+      className="btn btn-outline-primary d-none d-md-block"
       onClick={onClick}
       disabled={disabled}
     >
@@ -14,11 +14,7 @@ export const PrevButton = ({ onClick, disabled }) => {
 
 export const NextButton = ({ onClick, disabled }) => {
   return (
-    <button
-      className="btn btn-outline-primary rounded"
-      onClick={onClick}
-      disabled={disabled}
-    >
+    <button className="btn btn-outline-primary rounded d-none d-md-block" onClick={onClick} disabled={disabled}>
       &gt;
     </button>
   );
@@ -29,7 +25,6 @@ export const MyDropdown = () => {
     <div className="dropdown">
       <Link to="/option1">Option 1</Link>
       <Link to="/option2">Option 2</Link>
-      {/* Add more options as needed */}
     </div>
   );
 };
