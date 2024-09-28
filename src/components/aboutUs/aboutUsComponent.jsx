@@ -1,6 +1,6 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { Card, CardBody, CardTitle, CardText } from 'reactstrap';
-
+import { Accordion, AccordionItem, AccordionHeader, AccordionBody } from 'reactstrap'; 
 export const MissionStatement = () => {
     return (
         <Card className="mb-4">
@@ -84,25 +84,39 @@ export const GetInvolved = () => {
 };
 
 export const FAQs = () => {
+    // State to track which accordion item is open
+    const [open, setOpen] = useState('');
+
+    // Toggle function to open/close accordion items
+    const toggle = (id) => {
+        setOpen(open === id ? '' : id); // If the same id is clicked, close it; otherwise, open the clicked one
+    };
+
     return (
         <Card className="mb-4">
             <CardBody>
                 <CardTitle tag="h5">FAQs</CardTitle>
-                <Accordion>
+                <Accordion open={open} toggle={toggle}>
                     <AccordionItem>
-                        <AccordionHeader targetId="1">What events do you organize?</AccordionHeader>
+                        <AccordionHeader targetId="1" onClick={() => toggle('1')}>
+                            What events do you organize?
+                        </AccordionHeader>
                         <AccordionBody accordionId="1">
                             We organize networking events, workshops, and guest speaker sessions throughout the year.
                         </AccordionBody>
                     </AccordionItem>
                     <AccordionItem>
-                        <AccordionHeader targetId="2">How can I update my contact information?</AccordionHeader>
+                        <AccordionHeader targetId="2" onClick={() => toggle('2')}>
+                            How can I update my contact information?
+                        </AccordionHeader>
                         <AccordionBody accordionId="2">
                             You can update your contact information through your profile on our alumni network website.
                         </AccordionBody>
                     </AccordionItem>
                     <AccordionItem>
-                        <AccordionHeader targetId="3">Is there a membership fee?</AccordionHeader>
+                        <AccordionHeader targetId="3" onClick={() => toggle('3')}>
+                            Is there a membership fee?
+                        </AccordionHeader>
                         <AccordionBody accordionId="3">
                             Membership is free for all alumni and faculty members.
                         </AccordionBody>

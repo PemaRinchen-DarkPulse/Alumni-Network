@@ -18,12 +18,20 @@ export const MyHero = () => {
                 alignItems: "center",
                 textAlign: "center"
             }}>
-            <div className="p-4 rounded-4 pema">
+            <div className="d-none d-md-block p-4 rounded-4 pema">
                 <h1>Royal Academy Alumni Network: Bridging Past and Future</h1>
                 <h5>Welcome to the Royal Academy Hub! Immerse yourself in a dynamic community where the
                     spirit of excellence extends far beyond our historic halls. Reconnect with fellow alumni, discover
                     fresh avenues for growth, and stay updated on the latest innovations and groundbreaking research
                     emanating from the Royal Academy.
+                </h5>
+                <Link to={"/mentoring"}><Button>Join Mentoring Program</Button></Link>{" "}
+                <Link to={"/events"}><Button>View Upcoming Events</Button></Link>
+            </div> 
+
+            <div className="d-md-none p-4 rounded-4 pema">
+                <h1>Royal Academy Alumni Network: Bridging Past and Future</h1>
+                <h5>Welcome to the Royal Academy Hub! Reconnect with alumni, explore new opportunities, and stay informed about the latest innovations from the Royal Academy..
                 </h5>
                 <Link to={"/mentoring"}><Button>Join Mentoring Program</Button></Link>{" "}
                 <Link to={"/events"}><Button>View Upcoming Events</Button></Link>
