@@ -47,9 +47,11 @@ const Header = ({ isLoggedIn }) => {
               <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded={isMentorshipOpen}>
                 Mentorship
               </a>
+              {/* show if user is not */}
               <ul className="dropdown-menu">
                 <li><Link to="/mentoring/becomeMentee" className="dropdown-item">Find a Mentor</Link></li>
                 <li><Link to="/mentoring/becomeMentor" className="dropdown-item">Become a Mentor</Link></li>
+                <li><Link to="/mentoring/mentorDashboard" className="dropdown-item">Mentor Dashboard</Link></li>
               </ul>
             </li>
 

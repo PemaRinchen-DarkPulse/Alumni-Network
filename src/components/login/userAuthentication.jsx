@@ -36,27 +36,11 @@ export const Login = ({ setIsLoggedIn }) => {
             <Form onSubmit={handleSubmit}>
                 <FormGroup row>
                     <Label for="email" className="fw-bold">Email:</Label>
-                    <Input
-                        id="email"
-                        name="email"
-                        placeholder="johndoe@example.com"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
+                    <Input id="email" name="email" placeholder="johndoe@example.com" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required/>
                 </FormGroup>
                 <FormGroup row>
                     <Label for="password" className="fw-bold">Password:</Label>
-                    <Input
-                        id="password"
-                        name="password"
-                        placeholder="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                    <Input id="password" name="password" placeholder="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
                 </FormGroup>
                 {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
                 <Button color="primary" block>Log In</Button>
@@ -96,43 +80,19 @@ export const SignUp = () => {
       <Form onSubmit={handleSubmit}>
         <FormGroup row>
           <Label for="name" className="fw-bold">Name:</Label>
-          <Input
-            id="name"
-            name="name"
-            placeholder="John Doe"
-            type="text"
-            onChange={(e) => setName(e.target.value)}
-          />
+          <Input id="name" name="name" placeholder="John Doe" type="text" onChange={(e) => setName(e.target.value)} />
         </FormGroup>
         <FormGroup row>
           <Label for="email" className="fw-bold">Email:</Label>
-          <Input
-            id="email"
-            name="email"
-            placeholder="johndoe@example.com"
-            type="email"
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <Input id="email" name="email" placeholder="johndoe@example.com" type="email" onChange={(e) => setEmail(e.target.value)}/>
         </FormGroup>
         <FormGroup row>
           <Label for="password" className="fw-bold">Password:</Label>
-          <Input
-            id="password"
-            name="password"
-            placeholder="password"
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <Input id="password" name="password" placeholder="password" type="password" onChange={(e) => setPassword(e.target.value)}/>
         </FormGroup>
         <FormGroup row>
           <Label for="confirmPassword" className="fw-bold">Confirm Password:</Label>
-          <Input
-            id="confirmPassword"
-            name="confirmPassword"
-            placeholder="password"
-            type="password"
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+          <Input id="confirmPassword" name="confirmPassword" placeholder="password" type="password" onChange={(e) => setConfirmPassword(e.target.value)}/>
         </FormGroup>
         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
         <Button color="primary" block>Sign Up</Button>
@@ -141,64 +101,6 @@ export const SignUp = () => {
     </div>
   );
 };
-
-
-export const SignUpAsMentor = () => {
-    return (
-        <div>
-            <h2>Sign Up as a Mentor</h2>
-            <Form>
-                <FormGroup>
-                    <Label for="name" className="fw-bold">Name:</Label>
-                    <Input id="name" name="name" placeholder="John Doe" type="text" required />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="email" className="fw-bold">Email:</Label>
-                    <Input id="email" name="email" placeholder="johndoe@example.com" type="email" required />
-                </FormGroup>
-
-                <FormGroup>
-                    <Label for="background" className="fw-bold">Professional Background:</Label>
-                    <Input id="background" name="background" type="select" required>
-                        <option value="Software Development">Software Development</option>
-                        <option value="Data Science">Data Science</option>
-                        <option value="Project Management">Project Management</option>
-                        <option value="Design">Design</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Finance">Finance</option>
-                    </Input>
-                </FormGroup>
-                <FormGroup>
-                <Label for="availability">Availability (Hours Per Week):</Label>
-                <Input type="number" id="availability" name="availability" min="1" required/>
-                </FormGroup>
-                <Button color="primary" block>Sign Up</Button>
-            </Form>
-        </div>
-    );
-};
-export const SignUpAsMentee=()=>{
-    return (
-        <div>
-            <h2>Sign Up as a Mentee</h2>
-            <Form>
-                <FormGroup>
-                    <Label for="name" className="fw-bold">Name:</Label>
-                    <Input id="name" name="name" placeholder="John Doe" type="text" required />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="email" className="fw-bold">Email:</Label>
-                    <Input id="email" name="email" placeholder="johndoe@example.com" type="email" required />
-                </FormGroup>
-                <FormGroup>
-                    <Label for="name" className="fw-bold">Name:</Label>
-                    <Input id="name" name="name" placeholder="John Doe" type="text" required />
-                </FormGroup>
-                <Button color="primary" block>Sign Up</Button>
-            </Form>
-        </div>
-    );
-}
 
 export const Contact = () => {
     return (

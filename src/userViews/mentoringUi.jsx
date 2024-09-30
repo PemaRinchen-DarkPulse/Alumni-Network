@@ -2,8 +2,7 @@ import React from "react";
 import { useLocation, Outlet } from "react-router-dom";
 import Header from '../components/navbarFooter/header';
 import Footer from '../components/navbarFooter/footer';
-import { AlumniDirectory, AlumniForum, AlumniMessage } from "../components/directory/directory";
-import { BecomeMentor} from "../components/mentoring/mentor";
+import { BecomeMentor, MentorDashboard} from "../components/mentoring/mentor";
 import {Mentee} from "../components/mentoring/mentee";
 const MentoringUi = ({ isLoggedIn }) => {
   const location = useLocation();
@@ -13,6 +12,7 @@ const MentoringUi = ({ isLoggedIn }) => {
       <Header isLoggedIn={isLoggedIn} />
       {location.pathname === '/mentoring/becomeMentor' && <BecomeMentor />}
       {location.pathname === '/mentoring/becomeMentee' && <Mentee />}
+      {location.pathname === '/mentoring/mentorDashboard' && <MentorDashboard />}
       {/* The Outlet will render nested routes if necessary */}
       <Outlet />
       <Footer />

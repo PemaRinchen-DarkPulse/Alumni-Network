@@ -108,3 +108,128 @@
     background-color: #2ecc71;
   }
   
+  /* Forum Style Starts From Here */
+  .forum-container {
+    width: 80%;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    color: #333;
+  }
+  
+  .forum-section {
+    margin-top: 20px;
+  }
+
+  .forum-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.forum-item:last-child {
+  border-bottom: none;
+}
+
+.forum-info h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.forum-info p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.create-post-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.create-post-btn:hover {
+  background-color: #0056b3;
+}
+
+.forum-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  flex-direction: column;
+}
+
+.forum-info {
+  width: 100%;
+}
+
+.forum-info h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.forum-info p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.view-messages-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.view-messages-btn:hover {
+  background-color: #218838;
+}
+
+.messages-container {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+}
+
+.messages-container ul {
+  list-style-type: disc;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.messages-container li {
+  margin: 5px 0;
+}
+
+.create-post-btn {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.create-post-btn:hover {
+  background-color: #0056b3;
+}

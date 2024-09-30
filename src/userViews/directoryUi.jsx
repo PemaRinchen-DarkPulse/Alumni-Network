@@ -13,7 +13,6 @@ const DirectoryUi = ({ isLoggedIn }) => {
       {location.pathname === '/directory/alumni' && <AlumniDirectory />}
       {location.pathname === '/directory/connection' && <AlumniMessage />}
       {location.pathname === '/directory/forum' && <AlumniForum />}
-      {/* The Outlet will render nested routes if necessary */}
       <Outlet />
       <Footer />
     </>

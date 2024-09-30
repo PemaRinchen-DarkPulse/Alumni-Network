@@ -39,7 +39,6 @@ const alumniData = [
     skills: ['SEO', 'Social Media', 'Content Marketing'],
     profilePic: 'https://via.placeholder.com/150',
   },
-  // Add more alumni data here
 ];
 
 export const AlumniDirectory = () => {
@@ -88,10 +87,85 @@ export const AlumniMessage=()=>{
   )
 }
 
-export const AlumniForum=()=>{
-  return(
-    <div >
-      <h1 style={{marginTop:"75px"}}>My Forum</h1>
+
+export const AlumniForum = () => {
+  const forumData = [
+    {
+      title: 'General Discussion',
+      description: 'Come hang out and discuss alumni-related content! Please check other subforums before posting.'
+    },
+    {
+      title: 'Career Development & Job Opportunities',
+      description: 'News, advice, and job openings from alumni!'
+    },
+    {
+      title: 'Events & Reunions',
+      description: 'Discuss upcoming alumni events and reunions.'
+    },
+    {
+      title: 'Professional Networking',
+      description: 'Connect with fellow alumni for professional growth.'
+    },
+    {
+      title: 'Volunteer & Giving Back',
+      description: 'Find opportunities to give back to the community and alma mater.'
+    }
+  ];
+
+  return (
+    <div className="forum-container mb-5" style={{marginTop:"120px"}}>
+      <h1>The Hub</h1>
+      <div className="forum-section">
+        {forumData.map((forum, index) => (
+          <ForumItem key={index} title={forum.title} description={forum.description} />
+        ))}
+      </div>
     </div>
-  )
-}
+  );
+};
+
+
+const ForumItem = ({ title, description }) => {
+  // State to manage message visibility
+  const [showMessages, setShowMessages] = useState(false);
+
+  // Sample previous messages
+  const previousMessages = [
+    "This is the first message in the forum.",
+    "Here’s another interesting post from alumni.",
+    "We’re organizing a reunion next month!",
+  ];
+
+  const toggleMessages = () => {
+    setShowMessages(!showMessages);
+  };
+
+  const createPost = () => {
+    alert(`Create post in "${title}" forum.`);
+  };
+
+  return (
+    <div className="forum-item">
+      <div className="forum-info">
+        <h2>{title}</h2>
+        <p>{description}</p>
+        {/* Button to toggle the visibility of previous messages */}
+        <button className="view-messages-btn" onClick={toggleMessages}>
+          {showMessages ? 'Hide Previous Messages' : 'View Previous Messages'}
+        </button>
+        {showMessages && (
+          <div className="messages-container">
+            <ul>
+              {previousMessages.map((message, index) => (
+                <li key={index}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+      <button className="create-post-btn" onClick={createPost}>
+        Create Post
+      </button>
+    </div>
+  );
+};
