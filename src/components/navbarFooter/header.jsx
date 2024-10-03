@@ -54,7 +54,6 @@ const Header = ({ isLoggedIn }) => {
                 <li><Link to="/mentoring/mentorDashboard" className="dropdown-item">Mentor Dashboard</Link></li>
               </ul>
             </li>
-
             <li className="nav-item">
               <Link to="/news" className="nav-link">News</Link>
             </li>

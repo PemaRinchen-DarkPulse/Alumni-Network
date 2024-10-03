@@ -13,7 +13,6 @@ const MentoringUi = ({ isLoggedIn }) => {
       {location.pathname === '/mentoring/becomeMentor' && <BecomeMentor />}
       {location.pathname === '/mentoring/becomeMentee' && <Mentee />}
       {location.pathname === '/mentoring/mentorDashboard' && <MentorDashboard />}
-      {/* The Outlet will render nested routes if necessary */}
       <Outlet />
       <Footer />
     </>

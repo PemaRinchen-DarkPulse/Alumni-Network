@@ -151,7 +151,7 @@ export const MentorDashboard = () => {
   return (
     <>
       <div className='row' style={{ marginTop: "95px" }}>
-        <div className="col-2 bg-dark text-white" style={{ position: "fixed",height:"90vh"}}>
+        <div className="col-2 bg-dark text-white" style={{ position: "fixed", height: "90vh" }}>
           <ul>
             <li>Dashboard Overview</li>
             <li>My Mentees</li>
@@ -162,10 +162,121 @@ export const MentorDashboard = () => {
             <li>Feedback & Reviews</li>
           </ul>
         </div>
-        <div className="col-7" style={{ height: "100vh",marginLeft:"250px" }}>
-          render React compoent for dshboard
+        <div className="col-9 mb-5" style={{ marginLeft: "250px" }}>
+          <Dashboard />
         </div>
       </div>
     </>
   );
 };
+
+const Dashboard = () => {
+  return (
+    <>
+      <div>
+        <h3>Overview</h3>
+        <div className="row">
+          <div className="col rounded-3 me-3" style={{ height: "150px", backgroundColor: "#CACACA" }}>asdasd</div>
+          <div className="col rounded-3 me-3" style={{ height: "150px", backgroundColor: "#CACACA" }}>asdasd</div>
+          <div className="col rounded-3 me-3" style={{ height: "150px", backgroundColor: "#CACACA" }}>asdasd</div>
+          <div className="col rounded-3" style={{ height: "150px", backgroundColor: "#CACACA" }}>asdasd</div>
+        </div>
+      </div>
+
+      <div className="container mt-5">
+        <div className="row">
+          <div className="col-8 rounded-3 me-3 p-4" style={{ backgroundColor: "#f8f9fa", boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
+            <h3>Mentor Request</h3>
+            <table className="table table-striped rounded-2">
+              <thead>
+                <tr className="table-dark">
+                  <th scope="col">Sl.No</th>
+                  <th scope="col">Mentee Name</th>
+                  <th scope="col">Subject Of Interest</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Action Taken</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">1</th>
+                  <td>Mark</td>
+                  <td>Engineering Maths</td>
+                  <td>Pending</td>
+                  <td>accept/Reject</td>
+                </tr>
+                <tr>
+                  <th scope="row">2</th>
+                  <td>Jacob</td>
+                  <td>TOC</td>
+                  <td>Accepted</td>
+                  <td>Discard</td>
+                </tr>
+                <tr>
+                  <th scope="row">3</th>
+                  <td>John</td>
+                  <td>CN</td>
+                  <td>Accepted</td>
+                  <td>Discard</td>
+                </tr>
+                <tr>
+                  <th scope="row">4</th>
+                  <td>Eriksen</td>
+                  <td>DAA</td>
+                  <td>Pending</td>
+                  <td>Accept/Rejcet</td>
+                </tr>
+                <tr>
+                  <th scope="row">5</th>
+                  <td>Emily</td>
+                  <td>ESMt</td>
+                  <td>Pending</td>
+                  <td>Accept/Reject</td>
+                </tr>
+              </tbody>
+            </table>
+            <button>Previous</button>
+            <button>Next</button>
+
+
+          </div>
+          <div className="col rounded-3 p-4" style={{ height: "150px", backgroundColor: "#f8f9fa", boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
+            <h5 className="text-center" style={{ color: "#666" }}>Additional Info</h5>
+            <p className="text-center">This section can contain more details about the mentor request process or related links.</p>
+          </div>
+        </div>
+      </div>
+
+        <div className="row mt-5 p-3">
+        <div className="col-8 rounded-3 me-3 p-4" style={{ backgroundColor: "#f8f9fa", boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
+            <h3>To Do List</h3>
+            <input className='me-3 p-1 rounded-2' type="text" name="" id="" placeholder='Add new Task' />
+            <input className='me-3 p-1 rounded-2' type="date"/>
+            <button className='rounded-2'>Add Task</button>
+            <table className="table table-striped rounded-2">
+              <thead>
+                <tr className="table-dark">
+                  <th scope="col"></th>
+                  <th scope="col">Task Name</th>
+                  <th scope="col">Deadline</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><input type="radio" /></th>
+                  <td>Mark</td>
+                  <td>Engineering Maths</td>
+                  <td>Pending</td>
+                </tr>
+              </tbody>
+            </table>
+            <button>Previous</button>
+            <button>Next</button>
+          </div>
+          <div className="col rounded-3" style={{ height: "150px", backgroundColor: "#CACACA" }}>asdasd</div>
+        </div>
+
+    </>
+  )
+}

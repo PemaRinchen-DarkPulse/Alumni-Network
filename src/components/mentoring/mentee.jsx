@@ -74,7 +74,7 @@ export const Mentee = () => {
   });
 
   return (
-    <div className="mentor-directory-container mb-5">
+    <div className="mentor-directory-container mb-5" style={{minHeight:"90vh"}}>
       <h1 className="mentor-directory-header" style={{ marginTop: "60px" }}>Find Mentor</h1>
       <UserFilter onFilter={handleFilterChange} />
       <div className="mentor-list">
