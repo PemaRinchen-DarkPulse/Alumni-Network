@@ -10,15 +10,12 @@
 
 .form-container {
   background-color: white;
-  /* White background for form */
   border-radius: 8px;
-  /* Rounded corners */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow */
   padding: 40px;
   margin: 40px auto;
   max-width: 600px;
-  /* Center and constrain width */
+
 }
 
 .form-title {

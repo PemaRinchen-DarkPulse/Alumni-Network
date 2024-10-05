@@ -3,7 +3,7 @@ import { Container, Row, Col, Card, CardBody, CardTitle, CardText } from 'reacts
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import './style.css';
 import mentorshipImage from '../../images/mentorship.jpg';
-
+import Footer from '../navbarFooter/footer'
 export const BecomeMentor = () => {
   return (
     <>
@@ -147,28 +147,45 @@ export const ApplicationProcess = () => {
   );
 };
 
+
 export const MentorDashboard = () => {
+  // State to track which section is selected
+  const [selectedSection, setSelectedSection] = useState('Overview');
+
   return (
     <>
       <div className='row' style={{ marginTop: "95px" }}>
+        {/* Sidebar */}
         <div className="col-2 bg-dark text-white" style={{ position: "fixed", height: "90vh" }}>
           <ul>
-            <li>Dashboard Overview</li>
-            <li>My Mentees</li>
-            <li>Mentorship Requests</li>
-            <li>Messages</li>
-            <li>Mentorship Sessions</li>
-            <li>Resources</li>
-            <li>Feedback & Reviews</li>
+            <li onClick={() => setSelectedSection('Overview')}>Overview</li>
+            <li onClick={() => setSelectedSection('Schedule')}>Schedule</li>
+            <li onClick={() => setSelectedSection('Messages')}>Messages</li>
+            <li onClick={() => setSelectedSection('Resources')}>Resources</li>
+            <li onClick={() => setSelectedSection('Feedback')}>Feedback</li>
+            <li onClick={() => setSelectedSection('Learning')}>Learning & Development</li>
+            <li onClick={() => setSelectedSection('Reviews')}>Feedback & Reviews</li>
           </ul>
         </div>
-        <div className="col-9 mb-5" style={{ marginLeft: "250px" }}>
-          <Dashboard />
+
+        {/* Main content area */}
+        <div className="col-9 mb-5" style={{ marginLeft: "250px",minHeight:"90vh" }}>
+          {/* Conditionally render the component based on selected section */}
+          {selectedSection === 'Overview' && <Dashboard />}
+          {selectedSection === 'Schedule' && <MentorSchedule />}
+          {selectedSection === 'Messages' && <MentorMessage />}
+          {selectedSection === 'Resources' && <MentorResource />}
+          {selectedSection === 'Feedback' && <MentorFeedback />}
+          {selectedSection === 'Learning' && <MentorLearning />}
+          {selectedSection === 'Reviews' && <MentorReviews />}
         </div>
+        
+        <Footer />
       </div>
     </>
   );
 };
+
 
 const Dashboard = () => {
   return (
@@ -279,4 +296,44 @@ const Dashboard = () => {
 
     </>
   )
+}
+
+// Other components
+const MentorSchedule = () => {
+  return (
+    <>
+      <p>Calendar view of upcoming meetings with mentees</p>
+      <p>Option to book, cancel, or reschedule sessions</p>
+    </>
+  );
+}
+
+const MentorMessage = () => {
+  return (
+    <p>Messaging system for direct communication with mentees. Email or chat integration.</p>
+  );
+}
+
+const MentorResource = () => {
+  return (
+    <p>Mentoring guides and tips. Articles or blog posts relevant to mentoring. Links to courses or workshops for mentor training.</p>
+  );
+}
+
+const MentorFeedback = () => {
+  return (
+    <p>Forms to submit or view feedback from mentees. Opportunity for self-assessment.</p>
+  );
+}
+
+const MentorLearning = () => {
+  return (
+    <p>Learning and development resources for mentors, including tips and recommendations.</p>
+  );
+}
+
+const MentorReviews = () => {
+  return (
+    <p>Review feedback from mentees and take actions accordingly.</p>
+  );
 }

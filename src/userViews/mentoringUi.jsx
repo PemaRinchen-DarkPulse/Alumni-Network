@@ -14,7 +14,6 @@ const MentoringUi = ({ isLoggedIn }) => {
       {location.pathname === '/mentoring/becomeMentee' && <Mentee />}
       {location.pathname === '/mentoring/mentorDashboard' && <MentorDashboard />}
       <Outlet />
-      <Footer />
     </>
   );
 };
