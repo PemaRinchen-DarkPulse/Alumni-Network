@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, CardBody, CardTitle, CardText } from 'reactstrap';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { FaUpload, FaEdit, FaTrash, FaFolderPlus } from 'react-icons/fa';
 import './style.css';
 import mentorshipImage from '../../images/mentorship.jpg';
 import Footer from '../navbarFooter/footer'
@@ -164,12 +165,12 @@ export const MentorDashboard = () => {
             <li onClick={() => setSelectedSection('Resources')}>Resources</li>
             <li onClick={() => setSelectedSection('Feedback')}>Feedback</li>
             <li onClick={() => setSelectedSection('Learning')}>Learning & Development</li>
-            <li onClick={() => setSelectedSection('Reviews')}>Feedback & Reviews</li>
+            <li onClick={() => setSelectedSection('Reviews')}>Live Sessions</li>
           </ul>
         </div>
 
         {/* Main content area */}
-        <div className="col-9 mb-5" style={{ marginLeft: "250px",minHeight:"90vh" }}>
+        <div className="col-9 mb-5" style={{ marginLeft: "250px", minHeight: "90vh" }}>
           {/* Conditionally render the component based on selected section */}
           {selectedSection === 'Overview' && <Dashboard />}
           {selectedSection === 'Schedule' && <MentorSchedule />}
@@ -179,7 +180,7 @@ export const MentorDashboard = () => {
           {selectedSection === 'Learning' && <MentorLearning />}
           {selectedSection === 'Reviews' && <MentorReviews />}
         </div>
-        
+
         <Footer />
       </div>
     </>
@@ -264,35 +265,35 @@ const Dashboard = () => {
         </div>
       </div>
 
-        <div className="row mt-5 p-3">
+      <div className="row mt-5 p-3">
         <div className="col-8 rounded-3 me-3 p-4" style={{ backgroundColor: "#f8f9fa", boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}>
-            <h3>To Do List</h3>
-            <input className='me-3 p-1 rounded-2' type="text" name="" id="" placeholder='Add new Task' />
-            <input className='me-3 p-1 rounded-2' type="date"/>
-            <button className='rounded-2'>Add Task</button>
-            <table className="table table-striped rounded-2">
-              <thead>
-                <tr className="table-dark">
-                  <th scope="col"></th>
-                  <th scope="col">Task Name</th>
-                  <th scope="col">Deadline</th>
-                  <th scope="col">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row"><input type="radio" /></th>
-                  <td>Mark</td>
-                  <td>Engineering Maths</td>
-                  <td>Pending</td>
-                </tr>
-              </tbody>
-            </table>
-            <button>Previous</button>
-            <button>Next</button>
-          </div>
-          <div className="col rounded-3" style={{ height: "150px", backgroundColor: "#CACACA" }}>asdasd</div>
+          <h3>To Do List</h3>
+          <input className='me-3 p-1 rounded-2' type="text" name="" id="" placeholder='Add new Task' />
+          <input className='me-3 p-1 rounded-2' type="date" />
+          <button className='rounded-2'>Add Task</button>
+          <table className="table table-striped rounded-2">
+            <thead>
+              <tr className="table-dark">
+                <th scope="col"></th>
+                <th scope="col">Task Name</th>
+                <th scope="col">Deadline</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row"><input type="radio" /></th>
+                <td>Mark</td>
+                <td>Engineering Maths</td>
+                <td>Pending</td>
+              </tr>
+            </tbody>
+          </table>
+          <button>Previous</button>
+          <button>Next</button>
         </div>
+        <div className="col rounded-3" style={{ height: "150px", backgroundColor: "#CACACA" }}>asdasd</div>
+      </div>
 
     </>
   )
@@ -315,10 +316,223 @@ const MentorMessage = () => {
 }
 
 const MentorResource = () => {
+  const [materials, setMaterials] = useState([]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [file, setFile] = useState(null);
+  const [student, setStudent] = useState('');
+  const [folders, setFolders] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState('');
+  const [newFolderName, setNewFolderName] = useState('');
+  const [isNewFolder, setIsNewFolder] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const folderName = isNewFolder ? newFolderName : selectedFolder;
+
+    if (!folderName) {
+      alert('Please select or enter a folder name.');
+      return;
+    }
+
+    const newMaterial = {
+      id: Date.now(),
+      title,
+      description,
+      file,
+      studentsVisibleTo: student.split(' '),
+      uploadedOn: new Date().toLocaleDateString(),
+      releaseDate: 'Available now',
+    };
+
+    setMaterials((prevMaterials) => {
+      const folderExists = prevMaterials.find((folder) => folder.name === folderName);
+      if (folderExists) {
+        return prevMaterials.map((folder) =>
+          folder.name === folderName
+            ? { ...folder, materials: [...folder.materials, newMaterial] }
+            : folder
+        );
+      }
+      return [...prevMaterials, { name: folderName, materials: [newMaterial] }];
+    });
+
+    if (isNewFolder) {
+      setFolders([...folders, newFolderName]);
+      setIsNewFolder(false);
+      setNewFolderName('');
+    }
+
+    setTitle('');
+    setDescription('');
+    setFile(null);
+    setStudent('');
+  };
+
+  const handleDelete = (folderName, id) => {
+    setMaterials((prevMaterials) =>
+      prevMaterials.map((folder) =>
+        folder.name === folderName
+          ? { ...folder, materials: folder.materials.filter((material) => material.id !== id) }
+          : folder
+      )
+    );
+  };
+
+  const handleEdit = (folderName, id) => {
+    const folderToEdit = materials.find((folder) => folder.name === folderName);
+    const materialToEdit = folderToEdit.materials.find((material) => material.id === id);
+
+    setTitle(materialToEdit.title);
+    setDescription(materialToEdit.description);
+    setFile(materialToEdit.file);
+    setStudent(materialToEdit.studentsVisibleTo.join(' '));
+
+    setMaterials((prevMaterials) =>
+      prevMaterials.map((folder) =>
+        folder.name === folderName
+          ? { ...folder, materials: folder.materials.filter((material) => material.id !== id) }
+          : folder
+      )
+    );
+  };
+
   return (
-    <p>Mentoring guides and tips. Articles or blog posts relevant to mentoring. Links to courses or workshops for mentor training.</p>
+    <div className="container my-5">
+      <div className="mb-5">
+        <h1 className="text-center text-primary mb-4">My Materials</h1>
+        {materials.length > 0 ? (
+          materials.map((folder) => (
+            <div key={folder.name} className="folder mt-5">
+              <h2 className="folder-title text-secondary">{folder.name}</h2>
+              <div className="materials">
+                {folder.materials.length > 0 ? (
+                  folder.materials.map((material) => (
+                    <div key={material.id} className="material p-3 my-2 shadow-sm rounded" style={{ backgroundColor: '#f9f9f9' }}>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span className="material-title fw-bold">{material.title}</span>
+                        <div className="actions">
+                          <button className="btn btn-outline-primary btn-sm me-2" onClick={() => handleEdit(folder.name, material.id)}>
+                            <FaEdit /> Edit
+                          </button>
+                          <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(folder.name, material.id)}>
+                            <FaTrash /> Delete
+                          </button>
+                        </div>
+                      </div>
+                      <div className="material-info mt-2">
+                        <p className="mb-1 text-muted">📥 Uploaded on: {material.uploadedOn}</p>
+                        <p className="mb-1 text-muted">📅 Scheduled Release: {material.releaseDate}</p>
+                        <p className="mb-1 text-muted">🗒 Description: {material.description}</p>
+                        <a href="#" className="text-primary">Download {material.file ? material.file.name : 'File'}</a>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted">No materials available.</p>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-danger text-center">You haven't uploaded any materials</p>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit} className="shadow p-4 rounded" style={{ backgroundColor: '#ffffff' }}>
+        <h2 className="mb-4 text-success"><FaUpload /> Upload New Material</h2>
+        
+        <div className="mb-3">
+          <label htmlFor="folderSelect" className="form-label">Select Folder</label>
+          <select
+            className="form-select"
+            aria-label="Select Folder"
+            value={selectedFolder}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === 'new') {
+                setIsNewFolder(true);
+                setSelectedFolder('');
+              } else {
+                setIsNewFolder(false);
+                setSelectedFolder(value);
+              }
+            }}
+          >
+            <option value="" disabled>Select a folder</option>
+            {folders.map((folder, index) => (
+              <option key={index} value={folder}>{folder}</option>
+            ))}
+            <option value="new">New Folder</option>
+          </select>
+        </div>
+
+        {isNewFolder && (
+          <div className="mb-3">
+            <label htmlFor="newFolderName" className="form-label">New Folder Name</label>
+            <input
+              type="text"
+              className="form-control"
+              id="newFolderName"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              required
+            />
+          </div>
+        )}
+
+        <div className="mb-3">
+          <label htmlFor="materialTitle" className="form-label">Material Title</label>
+          <input
+            type="text"
+            className="form-control"
+            id="materialTitle"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="formFile" className="form-label">Upload File</label>
+          <input
+            className="form-control"
+            type="file"
+            id="formFile"
+            onChange={(e) => setFile(e.target.files[0])}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="materialDescription" className="form-label">Description</label>
+          <textarea
+            className="form-control"
+            id="materialDescription"
+            rows="3"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="studentSelect" className="form-label">Tag Students</label>
+          <input
+            type="text"
+            className="form-control"
+            id="studentSelect"
+            value={student}
+            onChange={(e) => setStudent(e.target.value)}
+            placeholder="student1 student3"
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-success w-100">Submit Material</button>
+      </form>
+    </div>
   );
-}
+};
+
+
+
 
 const MentorFeedback = () => {
   return (
