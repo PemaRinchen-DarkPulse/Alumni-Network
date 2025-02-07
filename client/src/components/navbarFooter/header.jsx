@@ -27,32 +27,8 @@ const Header = ({ isLoggedIn }) => {
             <li className="nav-item">
               <Link to="/" className="nav-link">Home</Link>
             </li>
-
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded={isAlumniHubOpen}>
-                Directory
-              </a>
-              <ul className="dropdown-menu">
-                <li><Link to="/directory/alumni" className="dropdown-item">Connect With Alumni</Link></li>
-                <li><Link to="/directory/connection" className="dropdown-item">My Connection</Link></li>
-                <li><Link to="/directory/forum" className="dropdown-item">Discussion Forum</Link></li>
-              </ul>
-            </li>
-
             <li className="nav-item">
               <Link to="/events" className="nav-link">Events</Link>
-            </li>
-
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded={isMentorshipOpen}>
-                Mentorship
-              </a>
-              {/* show if user is not */}
-              <ul className="dropdown-menu">
-                <li><Link to="/mentoring/becomeMentee" className="dropdown-item">Find a Mentor</Link></li>
-                <li><Link to="/mentoring/becomeMentor" className="dropdown-item">Become a Mentor</Link></li>
-                <li><Link to="/mentoring/mentorDashboard" className="dropdown-item">Mentor Dashboard</Link></li>
-              </ul>
             </li>
             <li className="nav-item">
               <Link to="/news" className="nav-link">News</Link>
