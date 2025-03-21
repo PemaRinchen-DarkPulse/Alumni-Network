@@ -1,32 +1,27 @@
-import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import HomeUi from './userViews/homeUi.jsx';
-import DirectoryUi from './userViews/directoryUi.jsx'; // Keep the DirectoryUi import
-import MentoringUi from './userViews/mentoringUi.jsx';
-import EventsUi from './userViews/eventsUi.jsx';
-import NewsUi from './userViews/newsUi.jsx';
-import ContactUi from './userViews/contactUi.jsx';
-import AboutUsUi from './userViews/aboutUsUi.jsx';
-import { Login, SignUp } from './components/login/userAuthentication.jsx';
+import { useState } from "react";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [count, setCount] = useState(0);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<HomeUi isLoggedIn={isLoggedIn} />} />
-        <Route path='/events' element={<EventsUi isLoggedIn={isLoggedIn} />} />
-        <Route path='/news' element={<NewsUi isLoggedIn={isLoggedIn} />} />
-        <Route path='/contact' element={<ContactUi isLoggedIn={isLoggedIn} />} />
-        <Route path='/aboutus' element={<AboutUsUi isLoggedIn={isLoggedIn} />} />
-        <Route path='/login' element={<Login setIsLoggedIn={setIsLoggedIn} />} />
-        <Route path='/directory/*' element={isLoggedIn ? <DirectoryUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
-        <Route path='/mentoring/*' element={isLoggedIn ? <MentoringUi isLoggedIn={isLoggedIn} /> : <Navigate to="/login" />} />
-        <Route path='/register' element={<SignUp />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <h1 className="text-2xl font-bold mb-4">Simple React Counter</h1>
+      <p className="text-lg mb-4">Count: {count}</p>
+      <div className="space-x-4">
+        <button
+          onClick={() => setCount(count + 1)}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Increase
+        </button>
+        <button
+          onClick={() => setCount(count - 1)}
+          className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Decrease
+        </button>
+      </div>
+    </div>
   );
 }
 
