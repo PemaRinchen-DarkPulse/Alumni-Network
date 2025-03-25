@@ -1,0 +1,74 @@
+.faq-accordion .accordion-item {
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease;
+}
+
+.faq-accordion .accordion-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.faq-accordion .accordion-button {
+  box-shadow: none !important;
+  background-color: white !important;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+}
+
+.faq-accordion .accordion-button:not(.collapsed) {
+  color: var(--bs-primary);
+}
+
+.faq-accordion .accordion-button::after {
+  display: none;
+}
+
+.faq-accordion .accordion-body {
+  padding: 0 1.25rem 1rem 1.25rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.transition-transform {
+  transition: transform 0.2s ease;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Animation for accordion content */
+.accordion-collapse {
+  transition: all 0.2s ease-in-out;
+}
+
+.accordion-collapse.collapsing {
+  opacity: 0;
+}
+
+.accordion-collapse.show {
+  opacity: 1;
+}
+
+/* Hover effect for accordion headers */
+.faq-accordion .accordion-button:hover {
+  color: var(--bs-primary);
+  background-color: rgba(var(--bs-primary-rgb), 0.02) !important;
+}
+
+/* Custom focus styles */
+.faq-accordion .accordion-button:focus {
+  border-color: transparent;
+  box-shadow: none !important;
+}
+
+/* Active state styling */
+.faq-accordion .accordion-button:not(.collapsed) {
+  background-color: rgba(var(--bs-primary-rgb), 0.03) !important;
+}
+
+/* Reduce spacing between items when expanded */
+.faq-accordion .accordion-item.mb-2:last-child {
+  margin-bottom: 0 !important;
+} 
