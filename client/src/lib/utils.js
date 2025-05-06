@@ -14,8 +14,7 @@ export const getApiBaseUrl = () => {
   const isProduction = import.meta.env.PROD;
   
   if (isProduction) {
-    // Production - use Vercel API URL
-    // Replace this with your actual Vercel API deployment URL
+    // Production - use Vercel API URL with your actual domain
     return 'https://alumni-network-api.vercel.app/api';
   }
   
