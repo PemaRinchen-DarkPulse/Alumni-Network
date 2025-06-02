@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getApiBaseUrl } from '@/lib/utils';
 
 // Create auth context
 const AuthContext = createContext();
@@ -11,8 +10,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // API URL - Using the dynamic utility function
-  const API_URL = getApiBaseUrl();
+  // API URL from environment variables
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Check if user is logged in on initial load
   useEffect(() => {
@@ -49,9 +48,7 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
-      console.log(`Registering with API URL: ${API_URL}/auth/register`);
-      
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +57,6 @@ export const AuthProvider = ({ children }) => {
       });
       
       const data = await response.json();
-      console.log('Registration response:', data);
       
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
@@ -69,7 +65,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return { success: true, data };
     } catch (error) {
-      console.error('Registration error:', error);
       setError(error.message || 'Registration failed');
       setLoading(false);
       return { success: false, error: error.message };
@@ -82,9 +77,7 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
-      console.log(`Login with API URL: ${API_URL}/auth/login`);
-      
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +86,6 @@ export const AuthProvider = ({ children }) => {
       });
       
       const data = await response.json();
-      console.log('Login response status:', response.status);
       
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
@@ -109,7 +101,6 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
       setError(error.message || 'Login failed');
       setLoading(false);
       return { success: false, error: error.message };
@@ -130,9 +121,7 @@ export const AuthProvider = ({ children }) => {
     setError('');
     
     try {
-      console.log(`Resending verification with API URL: ${API_URL}/auth/resend-verification`);
-      
-      const response = await fetch(`${API_URL}/auth/resend-verification`, {
+      const response = await fetch(`${API_URL}/api/auth/resend-verification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +130,6 @@ export const AuthProvider = ({ children }) => {
       });
       
       const data = await response.json();
-      console.log('Resend verification response:', data);
       
       if (!response.ok) {
         throw new Error(data.message || 'Failed to resend verification email');
@@ -150,8 +138,99 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return { success: true, message: data.message };
     } catch (error) {
-      console.error('Resend verification error:', error);
       setError(error.message || 'Failed to resend verification email');
+      setLoading(false);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Forgot password request
+  const forgotPassword = async (email) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to process password reset request');
+      }
+      
+      setLoading(false);
+      return { success: true, message: data.message };
+    } catch (error) {
+      setError(error.message || 'Failed to process password reset request');
+      setLoading(false);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Reset password with token
+  const resetPassword = async (token, password) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch(`${API_URL}/api/auth/reset-password/${token}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to reset password');
+      }
+      
+      setLoading(false);
+      return { success: true, message: data.message };
+    } catch (error) {
+      setError(error.message || 'Failed to reset password');
+      setLoading(false);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Validate reset token
+  const validateResetToken = async (token) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      console.log('Validating reset token:', token);
+      console.log('Using API URL:', API_URL);
+      
+      const response = await fetch(`${API_URL}/api/auth/validate-reset-token/${token}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Reset token validation response status:', response.status);
+      const data = await response.json();
+      console.log('Reset token validation response data:', data);
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Invalid reset token');
+      }
+      
+      setLoading(false);
+      return { success: true, email: data.email };
+    } catch (error) {
+      console.error('Token validation error:', error);
+      setError(error.message || 'Failed to validate reset token');
       setLoading(false);
       return { success: false, error: error.message };
     }
@@ -167,6 +246,9 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     resendVerification,
+    forgotPassword,
+    resetPassword,
+    validateResetToken,
     isAuthenticated: !!user
   };
 

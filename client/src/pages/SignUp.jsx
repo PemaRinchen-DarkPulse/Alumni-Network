@@ -20,7 +20,6 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [registrationStatus, setRegistrationStatus] = useState(null);
-  const [registrationComplete, setRegistrationComplete] = useState(false);
   
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -71,18 +70,12 @@ const SignUp = () => {
       });
       
       if (success) {
-        setRegistrationComplete(true);
-        setFormData({
-          name: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-          role: 'student',
-          batch: ''
-        });
-        setRegistrationStatus({
-          type: 'success',
-          message: data.message || 'Registration successful! Please check your email to verify your account.'
+        // Redirect to verification page with email in state
+        navigate('/verify-email', { 
+          state: { 
+            email: formData.email,
+            message: 'Registration successful! Please check your email for verification instructions.' 
+          } 
         });
       } else {
         setRegistrationStatus({
@@ -100,108 +93,25 @@ const SignUp = () => {
       setIsLoading(false);
     }
   };
-
-  const handleResendVerification = async () => {
-    if (!formData.email) return;
-    
-    setIsLoading(true);
-    
-    try {
-      const { resendVerification } = useAuth();
-      const response = await resendVerification(formData.email);
-      
-      if (response.success) {
-        setRegistrationStatus({
-          type: 'success',
-          message: response.message || 'Verification email resent successfully!'
-        });
-      } else {
-        setRegistrationStatus({
-          type: 'error',
-          message: response.error || 'Failed to resend verification email.'
-        });
-      }
-    } catch (error) {
-      setRegistrationStatus({
-        type: 'error',
-        message: 'An unexpected error occurred.'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoToLogin = () => {
-    navigate('/login');
-  };
-
-  const showBatchField = formData.role === 'alumni' || formData.role === 'student';
-
-  if (registrationComplete) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-12">
-        <Card className="w-full max-w-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Registration Successful!</CardTitle>
-            <CardDescription className="text-center">
-              Please verify your email to continue
-            </CardDescription>
-          </CardHeader>
-          <Separator className="my-2" />
-          <CardContent className="flex flex-col items-center py-8">
-            <div className="bg-green-100 p-3 rounded-full mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-center mb-2">Your account has been created!</h3>
-            <p className="text-center text-gray-600 mb-6">
-              We've sent a verification email to <span className="font-medium">{formData.email}</span>. 
-              Please check your inbox and click the verification link to activate your account.
-            </p>
-            <div className="space-y-4 w-full max-w-xs">
-              <Button onClick={handleGoToLogin} className="w-full">
-                Go to Login
-              </Button>
-              <p className="text-sm text-center text-gray-500">
-                Didn't receive an email?{" "}
-                <button 
-                  onClick={handleResendVerification}
-                  className="text-primary font-medium hover:underline"
-                  disabled={isLoading}
-                >
-                  Resend verification email
-                </button>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-12">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Sign Up</CardTitle>
+  const showBatchField = formData.role === 'alumni' || formData.role === 'student';  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-4">
+      <Card className="w-full max-w-2xl overflow-hidden max-h-[90vh]">
+        <CardHeader className="space-y-1 py-3">
+          <CardTitle className="text-xl font-bold text-center">Sign Up</CardTitle>
           <CardDescription className="text-center">
             Join our High School Alumni Network
-          </CardDescription>
-        </CardHeader>
-        <Separator className="my-2" />
-        <CardContent>
+          </CardDescription>        </CardHeader><Separator className="my-1" />
+        <CardContent className="px-4 py-2 max-h-[calc(100vh-20rem)] overflow-y-auto">
           {registrationStatus && (
             <div className={`p-4 mb-4 rounded-md text-sm ${
               registrationStatus.type === 'success' 
                 ? 'bg-green-50 text-green-700' 
                 : 'bg-red-50 text-red-700'
             }`}>
-              {registrationStatus.message}
-            </div>
+              {registrationStatus.message}            </div>
           )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-2">
+            <div className="space-y-1">
               <label htmlFor="name" className="text-sm font-medium">
                 Full Name
               </label>
@@ -217,8 +127,7 @@ const SignUp = () => {
                 disabled={isLoading}
               />
             </div>
-            
-            <div className="space-y-2">
+              <div className="space-y-1">
               <label htmlFor="email" className="text-sm font-medium">
                 Email
               </label>
@@ -234,8 +143,7 @@ const SignUp = () => {
                 disabled={isLoading}
               />
             </div>
-            
-            <div className="space-y-2">
+              <div className="space-y-1">
               <label htmlFor="password" className="text-sm font-medium">
                 Password
               </label>
@@ -272,8 +180,7 @@ const SignUp = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-1">Password must be at least 8 characters long.</p>
             </div>
-            
-            <div className="space-y-2">
+              <div className="space-y-1">
               <label htmlFor="confirmPassword" className="text-sm font-medium">
                 Confirm Password
               </label>
@@ -311,8 +218,7 @@ const SignUp = () => {
                 <p className="text-sm text-red-500">{passwordError}</p>
               )}
             </div>
-            
-            <div className="space-y-2">
+              <div className="space-y-1">
               <label htmlFor="role" className="text-sm font-medium">
                 Role
               </label>
@@ -329,9 +235,8 @@ const SignUp = () => {
                 <option value="teacher">Teacher</option>
               </select>
             </div>
-            
-            {showBatchField && (
-              <div className="space-y-2">
+              {showBatchField && (
+              <div className="space-y-1">
                 <label htmlFor="batch" className="text-sm font-medium">
                   Batch
                 </label>
@@ -358,11 +263,10 @@ const SignUp = () => {
                   </svg>
                   Creating Account...
                 </span>
-              ) : 'Create Account'}
-            </Button>
+              ) : 'Create Account'}            </Button>
           </form>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="py-2">
           <p className="text-sm text-center w-full text-gray-500">
             Already have an account?{" "}
             <a href="/login" className="text-primary font-medium hover:underline">

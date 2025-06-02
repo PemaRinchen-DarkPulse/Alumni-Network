@@ -23,9 +23,8 @@ export function Contact() {
                     First Name
                   </label>
                   <input
-                    id="first-name"
-                    placeholder="John"
-                    className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-blue-500 focus:outline-none"
+                    id="first-name"                  placeholder="John"
+                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div className="space-y-2">
@@ -33,9 +32,8 @@ export function Contact() {
                     Last Name
                   </label>
                   <input
-                    id="last-name"
-                    placeholder="Doe"
-                    className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-blue-500 focus:outline-none"
+                    id="last-name"                  placeholder="Doe"
+                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -46,9 +44,8 @@ export function Contact() {
                 </label>
                 <input
                   id="email"
-                  type="email"
-                  placeholder="john.doe@example.com"
-                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-blue-500 focus:outline-none"
+                  type="email"                  placeholder="john.doe@example.com"
+                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-primary focus:outline-none"
                 />
               </div>
               
@@ -58,9 +55,8 @@ export function Contact() {
                 </label>
                 <input
                   id="graduation-year"
-                  type="number"
-                  placeholder="2010"
-                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-blue-500 focus:outline-none"
+                  type="number"                  placeholder="2010"
+                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-primary focus:outline-none"
                 />
               </div>
               
@@ -69,14 +65,12 @@ export function Contact() {
                   Message
                 </label>
                 <textarea
-                  id="message"
-                  placeholder="How can we help you?"
+                  id="message"                  placeholder="How can we help you?"
                   rows={4}
-                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-slate-700 bg-slate-900 p-2 placeholder:text-slate-400 text-white focus:border-primary focus:outline-none"
                 ></textarea>
               </div>
-              
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium">
+                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
                 Send Message
               </Button>
             </form>
@@ -101,46 +95,40 @@ export function Contact() {
       </div>
       <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3 container mx-auto px-4">
           <Card className="overflow-hidden rounded-lg bg-slate-800 border-slate-700 shadow-lg transition-all hover:shadow-blue-900/20 hover:translate-y-[-4px]">
-            <div className="flex p-4">
-              <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <div className="flex p-4">              <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                 </svg>
               </div>
-              <div>
-                <h4 className="font-medium text-white">Phone</h4>
-                <p className="text-sm text-blue-300 hover:text-blue-200 transition-colors">04 2416 1234</p>
+              <div>                <h4 className="font-medium text-white">Phone</h4>
+                <p className="text-sm text-primary hover:text-primary/80 transition-colors">04 2416 1234</p>
               </div>
             </div>
           </Card>
           
           <Card className="overflow-hidden rounded-lg bg-slate-800 border-slate-700 shadow-lg transition-all hover:shadow-blue-900/20 hover:translate-y-[-4px]">
-            <div className="flex p-4">
-              <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <div className="flex p-4">              <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
                   <path d="M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
                   <polyline points="3 7 12 13 21 7"/>
                 </svg>
               </div>
-              <div>
-                <h4 className="font-medium text-white">Email</h4>
-                <p className="text-sm text-blue-300 hover:text-blue-200 transition-colors">alumni@centralhigh.edu</p>
+              <div>                <h4 className="font-medium text-white">Email</h4>
+                <p className="text-sm text-primary hover:text-primary/80 transition-colors">alumni@centralhigh.edu</p>
               </div>
             </div>
           </Card>
           
           <Card className="overflow-hidden rounded-lg bg-slate-800 border-slate-700 shadow-lg transition-all hover:shadow-blue-900/20 hover:translate-y-[-4px]">
-            <div className="flex p-4">
-              <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <div className="flex p-4">              <div className="mr-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
                   <path d="M15 21h-6m6 0v-3a3 3 0 1 0-6 0v3m6 0h6m-12 0H3"/>
                   <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
                   <circle cx="12" cy="7" r="4"/>
                 </svg>
               </div>
-              <div>
-                <h4 className="font-medium text-white">FAX</h4>
-                <p className="text-sm text-blue-300 hover:text-blue-200 transition-colors">02 6212 1234</p>
+              <div>                <h4 className="font-medium text-white">FAX</h4>
+                <p className="text-sm text-primary hover:text-primary/80 transition-colors">02 6212 1234</p>
               </div>
             </div>
           </Card>

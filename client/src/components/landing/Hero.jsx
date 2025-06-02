@@ -40,9 +40,8 @@ export function Hero() {
       </div>
 
       <div className="container relative z-10 mx-auto px-4">
-        <div className="flex flex-col items-center gap-8 text-center lg:gap-12">
-          <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-            <span className="bg-gradient-to-r from-blue-300 to-purple-400 bg-clip-text text-transparent">Central High</span> Alumni Network
+        <div className="flex flex-col items-center gap-8 text-center lg:gap-12">          <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+            <span className="text-primary">Central High</span> Alumni Network
           </h1>
           
           <p className="max-w-3xl text-lg md:text-xl text-white">
@@ -50,30 +49,27 @@ export function Hero() {
             alma mater through events, mentorship programs, and networking opportunities.
           </p>
           
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Button size="lg" className="rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-none font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-4">            <Button size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground border-none font-medium">
               Join the Network
             </Button>
-            <Button size="lg" variant="outline" className="rounded-full border-purple-300 text-purple-300 hover:bg-purple-500/10 font-medium">
+            <Button size="lg" variant="outline" className="rounded-full border-secondary text-secondary-foreground hover:bg-secondary/10 font-medium">
               Learn More
             </Button>
           </div>
 
           <div className="mt-8">
-            <div className="flex flex-wrap items-center justify-center gap-6 text-white">
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-white">              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                   </svg>
                 </div>
                 <span>5000+ Alumni</span>
               </div>
-              <Separator orientation="vertical" className="h-5 bg-slate-700" />
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+              <Separator orientation="vertical" className="h-5 bg-slate-700" />              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                   </svg>
@@ -81,9 +77,8 @@ export function Hero() {
                 <span>100+ Events Yearly</span>
               </div>
               <Separator orientation="vertical" className="h-5 hidden sm:block bg-slate-700" />
-              <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+              <div className="flex items-center gap-2">                <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                   </svg>

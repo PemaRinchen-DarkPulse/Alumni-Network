@@ -36,11 +36,10 @@ const Login = () => {
     setIsLoading(true);
     setErrorMessage('');
     
-    try {
-      const { success, error } = await login(formData.email, formData.password);
+    try {      const { success, error } = await login(formData.email, formData.password);
       
       if (success) {
-        navigate('/'); // Redirect to homepage or dashboard
+        navigate('/dashboard'); // Redirect to dashboard
       } else {
         setErrorMessage(error);
       }
@@ -85,20 +84,16 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-12">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+  };  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-4">
+      <Card className="w-full max-w-2xl overflow-hidden max-h-[90vh]">
+        <CardHeader className="space-y-1 py-3">
+          <CardTitle className="text-xl font-bold text-center">Login</CardTitle>
           <CardDescription className="text-center">
             Sign in to your Alumni Network account
-          </CardDescription>
-        </CardHeader>
-        <Separator className="my-2" />
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          </CardDescription>        </CardHeader><Separator className="my-1" />
+        <CardContent className="px-4 py-2">
+          <form onSubmit={handleSubmit} className="space-y-2">
             {errorMessage && (
               <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
                 {errorMessage}
@@ -123,8 +118,7 @@ const Login = () => {
                 {resendEmailStatus.message}
               </div>
             )}
-            
-            <div className="space-y-2">
+              <div className="space-y-1">
               <label htmlFor="email" className="text-sm font-medium">
                 Email
               </label>
@@ -139,8 +133,7 @@ const Login = () => {
                 placeholder="you@example.com"
               />
             </div>
-            
-            <div className="space-y-2">
+              <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="text-sm font-medium">
                   Password
@@ -194,9 +187,8 @@ const Login = () => {
                 </span>
               ) : 'Sign in'}
             </Button>
-          </form>
-        </CardContent>
-        <CardFooter>
+          </form>        </CardContent>
+        <CardFooter className="py-2">
           <p className="text-sm text-center w-full text-gray-500">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary font-medium hover:underline">

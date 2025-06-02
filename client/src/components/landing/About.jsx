@@ -5,8 +5,7 @@ export function About() {
     {
       title: "Networking",
       description: "Expand your professional connections with fellow alumni in various industries and locations around the world.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+      icon: (        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
           <circle cx="9" cy="7" r="4"></circle>
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -17,8 +16,7 @@ export function About() {
     {
       title: "Career Growth",
       description: "Access exclusive job opportunities, career advice, and professional development resources shared by alumni.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+      icon: (        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
           <line x1="12" y1="20" x2="12" y2="10"></line>
           <line x1="18" y1="20" x2="18" y2="4"></line>
           <line x1="6" y1="20" x2="6" y2="16"></line>
@@ -28,8 +26,7 @@ export function About() {
     {
       title: "Giving Back",
       description: "Mentor current students, volunteer at school events, and contribute to scholarship funds for the next generation.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400">
+      icon: (        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
           <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path>
         </svg>
       ),
@@ -60,11 +57,10 @@ export function About() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">
-          {benefits.map((benefit, index) => (
-            <Card key={index} className="flex flex-col items-center p-6 text-center transition-all hover:shadow-blue-900/20 bg-slate-800 border-slate-700 text-white hover:-translate-y-1">
-              <div className="mb-4 rounded-full bg-slate-900/70 p-3">{benefit.icon}</div>
-              <h3 className="mb-2 text-xl font-medium text-white">{benefit.title}</h3>
-              <p className="text-slate-300">{benefit.description}</p>
+          {benefits.map((benefit, index) => (            <Card key={index} className="flex flex-col items-center p-6 text-center transition-all hover:shadow-primary/20 bg-secondary border-secondary-foreground/20 text-secondary-foreground hover:-translate-y-1">
+              <div className="mb-4 rounded-full bg-secondary-foreground/10 p-3">{benefit.icon}</div>
+              <h3 className="mb-2 text-xl font-medium text-secondary-foreground">{benefit.title}</h3>
+              <p className="text-secondary-foreground/80">{benefit.description}</p>
             </Card>
           ))}
         </div>

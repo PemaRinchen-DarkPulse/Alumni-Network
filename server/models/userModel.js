@@ -37,6 +37,7 @@ const userSchema = new mongoose.Schema({
   },
   verificationToken: String,
   verificationTokenExpires: Date,
+  _lastVerifiedToken: String, // Track last token used for successful verification
   resetPasswordToken: String,
   resetPasswordExpires: Date,
   createdAt: {

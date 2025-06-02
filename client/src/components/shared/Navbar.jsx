@@ -28,75 +28,36 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800 bg-slate-900/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center">
-          <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+        <div className="flex items-center">          <Link to="/" className="text-xl font-bold text-primary">
             DGI Alumni Connect
           </Link>
         </div>
         
-        <nav className="hidden space-x-6 md:flex">
-          <Link to="/" className="text-sm font-medium text-slate-300 transition-colors hover:text-blue-400">
+        <nav className="hidden space-x-6 md:flex">          <Link to="/" className="text-sm font-medium text-slate-300 transition-colors hover:text-primary">
             Home
           </Link>
-          <a href="#about" className="text-sm font-medium text-slate-300 transition-colors hover:text-blue-400">
+          <a href="#about" className="text-sm font-medium text-slate-300 transition-colors hover:text-primary">
             About
           </a>
-          <a href="#events" className="text-sm font-medium text-slate-300 transition-colors hover:text-blue-400">
+          <a href="#events" className="text-sm font-medium text-slate-300 transition-colors hover:text-primary">
             Events
           </a>
-          <a href="#testimonials" className="text-sm font-medium text-slate-300 transition-colors hover:text-blue-400">
+          <a href="#testimonials" className="text-sm font-medium text-slate-300 transition-colors hover:text-primary">
             Success Stories
           </a>
-          <a href="#contact" className="text-sm font-medium text-slate-300 transition-colors hover:text-blue-400">
+          <a href="#contact" className="text-sm font-medium text-slate-300 transition-colors hover:text-primary">
             Contact
           </a>
         </nav>
         
         <div className="hidden md:flex space-x-2">
-          {isAuthenticated ? (
-            <div className="relative">
-              <button 
-                className="flex items-center space-x-2"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-blue-500 text-white">
-                    {getUserInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium text-slate-300">
-                  {user?.name?.split(' ')[0]}
-                </span>
-              </button>
-              
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-slate-800 ring-1 ring-black ring-opacity-5">
-                  <div className="py-1" role="menu" aria-orientation="vertical">
-                    <Link to="/profile" className="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700" role="menuitem">Profile</Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700"
-                      role="menuitem"
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <Button size="sm" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white" asChild>
+          <Button size="sm" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white" asChild>
                 <Link to="/signup">Sign Up</Link>
-              </Button>
-              <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-none" asChild>
+              </Button>              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground border-none" asChild>
                 <Link to="/login">Sign In</Link>
               </Button>
-            </>
-          )}
         </div>
-        
-        {/* Mobile Menu Button */}
+      
         <button
           className="inline-flex h-10 w-10 items-center justify-center rounded-md text-slate-300 md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -122,26 +83,24 @@ export function Navbar() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="container mx-auto border-t border-slate-800 px-4 py-2 md:hidden bg-slate-900">
-          <nav className="flex flex-col space-y-3">
-            <Link to="/" className="text-sm font-medium text-slate-300 hover:text-blue-400">
+          <nav className="flex flex-col space-y-3">            <Link to="/" className="text-sm font-medium text-slate-300 hover:text-primary">
               Home
             </Link>
-            <a href="#about" className="text-sm font-medium text-slate-300 hover:text-blue-400">
+            <a href="#about" className="text-sm font-medium text-slate-300 hover:text-primary">
               About
             </a>
-            <a href="#events" className="text-sm font-medium text-slate-300 hover:text-blue-400">
+            <a href="#events" className="text-sm font-medium text-slate-300 hover:text-primary">
               Events
             </a>
-            <a href="#testimonials" className="text-sm font-medium text-slate-300 hover:text-blue-400">
+            <a href="#testimonials" className="text-sm font-medium text-slate-300 hover:text-primary">
               Success Stories
             </a>
-            <a href="#contact" className="text-sm font-medium text-slate-300 hover:text-blue-400">
+            <a href="#contact" className="text-sm font-medium text-slate-300 hover:text-primary">
               Contact
             </a>
             
             {isAuthenticated ? (
-              <>
-                <Link to="/profile" className="text-sm font-medium text-slate-300 hover:text-blue-400">
+              <>                <Link to="/profile" className="text-sm font-medium text-slate-300 hover:text-primary">
                   Profile
                 </Link>
                 <Button 
@@ -156,8 +115,7 @@ export function Navbar() {
               <>
                 <Button size="sm" className="mt-2 w-full border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white" variant="outline" asChild>
                   <Link to="/signup">Sign Up</Link>
-                </Button>
-                <Button size="sm" className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-none" asChild>
+                </Button>                <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground border-none" asChild>
                   <Link to="/login">Sign In</Link>
                 </Button>
               </>

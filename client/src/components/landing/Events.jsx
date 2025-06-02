@@ -65,8 +65,7 @@ export function Events() {
                 <div className="mb-6">
                   <h3 className="mb-2 text-xl font-semibold text-white">{event.title}</h3>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-300">
-                    <div className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 text-blue-400">
+                    <div className="flex items-center">                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 text-primary">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
                         <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -74,8 +73,7 @@ export function Events() {
                       </svg>
                       {event.date}
                     </div>
-                    <div className="flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 text-blue-400">
+                    <div className="flex items-center">                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 text-primary">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                       </svg>
@@ -85,8 +83,7 @@ export function Events() {
                   
                   <Separator className="my-4 bg-slate-700" />
                   
-                  <div className="mb-4 flex items-center text-sm text-slate-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-blue-400">
+                  <div className="mb-4 flex items-center text-sm text-slate-300">                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-primary">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                       <circle cx="12" cy="10" r="3"></circle>
                     </svg>
@@ -100,7 +97,7 @@ export function Events() {
                 
                 <div className="flex flex-col space-y-2">
                   <Button variant="outline" className="w-full border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">View Details</Button>
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-none">RSVP Now</Button>
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground border-none">RSVP Now</Button>
                 </div>
               </div>
             </Card>

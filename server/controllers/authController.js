@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
-const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const emailService = require('../utils/emailService');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(20).toString('hex');
-    const verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    const verificationTokenExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
 
     // Create user
     const user = await User.create({
@@ -39,31 +39,35 @@ exports.register = async (req, res) => {
       emailVerified: false
     });
 
-    // Generate verification URL
+    // Generate verification URL with target="_blank" to open in new tab
     const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
 
+    // Send verification email
     try {
-      // Send verification email
-      await sendVerificationEmail(email, name, verificationUrl);
+      await emailService.sendVerificationEmail(
+        email, 
+        name, 
+        verificationUrl
+      );
       
-      // Return success but don't include the verification token in the response
+      // Return success without the verification token in the response
       return res.status(201).json({
         success: true,
-        message: 'User registered successfully. Please check your email to verify your account.',
+        message: 'User registered successfully. Please check your email for verification instructions.',
         userId: user._id
       });
     } catch (emailError) {
-      console.error('Email sending error:', emailError);
+      console.error('Email sending failed:', emailError);
       
-      // Still log the verification link for development purposes
+      // For development: log the verification link to console as fallback
       console.log('====================================');
-      console.log('VERIFICATION LINK (email failed to send):');
+      console.log('VERIFICATION LINK (for development - email failed):');
       console.log(verificationUrl);
       console.log('====================================');
       
       return res.status(201).json({
         success: true,
-        message: 'User registered, but there was an issue sending the verification email. For development: Check server console for verification link.',
+        message: 'User registered but email verification failed. For development: Check server console for verification link.',
         userId: user._id
       });
     }
@@ -74,36 +78,89 @@ exports.register = async (req, res) => {
 };
 
 // @desc    Verify email
-// @route   GET /api/auth/verify-email/:token
+// @route   GET or POST /api/auth/verify-email/:token
 // @access  Public
 exports.verifyEmail = async (req, res) => {
   try {
-    const { token } = req.params;
+    // Get token from params or body
+    const tokenFromParams = req.params.token;
+    const tokenFromBody = req.body?.token;
+    const token = tokenFromParams || tokenFromBody;
+    
+    console.log(`Attempting to verify email with token: ${token ? token.substring(0, 10) + '...' : 'undefined'}`);
 
-    // Find user with the given verification token and token not expired
-    const user = await User.findOne({
-      verificationToken: token,
-      verificationTokenExpires: { $gt: Date.now() }
+    if (!token) {
+      console.log('Verification failed: No token provided');
+      return res.status(400).json({ message: 'No verification token provided' });
+    }
+
+    // Find user with the given verification token
+    const user = await User.findOne({ 
+      $or: [
+        // Check for user with this verification token
+        { verificationToken: token },
+        // Also check if a user was recently verified with this token
+        // This helps with multiple/duplicate requests
+        { 
+          emailVerified: true, 
+          _id: { $exists: true },
+          $expr: {
+            $eq: [{ $toString: "$_lastVerifiedToken" }, token]
+          }
+        }
+      ]
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid or expired verification token' });
+      console.log('Verification failed: Invalid token - no user found with this token');
+      return res.status(400).json({ message: 'Invalid verification token. Please request a new verification link.' });
     }
 
-    // Update user
+    // Check if the email is already verified
+    if (user.emailVerified) {
+      console.log(`This email (${user.email}) has already been verified`);
+      return res.status(200).json({
+        success: true,
+        message: 'Email already verified. You can now log in.',
+        email: user.email
+      });
+    }
+
+    // Check if the token has expired
+    if (user.verificationTokenExpires && user.verificationTokenExpires < Date.now()) {
+      console.log(`Verification failed: Token expired for user ${user.email}`);
+      return res.status(400).json({ 
+        message: 'Your verification link has expired. Please request a new one.',
+        expired: true,
+        email: user.email
+      });
+    }
+
+    // Store the token temporarily for history purposes (helps with duplicate requests)
+    const tokenBeforeClearing = user.verificationToken;
+
+    // Update user - set email as verified and clear the verification tokens
     user.emailVerified = true;
+    user._lastVerifiedToken = tokenBeforeClearing; // Store the token that was used for verification
     user.verificationToken = undefined;
     user.verificationTokenExpires = undefined;
+    
     await user.save();
 
-    // Return success
+    console.log(`Email verified successfully for user: ${user.email}`);
+    
+    // Return success with redirect
     return res.status(200).json({
       success: true,
-      message: 'Email verified successfully. You can now log in.'
+      message: 'Email verified successfully. You will be redirected to login.',
+      email: user.email
     });
   } catch (error) {
     console.error('Email verification error:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    return res.status(500).json({ 
+      message: 'Server error occurred while verifying email', 
+      error: error.message 
+    });
   }
 };
 
@@ -176,7 +233,7 @@ exports.resendVerification = async (req, res) => {
 
     // Generate new verification token
     const verificationToken = crypto.randomBytes(20).toString('hex');
-    const verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    const verificationTokenExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
 
     // Update user with new token
     user.verificationToken = verificationToken;
@@ -186,31 +243,198 @@ exports.resendVerification = async (req, res) => {
     // Generate verification URL
     const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
 
+    // Send verification email
     try {
-      // Send verification email
-      await sendVerificationEmail(email, user.name, verificationUrl);
+      await emailService.sendVerificationEmail(
+        email,
+        user.name,
+        verificationUrl
+      );
       
-      // Return success
       return res.status(200).json({
         success: true,
-        message: 'Verification email sent successfully. Please check your inbox.'
+        message: 'Verification email sent successfully. Please check your email.'
       });
     } catch (emailError) {
-      console.error('Email sending error:', emailError);
+      console.error('Email resending failed:', emailError);
       
-      // Log the verification link for development purposes
+      // For development: log the verification link to console as fallback
       console.log('====================================');
-      console.log('VERIFICATION LINK (email failed to send):');
+      console.log('VERIFICATION LINK (resent - email failed):');
       console.log(verificationUrl);
       console.log('====================================');
       
       return res.status(200).json({
         success: true,
-        message: 'There was an issue sending the verification email. For development: Check server console for verification link.'
+        message: 'For development: Check server console for verification link.'
       });
     }
   } catch (error) {
     console.error('Resend verification error:', error);
     return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Forgot password - generate reset token and send email
+// @route   POST /api/auth/forgot-password
+// @access  Public
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Validate email
+    if (!email) {
+      return res.status(400).json({ message: 'Please provide an email address' });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    // Note: For security reasons, always return success regardless of whether user exists
+    // This prevents email enumeration attacks
+    if (!user) {
+      console.log(`Password reset requested for non-existent email: ${email}`);
+      return res.status(200).json({
+        success: true,
+        message: 'If a user with this email exists, a password reset link will be sent.'
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    const resetTokenExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+
+    // Save token to user
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetTokenExpires;
+    await user.save();
+
+    // Generate reset URL
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+    // Send password reset email
+    try {
+      await emailService.sendPasswordResetEmail(
+        email,
+        user.name,
+        resetUrl
+      );
+
+      console.log(`Password reset email sent to: ${email}`);
+      return res.status(200).json({
+        success: true,
+        message: 'If a user with this email exists, a password reset link will be sent.'
+      });
+    } catch (emailError) {
+      console.error('Password reset email sending failed:', emailError);
+      
+      // For development: log the reset link to console as fallback
+      console.log('====================================');
+      console.log('PASSWORD RESET LINK (for development - email failed):');
+      console.log(resetUrl);
+      console.log('====================================');
+      
+      // Remove the reset token - so user has to request a new one if email fails
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+
+      return res.status(500).json({
+        message: 'Unable to send password reset email. Please try again later.'
+      });
+    }
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({
+      message: 'Server error occurred while processing your request.',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Validate password reset token
+// @route   GET /api/auth/validate-reset-token/:token
+// @access  Public
+exports.validateResetToken = async (req, res) => {
+  try {
+    const resetToken = req.params.token;
+
+    // Check if token exists
+    if (!resetToken) {
+      return res.status(400).json({ message: 'Invalid password reset token' });
+    }
+
+    // Find user with matching token
+    const user = await User.findOne({
+      resetPasswordToken: resetToken,
+      resetPasswordExpires: { $gt: Date.now() } // Token not expired
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'Password reset link is invalid or has expired'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Token is valid',
+      email: user.email // Optionally return email to show on reset page
+    });
+  } catch (error) {
+    console.error('Token validation error:', error);
+    return res.status(500).json({
+      message: 'Server error occurred while validating the reset token',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Reset password
+// @route   POST /api/auth/reset-password/:token
+// @access  Public
+exports.resetPassword = async (req, res) => {
+  try {
+    const resetToken = req.params.token;
+    const { password } = req.body;
+
+    // Validate inputs
+    if (!resetToken || !password) {
+      return res.status(400).json({
+        message: 'Please provide a new password'
+      });
+    }
+
+    // Find user with matching token that hasn't expired
+    const user = await User.findOne({
+      resetPasswordToken: resetToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: 'Password reset link is invalid or has expired'
+      });
+    }
+
+    // Update password and clear reset tokens
+    user.password = password; // Password will be hashed by pre-save hook
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    
+    await user.save();
+
+    console.log(`Password reset successful for user: ${user.email}`);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Your password has been successfully updated. You can now log in with your new password.'
+    });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return res.status(500).json({
+      message: 'Server error occurred while resetting your password',
+      error: error.message
+    });
   }
 };
