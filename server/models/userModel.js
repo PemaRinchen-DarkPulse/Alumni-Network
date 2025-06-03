@@ -25,12 +25,128 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'alumni', 'teacher'],
     default: 'student'
   },
+  // Common profile fields
+  profilePicture: {
+    type: String,
+    default: ''
+  },
+  phone: {
+    type: String,
+    trim: true
+  },
+  address: {
+    type: String,
+    trim: true
+  },
+  bio: {
+    type: String,
+    trim: true,
+    maxlength: 500
+  },
+  socialLinks: {
+    linkedin: String,
+    instagram: String,
+    twitter: String,
+    facebook: String,
+    github: String
+  },
+  // Role-specific fields
   batch: {
     type: String,
     required: function() {
       return this.role === 'student' || this.role === 'alumni';
     }
   },
+  // For students
+  parentGuardianContact: {
+    type: String,
+    trim: true
+  },
+  // For alumni
+  currentOccupation: {
+    type: String,
+    trim: true
+  },
+  isMentor: {
+    type: Boolean,
+    default: false
+  },
+  networkingPreferences: {
+    openToMentoring: {
+      type: Boolean,
+      default: false
+    },
+    providingInternships: {
+      type: Boolean,
+      default: false
+    },
+    attendingSchoolTalks: {
+      type: Boolean,
+      default: false
+    }
+  },
+  // For teachers
+  subjectsTaught: [{
+    type: String,
+    trim: true
+  }],
+  // Settings
+  notificationSettings: {
+    pushNotifications: {
+      type: Boolean,
+      default: true
+    },
+    emailNotifications: {
+      type: Boolean,
+      default: true
+    },
+    eventReminders: {
+      type: Boolean,
+      default: true
+    }
+  },
+  privacySettings: {
+    showEmail: {
+      type: Boolean,
+      default: false
+    },
+    showPhone: {
+      type: Boolean,
+      default: false
+    },
+    showSocialLinks: {
+      type: Boolean,
+      default: true
+    },
+    showBio: {
+      type: Boolean,
+      default: true
+    }
+  },
+  accountStatus: {
+    type: String,
+    enum: ['active', 'deactivated'],
+    default: 'active'
+  },
+  // Activity tracking
+  activityHistory: [{
+    type: {
+      type: String,
+      enum: ['event', 'mentorship', 'post', 'comment']
+    },
+    reference: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: 'activityHistory.referenceModel'
+    },
+    referenceModel: {
+      type: String,
+      enum: ['Event', 'MentorshipSession', 'Post', 'Comment']
+    },
+    date: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   emailVerified: {
     type: Boolean,
     default: false

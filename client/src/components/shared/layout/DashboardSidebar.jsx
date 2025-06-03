@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 
 const DashboardSidebar = ({ isExpanded }) => {
   const { user } = useAuth();
@@ -9,7 +9,7 @@ const DashboardSidebar = ({ isExpanded }) => {
   // Default links (can be customized based on user.role if available)
   const userRole = user?.role || 'teacher'; // Default to teacher if no role specified
   const isMentor = user?.isMentor || false; // Check if user is a mentor
-    // Define sidebar links by role  // Define sidebar links by role
+  // Define sidebar links by role
   const sidebarLinks = {
     teacher: [
       { name: 'Dashboard', path: '/dashboard', icon: 'layout-dashboard' },
@@ -21,7 +21,8 @@ const DashboardSidebar = ({ isExpanded }) => {
       { name: 'Tribute to Teachers', path: '/dashboard/tribute', icon: 'award' },
       { name: 'Alumni Feedback', path: '/dashboard/feedback', icon: 'thumbs-up' },
       { name: 'Collaboration', path: '/dashboard/collaboration', icon: 'handshake' },
-    ],    student: [
+    ],    
+    student: [
       { name: 'Dashboard', path: '/dashboard', icon: 'layout-dashboard' },
       { name: 'Alumni Directory', path: '/dashboard/directory', icon: 'users' },
       { name: 'Alumni Blog', path: '/dashboard/blog', icon: 'file-text' },
@@ -29,7 +30,8 @@ const DashboardSidebar = ({ isExpanded }) => {
       { name: 'Events', path: '/dashboard/events', icon: 'calendar' },
       { name: 'Photos & Videos', path: '/dashboard/media', icon: 'image' },
       { name: 'Tribute to Teachers', path: '/dashboard/tribute', icon: 'award' },
-    ],alumni: [
+    ],
+    alumni: [
       { name: 'Dashboard', path: '/dashboard', icon: 'layout-dashboard' },
       { name: 'Alumni Directory', path: '/dashboard/directory', icon: 'users' },
       { name: 'Alumni Blog', path: '/dashboard/blog', icon: 'file-text' },
@@ -37,7 +39,7 @@ const DashboardSidebar = ({ isExpanded }) => {
       { name: 'Events', path: '/dashboard/events', icon: 'calendar' },
       { name: 'Photos & Videos', path: '/dashboard/media', icon: 'image' },
       { name: 'Discussion Forum', path: '/dashboard/forum', icon: 'message-square' },
-      { name: 'Tribute to Teachers', path: '/dashboard/tribute', icon: 'award' }
+      { name: 'Tribute to Teachers', path: '/dashboard/tribute', icon: 'award' },
     ]
   };
   
@@ -64,26 +66,41 @@ const DashboardSidebar = ({ isExpanded }) => {
             <SidebarIcon name={link.icon} />
             {isExpanded && <span className="ml-3 text-base">{link.name}</span>}
           </Link>
-        ))}      </div>
-      <div className="mt-auto p-3">
-        <Link
-          to="/profile"
-          className="flex items-center rounded-md px-3 py-3 text-slate-900 hover:bg-slate-100 dark:text-slate-50 dark:hover:bg-slate-800"
-        >
-          <SidebarIcon name="user" />
-          {isExpanded && <span className="ml-3 text-base">Profile</span>}
-        </Link>        {/* For alumni only: Show "Become a Mentor" button if they are not mentors */}
-      
-        
-        <Link
-          to="/settings"
-          className="flex items-center rounded-md px-3 py-3 text-slate-900 hover:bg-slate-100 dark:text-slate-50 dark:hover:bg-slate-800"
-        >
-          <SidebarIcon name="settings" />
-          {isExpanded && <span className="ml-3 text-base">Settings</span>}
-        </Link>
+        ))}      </div>      <div className="mt-auto p-3">
+          <Link
+            to="/dashboard/settings"
+            className="flex items-center rounded-md px-3 py-3 text-slate-900 hover:bg-slate-100 dark:text-slate-50 dark:hover:bg-slate-800"
+          >
+            <SidebarIcon name="settings" />
+            {isExpanded && <span className="ml-3 text-base">Settings & Profile</span>}
+          </Link>
+          
+          <SignOutButton isExpanded={isExpanded} />
       </div>
     </aside>
+  );
+};
+
+// Sign Out Button component
+const SignOutButton = ({ isExpanded }) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+    const handleSignOut = () => {
+    logout(navigate);
+  };
+  
+  return (
+    <button
+      onClick={handleSignOut}
+      className="w-full flex items-center rounded-md px-3 py-3 text-red-600 hover:bg-slate-100 dark:text-red-400 dark:hover:bg-slate-800"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+      {isExpanded && <span className="ml-3 text-base">Sign Out</span>}
+    </button>
   );
 };
 

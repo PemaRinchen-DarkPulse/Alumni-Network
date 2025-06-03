@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth';
 import { Button } from '@/components/ui/button';
 
 const DashboardNavbar = ({ toggleSidebar }) => {
@@ -41,12 +41,10 @@ const DashboardNavbar = ({ toggleSidebar }) => {
       .join('')
       .slice(0, 2);
   };
-
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    logout(navigate);
     setIsDropdownOpen(false);
-  };  return (
+  };return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
       <div className="container mx-auto flex h-20 items-center px-4">        <button 
           onClick={toggleSidebar}
@@ -97,27 +95,17 @@ const DashboardNavbar = ({ toggleSidebar }) => {
                 <AvatarFallback>{getUserInitials()}</AvatarFallback>
               </Avatar>
             </button>
-              {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-slate-800">
+              {isDropdownOpen && (              <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-slate-800">
                 <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
                   <p className="text-md font-medium">{user?.name || 'User'}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</p>
                   <p className="mt-1 text-sm font-medium capitalize text-primary">{userRole}</p>
-                </div>
-                <Link
-                  to="/profile"
+                </div><Link
+                  to="/dashboard/settings"
                   className="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  Profile
-                </Link>
-                <Link
-                  to="/settings"
-                  className="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  Settings
-                </Link>                <button
+                  Settings & Profile
+                </Link><button
                   className="block w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-slate-100 dark:hover:bg-slate-700"
                   onClick={handleLogout}
                 >

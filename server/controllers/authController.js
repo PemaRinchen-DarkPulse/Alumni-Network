@@ -3,11 +3,18 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const emailService = require('../utils/emailService');
 
-// Generate JWT Token
+// Generate JWT Token with more security options
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
+  return jwt.sign(
+    { id }, 
+    process.env.JWT_SECRET, 
+    {
+      expiresIn: '30d',
+      algorithm: 'HS256',
+      issuer: 'alumni-network-api',
+      audience: 'alumni-network-client'
+    }
+  );
 };
 
 // @desc    Register a new user
@@ -16,6 +23,36 @@ const generateToken = (id) => {
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role, batch } = req.body;
+
+    // Validate inputs
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        message: 'Please provide name, email and password' 
+      });
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        message: 'Please provide a valid email address' 
+      });
+    }
+    
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({ 
+        message: 'Password must be at least 8 characters long' 
+      });
+    }
+    
+    // Validate role
+    const validRoles = ['student', 'alumni', 'teacher'];
+    if (role && !validRoles.includes(role)) {
+      return res.status(400).json({ 
+        message: 'Invalid role specified' 
+      });
+    }
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
