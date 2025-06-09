@@ -14,9 +14,111 @@ exports.getUserProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     
-    res.status(200).json({ user });
+    // Get privacy settings from the privacy controller
+    const PrivacySettings = require('../models/privacySettingsModel');
+    let privacySettings = await PrivacySettings.findOne({ userId });
+    
+    // If no privacy settings exist, create default settings using the utility function
+    if (!privacySettings) {
+      console.log(`No privacy settings found for user ${userId}, creating default settings...`);
+      const { createDefaultPrivacySettingsForUser } = require('../utils/createDefaultSettings');
+      privacySettings = await createDefaultPrivacySettingsForUser(userId);
+    }
+    
+    // Convert to plain object to avoid mongoose document behavior
+    const privacySettingsObj = privacySettings.toObject();
+    
+    // Add privacy settings to user object
+    const userObj = user.toObject();
+    userObj.privacySettings = privacySettingsObj;
+    
+    console.log(`Returning user profile with privacy settings. Profile visibility: ${privacySettingsObj.profileVisibility}`);
+    
+    res.status(200).json({ user: userObj });
   } catch (error) {
     console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Get users directory (for alumni directory page)
+exports.getUsersDirectory = async (req, res) => {
+  try {
+    const { role, page = 1, limit = 20 } = req.query;
+    
+    // Build query filter
+    const filter = { 
+      accountStatus: 'active',
+      emailVerified: true
+    };
+    
+    // Filter by role if specified
+    if (role && ['student', 'alumni', 'teacher'].includes(role)) {
+      filter.role = role;
+    }
+    
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    
+    // Find users with proper fields for directory display
+    const users = await User.find(filter)
+      .select('name email role batch currentOccupation profilePicture bio isMentor socialLinks phone address privacySettings')
+      .sort({ name: 1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    // Filter users based on privacy settings
+    const filteredUsers = users.map(user => {
+      const userObj = user.toObject();
+      
+      // Respect privacy settings
+      if (!userObj.privacySettings?.showEmail) {
+        delete userObj.email;
+      }
+      if (!userObj.privacySettings?.showPhone) {
+        delete userObj.phone;
+      }
+      if (!userObj.privacySettings?.showSocialLinks) {
+        delete userObj.socialLinks;
+      }
+      if (!userObj.privacySettings?.showBio) {
+        delete userObj.bio;
+      }
+      
+      // Remove privacy settings from response
+      delete userObj.privacySettings;
+      
+      // Add computed fields for directory display
+      userObj.yearOrClass = userObj.batch || '';
+      userObj.field = userObj.currentOccupation || '';
+      userObj.tags = [];
+      
+      // Add role-based tags
+      if (userObj.isMentor) {
+        userObj.tags.push('Mentor');
+      }
+      if (userObj.role === 'alumni' && userObj.currentOccupation) {
+        userObj.tags.push(userObj.currentOccupation);
+      }
+      
+      return userObj;
+    });
+    
+    // Get total count for pagination
+    const totalUsers = await User.countDocuments(filter);
+    
+    res.status(200).json({ 
+      users: filteredUsers,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalUsers / limit),
+        totalUsers,
+        hasMore: skip + users.length < totalUsers
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error fetching users directory:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -27,13 +129,32 @@ exports.updateUserProfile = async (req, res) => {
     const userId = req.user.id;
     const updateData = req.body;
     
+    // Log update attempt for debugging
+    console.log('Profile update attempt for user:', userId);
+    console.log('Update data keys:', Object.keys(updateData));
+    
     // Remove sensitive fields that shouldn't be updated directly
     delete updateData.password;
     delete updateData.email; // Email change should be a separate process with verification
     delete updateData.role; // Role changes should be handled differently
-    
-    // Handle profile picture upload separately if needed
-    // This would typically involve processing the image and updating the profilePicture field
+      // Handle profile picture upload separately if needed
+    // Validate and process profile picture if provided
+    if (updateData.profilePicture && updateData.profilePicture.startsWith('data:')) {
+      // Validate the base64 image data
+      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const mimeType = updateData.profilePicture.split(';')[0].split(':')[1];
+      
+      if (!validImageTypes.includes(mimeType)) {
+        return res.status(400).json({ message: 'Invalid image format. Please use JPEG, PNG, GIF, or WebP.' });
+      }
+      
+      // Check file size (approximate, base64 is ~33% larger than original)
+      const sizeInBytes = (updateData.profilePicture.length * 0.75);
+      const maxSizeInMB = 5;
+      if (sizeInBytes > maxSizeInMB * 1024 * 1024) {
+        return res.status(400).json({ message: `Image too large. Please use an image smaller than ${maxSizeInMB}MB.` });
+      }
+    }
     
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -42,9 +163,11 @@ exports.updateUserProfile = async (req, res) => {
     ).select('-password');
     
     if (!updatedUser) {
+      console.log('User not found during update:', userId);
       return res.status(404).json({ message: 'User not found' });
     }
     
+    console.log('Profile updated successfully for user:', userId);
     res.status(200).json({ 
       message: 'Profile updated successfully',
       user: updatedUser
@@ -52,6 +175,16 @@ exports.updateUserProfile = async (req, res) => {
     
   } catch (error) {
     console.error('Error updating user profile:', error);
+    
+    // Provide more specific error messages
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: validationErrors 
+      });
+    }
+    
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -62,88 +195,67 @@ exports.changePassword = async (req, res) => {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
     
-    // Validate request
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: 'Current password and new password are required' });
+    // Enhanced logging for debugging
+    console.log('Password change request for user ID:', userId);
+    console.log('Current password provided:', currentPassword ? 'Yes' : 'No');
+    console.log('New password provided:', newPassword ? 'Yes' : 'No');
+    
+    // Validate request with detailed errors
+    if (!currentPassword) {
+      return res.status(400).json({ message: 'Current password is required' });
     }
     
-    // Find user
-    const user = await User.findById(userId);
+    if (!newPassword) {
+      return res.status(400).json({ message: 'New password is required' });
+    }
+    
+    if (newPassword.length < 8) {
+      return res.status(400).json({ message: 'New password must be at least 8 characters long' });
+    }
+    
+    // Find user with password field included (which is normally excluded)
+    const user = await User.findById(userId).select('+password');
+    
     if (!user) {
+      console.log('User not found with ID:', userId);
       return res.status(404).json({ message: 'User not found' });
     }
     
-    // Check if current password is correct
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Current password is incorrect' });
+    // Check if password field exists
+    if (!user.password) {
+      console.log('Password field is missing for user:', userId);
+      return res.status(400).json({ message: 'User password not found in database' });
     }
     
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    // Log password info for debugging (only safe in development)
+    console.log('User found, password hash exists');
     
-    // Save user with new password
-    await user.save();
-    
-    res.status(200).json({ message: 'Password changed successfully' });
-    
-  } catch (error) {
+    try {
+      // Check if current password is correct
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      
+      if (!isMatch) {
+        console.log('Password mismatch for user:', userId);
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+      
+      console.log('Password verified successfully');
+      
+      // Hash new password
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+      
+      // Save user with new password
+      await user.save();
+      console.log('Password updated successfully for user:', userId);
+      
+      res.status(200).json({ message: 'Password changed successfully' });
+    } catch (bcryptError) {
+      console.error('bcrypt error:', bcryptError);
+      return res.status(500).json({ message: 'Error verifying password', error: bcryptError.message });
+    }
+      } catch (error) {
     console.error('Error changing password:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-// Update notification settings
-exports.updateNotificationSettings = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { notificationSettings } = req.body;
-    
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: { notificationSettings } },
-      { new: true, runValidators: true }
-    ).select('notificationSettings');
-    
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    res.status(200).json({ 
-      message: 'Notification settings updated successfully',
-      notificationSettings: updatedUser.notificationSettings
-    });
-    
-  } catch (error) {
-    console.error('Error updating notification settings:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
-
-// Update privacy settings
-exports.updatePrivacySettings = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { privacySettings } = req.body;
-    
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: { privacySettings } },
-      { new: true, runValidators: true }
-    ).select('privacySettings');
-    
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    res.status(200).json({ 
-      message: 'Privacy settings updated successfully',
-      privacySettings: updatedUser.privacySettings
-    });
-    
-  } catch (error) {
-    console.error('Error updating privacy settings:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
@@ -207,7 +319,7 @@ exports.contactSupport = async (req, res) => {
 exports.updateNetworkingPreferences = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { networkingPreferences } = req.body;
+    const { networkingPreferences, isMentor } = req.body;
     
     const user = await User.findById(userId);
     
@@ -216,11 +328,19 @@ exports.updateNetworkingPreferences = async (req, res) => {
       return res.status(403).json({ message: 'Only alumni can update networking preferences' });
     }
     
+    // Create update object
+    const updateData = { networkingPreferences };
+    
+    // Add isMentor to update if provided
+    if (isMentor !== undefined) {
+      updateData.isMentor = isMentor;
+    }
+    
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $set: { networkingPreferences } },
+      { $set: updateData },
       { new: true, runValidators: true }
-    ).select('networkingPreferences');
+    ).select('networkingPreferences isMentor');
     
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
@@ -228,11 +348,70 @@ exports.updateNetworkingPreferences = async (req, res) => {
     
     res.status(200).json({ 
       message: 'Networking preferences updated successfully',
-      networkingPreferences: updatedUser.networkingPreferences
+      networkingPreferences: updatedUser.networkingPreferences,
+      isMentor: updatedUser.isMentor
     });
     
   } catch (error) {
     console.error('Error updating networking preferences:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Get current user's profile data
+exports.getCurrentUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)
+      .select('-password -emailVerificationToken -passwordResetToken -passwordResetExpires');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      user: user
+    });
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Delete account permanently
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { confirmPassword } = req.body;
+    
+    // Get user with password to verify before deletion
+    const user = await User.findById(userId).select('+password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Verify password before deletion for security
+    if (confirmPassword) {
+      const isMatch = await bcrypt.compare(confirmPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Password confirmation failed' });
+      }
+    }
+    
+    // In a production environment, you might want to:
+    // 1. Soft delete instead of hard delete (add deletedAt field)
+    // 2. Archive user data for compliance reasons
+    // 3. Clean up related data (posts, comments, etc.)
+    // 4. Send confirmation email
+    
+    await User.findByIdAndDelete(userId);
+    
+    res.status(200).json({ 
+      message: 'Account deleted successfully' 
+    });
+      } catch (error) {
+    console.error('Error deleting account:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

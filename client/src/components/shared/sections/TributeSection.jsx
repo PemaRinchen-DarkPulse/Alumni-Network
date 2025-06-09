@@ -1,4 +1,5 @@
 import React from 'react';
+import { PrimaryButton } from '@/components/ui/primary-button';
 import PageHeader from '../layout/PageHeader';
 import ContentCard from '../cards/ContentCard';
 
@@ -62,15 +63,10 @@ const TributeSection = ({
                   placeholder="Share how this teacher impacted your life..."
                 ></textarea>
               </div>
-              
-              <div>
-                <button 
-                  type="button"
-                  onClick={onSubmitTribute}
-                  className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                >
+                <div>
+                <PrimaryButton onClick={onSubmitTribute}>
                   Submit Tribute
-                </button>
+                </PrimaryButton>
               </div>
             </form>
           </ContentCard>

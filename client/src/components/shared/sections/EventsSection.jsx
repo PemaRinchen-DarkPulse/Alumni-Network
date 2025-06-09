@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Select } from '@/components/ui/select';
 import PageHeader from '../layout/PageHeader';
 import ContentCard from '../cards/ContentCard';
 import EventCard from '../cards/EventCard';
@@ -69,19 +70,12 @@ const EventsSection = ({
                   Past
                 </button>
               </div>
-              
-              <div className="ml-auto">
-                <select
-                  className="rounded-md border border-slate-300 py-2 px-3 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+                <div className="ml-auto">
+                <Select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
-                >
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                  options={categories.map(category => ({ value: category, label: category }))}
+                />
               </div>
             </div>
           </ContentCard>

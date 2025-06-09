@@ -2,18 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
-// Textarea component (reused from other components)
-const Textarea = React.forwardRef(({ className, ...props }, ref) => {
-  return (
-    <textarea
-      className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-      ref={ref}
-      {...props}
-    />
-  );
-});
-Textarea.displayName = "Textarea";
+import { Textarea } from '@/components/ui/textarea';
 
 // Accordion component
 const Accordion = ({ items }) => {
@@ -88,8 +77,7 @@ const HelpSupportSection = () => {
       [name]: value
     }));
   };
-  
-  // Submit contact form
+    // Submit contact form
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -106,10 +94,16 @@ const HelpSupportSection = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      // In a real app, implement API call
-      // Mock API call
-      setTimeout(() => {
-        console.log('Submitting support request:', contactForm);
+      // Import settings service
+      const { contactSupport } = await import('@/services/settingsService');
+      
+      // Call the API service to submit support request
+      const response = await contactSupport(
+        contactForm.subject,
+        contactForm.message
+      );
+      
+      if (response.success) {
         setMessage({ 
           type: 'success', 
           text: 'Your message has been sent! Our support team will get back to you soon.' 
@@ -120,9 +114,9 @@ const HelpSupportSection = () => {
           subject: '',
           message: ''
         });
-        
-        setLoading(false);
-      }, 1000);
+      } else {
+        throw new Error(response.error || 'Failed to submit your message. Please try again.');
+      }
     } catch (error) {
       console.error('Error submitting support request:', error);
       setMessage({ 

@@ -74,9 +74,7 @@ const SettingsPage = () => {
           
           <TabsContent value="password">
             <PasswordSection />
-          </TabsContent>
-          
-          <TabsContent value="notifications">
+          </TabsContent>            <TabsContent value="notifications">
             <NotificationsSection />
           </TabsContent>
           

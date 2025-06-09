@@ -1,35 +1,21 @@
 import { Card } from "@/components/ui/card";
+import { Icon } from "@/components/shared/icons/Icon";
 
 export function About() {
-  const benefits = [
-    {
+  const benefits = [    {
       title: "Networking",
       description: "Expand your professional connections with fellow alumni in various industries and locations around the world.",
-      icon: (        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-      ),
+      icon: <Icon name="users" size={24} className="text-primary" />,
     },
     {
       title: "Career Growth",
       description: "Access exclusive job opportunities, career advice, and professional development resources shared by alumni.",
-      icon: (        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-          <line x1="12" y1="20" x2="12" y2="10"></line>
-          <line x1="18" y1="20" x2="18" y2="4"></line>
-          <line x1="6" y1="20" x2="6" y2="16"></line>
-        </svg>
-      ),
+      icon: <Icon name="bar-chart" size={24} className="text-primary" />,
     },
     {
       title: "Giving Back",
       description: "Mentor current students, volunteer at school events, and contribute to scholarship funds for the next generation.",
-      icon: (        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-          <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path>
-        </svg>
-      ),
+      icon: <Icon name="heart" size={24} className="text-primary" />,
     },
   ];
 

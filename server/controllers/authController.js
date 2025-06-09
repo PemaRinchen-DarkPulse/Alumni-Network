@@ -219,18 +219,31 @@ exports.login = async (req, res) => {
     // Check if email is verified
     if (!user.emailVerified) {
       return res.status(401).json({ message: 'Please verify your email before logging in' });
-    }
-
-    // Check if password matches
+    }    // Check if password matches
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
+    }    // Get privacy settings for the user
+    const PrivacySettings = require('../models/privacySettingsModel');
+    let privacySettings = await PrivacySettings.findOne({ userId: user._id });
+    
+    // If no privacy settings exist, create default settings
+    if (!privacySettings) {
+      console.log('Creating default privacy settings for user at login time');
+      
+      // Import the utility to create default settings
+      const { createDefaultPrivacySettingsForUser } = require('../utils/createDefaultSettings');
+      privacySettings = await createDefaultPrivacySettingsForUser(user._id);
     }
+    
+    // Convert to plain object to avoid mongoose document behavior
+    const privacySettingsObj = privacySettings.toObject();
+    console.log(`Login: Privacy settings loaded for user ${user._id}. Profile visibility: ${privacySettingsObj.profileVisibility}`);
+    
 
     // Generate JWT token
     const token = generateToken(user._id);
-
-    // Return user info and token
+      // Return user info and token
     return res.status(200).json({
       success: true,
       token,
@@ -239,7 +252,16 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        batch: user.batch
+        batch: user.batch,
+        profilePicture: user.profilePicture,
+        phone: user.phone,
+        address: user.address,
+        bio: user.bio,
+        socialLinks: user.socialLinks,
+        parentGuardianContact: user.parentGuardianContact,
+        currentOccupation: user.currentOccupation,
+        subjectsTaught: user.subjectsTaught,
+        privacySettings: privacySettingsObj  // Use the plain object version of privacy settings
       }
     });
   } catch (error) {

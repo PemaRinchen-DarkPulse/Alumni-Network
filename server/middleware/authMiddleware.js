@@ -13,16 +13,28 @@ exports.authenticateJWT = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: 'No token, authorization denied' });
   }
-
   try {
     // Verify token with algorithm specified explicitly for security
-    const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+    // Try with issuer/audience first, fallback to basic verification for compatibility
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET, { 
+        algorithms: ['HS256'],
+        issuer: 'alumni-network-api',
+        audience: 'alumni-network-client'
+      });
+    } catch (verifyError) {
+      // Fallback to basic verification for older tokens
+      console.log('Trying fallback token verification...');
+      decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+    }
     
     // Add user from payload
     req.user = decoded;
     next();
   } catch (err) {
     console.error('Token verification error:', err.message);
+    console.error('Token:', token?.substring(0, 20) + '...');
     res.status(401).json({ message: 'Token is not valid' });
   }
 };

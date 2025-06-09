@@ -1,4 +1,5 @@
 import React from 'react';
+import { PrimaryButton } from '@/components/ui/primary-button';
 import PageHeader from '../layout/PageHeader';
 import ContentCard from '../cards/ContentCard';
 
@@ -72,14 +73,10 @@ const MentorshipRequestSection = ({
                     className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600"
                   ></textarea>
                 </div>
-                
-                <div>
-                  <button 
-                    type="submit" 
-                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                  >
+                  <div>
+                  <PrimaryButton type="submit">
                     Submit Request
-                  </button>
+                  </PrimaryButton>
                 </div>
               </form>
             </div>

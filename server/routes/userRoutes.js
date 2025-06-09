@@ -5,23 +5,23 @@ const {
   getUserProfile, 
   updateUserProfile, 
   changePassword,
-  updateNotificationSettings,
-  updatePrivacySettings,
   toggleAccountStatus,
   contactSupport,
-  updateNetworkingPreferences 
+  updateNetworkingPreferences,
+  getUsersDirectory
 } = require('../controllers/userController');
 
 // Profile Routes
 router.get('/profile', authenticateJWT, getUserProfile);
 router.put('/profile', authenticateJWT, updateUserProfile);
 
+// Directory Routes
+router.get('/directory', authenticateJWT, getUsersDirectory);
+
 // Password Management
 router.put('/change-password', authenticateJWT, changePassword);
 
 // Settings Routes
-router.put('/settings/notifications', authenticateJWT, updateNotificationSettings);
-router.put('/settings/privacy', authenticateJWT, updatePrivacySettings);
 router.put('/settings/account-status', authenticateJWT, toggleAccountStatus);
 router.put('/settings/networking', authenticateJWT, updateNetworkingPreferences);
 

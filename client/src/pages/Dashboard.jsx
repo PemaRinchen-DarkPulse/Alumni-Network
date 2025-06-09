@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../contexts/auth';
 import { cn } from '@/lib/utils';
+import { Icon } from '@/components/shared/icons/Icon';
 
 // Import layout components directly
 import DashboardNavbar from '@/components/shared/layout/DashboardNavbar';
@@ -28,6 +29,9 @@ import BecomeMentorSection from '@/components/shared/mentorship/BecomeMentorSect
 import ContentCard from '@/components/shared/cards/ContentCard';
 import DashboardCard from '@/components/shared/cards/DashboardCard';
 import SettingsPage from '@/components/settings/SettingsPage';
+
+// Import page components
+import DirectoryPage from './DirectoryPage';
 
 const Dashboard = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -56,20 +60,7 @@ const Dashboard = () => {
               {/* Main Dashboard Route */}
               <Route path="/" element={<DashboardHome user={user} userRole={userRole} />} />
               
-              {/* Routes common to all user types using shared components */}
-              <Route path="/directory" element={
-                <DirectorySection 
-                  title={`${userRole === 'teacher' ? 'Alumni' : userRole === 'student' ? 'Alumni' : 'Alumni'} Directory`}
-                  description={userRole === 'teacher' 
-                    ? "View and manage alumni information." 
-                    : userRole === 'student' 
-                      ? "Connect with graduates from your institution."
-                      : "Connect with fellow alumni from your institution."
-                  }
-                  users={[]} // This would be populated with real data
-                  onUserContact={(user) => console.log('Contact user:', user)}
-                />
-              } />
+              {/* Routes common to all user types using shared components */}              <Route path="/directory" element={<DirectoryPage />} />
               
               <Route path="/blog" element={
                 <BlogSection 
@@ -218,42 +209,23 @@ const DashboardHome = ({ user, userRole }) => {
         description={`Welcome back, ${user?.name || 'User'}! (${userRole})`}
       />
       
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <DashboardCard 
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">        <DashboardCard 
           title="Quick Stats"
           description="View your key performance indicators"
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20V10" />
-              <path d="M18 20V4" />
-              <path d="M6 20v-6" />
-            </svg>
-          }
+          icon={<Icon name="bar-chart" size={24} />}
         />
         
         <DashboardCard 
           title="Recent Announcements"
           description="Stay updated with the latest news"
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15.5 9.5 12 6 8.5 9.5" />
-              <path d="m8.5 14.5 3.5 3.5 3.5-3.5" />
-            </svg>
-          }
+          icon={<Icon name="chevrons-up-down" size={24} />}
         />
         
         <DashboardCard 
           title="Upcoming Events"
           description="Don't miss important dates"
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-              <line x1="16" x2="16" y1="2" y2="6" />
-              <line x1="8" x2="8" y1="2" y2="6" />
-              <line x1="3" x2="21" y1="10" y2="10" />
-            </svg>
-          }
-        />      </div>
+          icon={<Icon name="calendar" size={24} />}
+        /></div>
       
       <div className="mt-8">
         <ContentCard>

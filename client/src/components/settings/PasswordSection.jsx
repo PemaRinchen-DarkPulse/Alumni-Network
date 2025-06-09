@@ -113,9 +113,7 @@ const PasswordSection = () => {
     }
     
     return true;
-  };
-  
-  // Submit password change
+  };  // Submit password change
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -128,10 +126,16 @@ const PasswordSection = () => {
     setLoading(true);
     
     try {
-      // In a real app, implement API call to update password
-      // Mock API call
-      setTimeout(() => {
-        console.log('Changing password:', passwordData);
+      // Import settings service
+      const { changePassword } = await import('@/services/settingsService');
+      
+      // Call the API service to change password
+      const response = await changePassword(
+        passwordData.currentPassword,
+        passwordData.newPassword
+      );
+      
+      if (response.success) {
         setMessage({ 
           type: 'success', 
           text: 'Password changed successfully!' 
@@ -144,39 +148,9 @@ const PasswordSection = () => {
           confirmPassword: ''
         });
         setPasswordStrength(0);
-        setLoading(false);
-      }, 1000);
-      
-      // Actual API implementation would be:
-      /*
-      const response = await fetch(`${API_URL}/api/users/change-password`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-auth-token': localStorage.getItem('token')
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to change password');
+      } else {
+        throw new Error(response.error || 'Failed to change password');
       }
-      
-      setMessage({ type: 'success', text: 'Password changed successfully!' });
-      
-      // Reset form
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
-      setPasswordStrength(0);
-      */
     } catch (error) {
       console.error('Error changing password:', error);
       setMessage({ 

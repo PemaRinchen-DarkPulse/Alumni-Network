@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
 import PageHeader from '../layout/PageHeader';
 import ContentCard from '../cards/ContentCard';
 
@@ -69,36 +71,27 @@ const FeedbackSection = ({
                   required
                 />
               </div>
-              
-              <div>
+                <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Category
                 </label>
-                <select
+                <Select
                   value={feedbackCategory}
                   onChange={(e) => setFeedbackCategory(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600 dark:text-white"
-                >
-                  {categories.slice(1).map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                  options={categories.slice(1).map(category => ({ value: category, label: category }))}
+                />
               </div>
-              
-              <div>
+                <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                   Your Feedback
                 </label>
-                <textarea
-                  rows="4"
+                <Textarea
+                  rows={4}
                   value={feedbackText}
                   onChange={(e) => setFeedbackText(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600 dark:text-white"
                   placeholder="Please share your thoughts and suggestions..."
                   required
-                ></textarea>
+                />
               </div>
               
               <div>
@@ -120,18 +113,11 @@ const FeedbackSection = ({
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
               {filter === 'All' ? 'All Feedback' : `${filter} Feedback`}
             </h2>
-            
-            <select
-              className="rounded-md border border-slate-300 py-2 px-3 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+              <Select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-            >
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              options={categories.map(category => ({ value: category, label: category }))}
+            />
           </div>
         </ContentCard>
       </div>

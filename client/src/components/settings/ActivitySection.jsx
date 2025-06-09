@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/auth';
+import { Icon } from '../shared/icons/Icon';
 
 const ActivitySection = () => {
   const { user } = useAuth();
@@ -166,66 +167,43 @@ const ActivitySection = () => {
     };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-    // Get icon for activity type
+  // Get icon for activity type
   const getActivityIcon = (type) => {
     switch (type) {
       case 'event':
         return (
           <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
+            <Icon name="calendar" size={16} className="text-blue-600 dark:text-blue-400" />
           </div>
         );
       case 'mentorship':
         return (
           <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600 dark:text-purple-400">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="8.5" cy="7" r="4" />
-              <line x1="20" y1="8" x2="20" y2="14" />
-              <line x1="23" y1="11" x2="17" y2="11" />
-            </svg>
+            <Icon name="user-plus" size={16} className="text-purple-600 dark:text-purple-400" />
           </div>
         );
       case 'post':
         return (
           <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600 dark:text-green-400">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
+            <Icon name="file-text" size={16} className="text-green-600 dark:text-green-400" />
           </div>
         );
       case 'comment':
         return (
           <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600 dark:text-amber-400">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+            <Icon name="message-square" size={16} className="text-amber-600 dark:text-amber-400" />
           </div>
         );
       case 'profile':
         return (
           <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-indigo-600 dark:text-indigo-400">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
+            <Icon name="user" size={16} className="text-indigo-600 dark:text-indigo-400" />
           </div>
         );
       default:
         return (
           <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 dark:text-gray-400">
-              <circle cx="12" cy="12" r="10" />
-            </svg>
+            <Icon name="circle" size={16} className="text-gray-600 dark:text-gray-400" />
           </div>
         );
     }
@@ -345,8 +323,7 @@ const ActivitySection = () => {
             
             {/* Pagination Controls */}
             {activityHistory.length > activitiesPerPage && (
-              <div className="flex items-center justify-center space-x-2 pt-4 mt-4 border-t border-border">
-                <button
+              <div className="flex items-center justify-center space-x-2 pt-4 mt-4 border-t border-border">                <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                   className={`p-2 rounded-md hover:bg-muted ${
@@ -354,9 +331,7 @@ const ActivitySection = () => {
                   }`}
                   aria-label="Previous page"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="15 18 9 12 15 6" />
-                  </svg>
+                  <Icon name="chevron-left" size={16} />
                 </button>
                 
                 <div className="text-sm">
@@ -373,9 +348,7 @@ const ActivitySection = () => {
                   }`}
                   aria-label="Next page"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
+                  <Icon name="chevron-right" size={16} />
                 </button>
               </div>
             )}

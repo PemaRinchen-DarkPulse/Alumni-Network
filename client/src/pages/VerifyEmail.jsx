@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../contexts/auth';
+import { Icon } from '@/components/shared/icons/Icon';
 
 const VerifyEmail = () => {
   const [status, setStatus] = useState('loading');
@@ -214,12 +215,9 @@ const VerifyEmail = () => {
           )}
           
           {/* Pending state */}
-          {status === 'pending' && (
-            <div className="flex flex-col items-center space-y-4 text-center">
+          {status === 'pending' && (            <div className="flex flex-col items-center space-y-4 text-center">
               <div className="bg-blue-100 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+                <Icon name="mail" size={40} className="text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-700">Check Your Inbox</h3>
               <p className="text-gray-600">{message}</p>
@@ -252,11 +250,8 @@ const VerifyEmail = () => {
           
           {/* Expired token state */}
           {status === 'expired' && (
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="bg-amber-100 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <div className="flex flex-col items-center space-y-4 text-center">              <div className="bg-amber-100 p-3 rounded-full">
+                <Icon name="clock" size={40} className="text-amber-600" />
               </div>
               <h3 className="text-lg font-semibold text-amber-700">Verification Link Expired</h3>
               <p className="text-gray-600">{message}</p>
@@ -279,11 +274,8 @@ const VerifyEmail = () => {
           
           {/* Success state */}
           {status === 'success' && (
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="bg-green-100 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+            <div className="flex flex-col items-center space-y-4 text-center">              <div className="bg-green-100 p-3 rounded-full">
+                <Icon name="check" size={40} className="text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-green-700">Email Verified Successfully!</h3>
               <p className="text-gray-600">{message}</p>
@@ -301,11 +293,8 @@ const VerifyEmail = () => {
           
           {/* Error state */}
           {status === 'error' && (
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="bg-red-100 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <div className="flex flex-col items-center space-y-4 text-center">              <div className="bg-red-100 p-3 rounded-full">
+                <Icon name="alert-circle" size={40} className="text-red-600" />
               </div>
               <h3 className="text-lg font-semibold text-red-700">Verification Failed</h3>
               <p className="text-gray-600">{message}</p>

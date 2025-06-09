@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import Icon from "@/components/shared/icons/Icon";
 
 export function Hero() {
   return (
@@ -22,20 +23,14 @@ export function Hero() {
         <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-blue-500 opacity-10 blur-3xl animate-pulse"></div>
         <div className="absolute top-1/4 left-1/3 h-64 w-64 rounded-full bg-purple-500 opacity-10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         <div className="absolute bottom-1/4 right-1/3 h-80 w-80 rounded-full bg-indigo-500 opacity-10 blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        
-        {/* Graduation cap icon */}
+          {/* Graduation cap icon */}
         <div className="absolute top-20 left-10 opacity-10">
-          <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-            <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
-          </svg>
+          <Icon name="graduation-cap" size={120} strokeWidth={1} />
         </div>
         
         {/* Handshake icon */}
         <div className="absolute bottom-20 right-10 opacity-10">
-          <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path>
-          </svg>
+          <Icon name="handshake" size={120} strokeWidth={1} />
         </div>
       </div>
 

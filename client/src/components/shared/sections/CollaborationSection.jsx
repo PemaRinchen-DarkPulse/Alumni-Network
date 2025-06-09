@@ -1,4 +1,5 @@
 import React from 'react';
+import { PrimaryButton } from '@/components/ui/primary-button';
 import PageHeader from '../layout/PageHeader';
 import ContentCard from '../cards/ContentCard';
 
@@ -33,13 +34,9 @@ const CollaborationSection = ({
         {isAdmin && (
           <ContentCard>
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Manage Collaboration Opportunities</h2>
-              <button 
-                onClick={onCreateOpportunity}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
+              <h2 className="text-lg font-semibold">Manage Collaboration Opportunities</h2>              <PrimaryButton onClick={onCreateOpportunity}>
                 Create Opportunity
-              </button>
+              </PrimaryButton>
             </div>
             <p className="mt-2 text-slate-600 dark:text-slate-400">
               Create and manage guest lectures, research collaborations, internship opportunities, and other joint initiatives.
@@ -87,14 +84,10 @@ const CollaborationSection = ({
                       className="inline-flex justify-center py-2 px-4 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:hover:bg-slate-600"
                     >
                       Manage
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => onApply(opportunity)}
-                      className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                    >
+                    </button>                  ) : (
+                    <PrimaryButton onClick={() => onApply(opportunity)}>
                       Apply
-                    </button>
+                    </PrimaryButton>
                   )}
                 </div>
               </ContentCard>

@@ -43,13 +43,22 @@ export const loginUser = async (email, password) => {
       },
       body: JSON.stringify({ email, password }),
     });
-    
-    const data = await response.json();
+      const data = await response.json();
     
     if (!response.ok) {
       throw new Error(data.message || 'Login failed');
     }
-      // Save user data and token to localStorage with security enhancements
+    
+    // Log if privacy settings are included in the login response
+    if (data.user && data.user.privacySettings) {
+      console.log('Login successful - Privacy settings included:', 
+        JSON.stringify({
+          profileVisibility: data.user.privacySettings.profileVisibility
+        }));
+    } else {
+      console.warn('WARNING: Privacy settings not included in login response');
+    }
+        // Save user data and token to localStorage with security enhancements
     // Store token in localStorage (consider using httpOnly cookies in production)
     localStorage.setItem('token', data.token);
     
@@ -60,8 +69,27 @@ export const loginUser = async (email, password) => {
       email: data.user.email,
       role: data.user.role,
       batch: data.user.batch,
+      profilePicture: data.user.profilePicture,
+      phone: data.user.phone,
+      address: data.user.address,
+      bio: data.user.bio,
+      socialLinks: data.user.socialLinks,
+      parentGuardianContact: data.user.parentGuardianContact,
+      currentOccupation: data.user.currentOccupation,
+      subjectsTaught: data.user.subjectsTaught,
+      privacySettings: data.user.privacySettings,
       emailVerified: true // User can only log in if verified
     };
+    
+    // Add debug logging for privacy settings during login
+    console.log('Login successful - Privacy settings included in response:', 
+      data.user.privacySettings ? 'Yes' : 'No');
+    
+    if (data.user.privacySettings) {
+      console.log('Login: Privacy settings profile visibility:', data.user.privacySettings.profileVisibility);
+    } else {
+      console.warn('WARNING: Privacy settings not included in login response');
+    }
     
     localStorage.setItem('user', JSON.stringify(safeUserData));
     

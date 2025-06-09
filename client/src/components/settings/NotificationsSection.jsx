@@ -1,91 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/auth';
-
-// Switch component since it's not already in the UI components
-const Switch = React.forwardRef(({ id, checked, onChange, label, description, ...props }, ref) => {
-  return (
-    <div className="flex items-center justify-between py-3">
-      <div className="space-y-0.5">
-        <label 
-          htmlFor={id}
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-        </label>
-        {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
-        )}
-      </div>
-      <button
-        ref={ref}
-        role="switch"
-        aria-checked={checked}
-        data-state={checked ? "checked" : "unchecked"}
-        id={id}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
-          checked ? 'bg-primary' : 'bg-input'
-        }`}
-        {...props}
-      >
-        <span 
-          data-state={checked ? "checked" : "unchecked"}
-          className={`pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform ${
-            checked ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
-    </div>
-  );
-});
-Switch.displayName = "Switch";
 
 const NotificationsSection = () => {
   const { user } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL;
-  
-  const [notificationSettings, setNotificationSettings] = useState({
+    const [notificationSettings, setNotificationSettings] = useState({
+    // Notification Methods
     pushNotifications: true,
     emailNotifications: true,
+    smsNotifications: false,
+    
+    // Event Notifications
     eventReminders: true,
+    eventUpdates: true,
+    eventCancellations: true,
+    
+    // Mentorship Notifications
     mentorshipUpdates: false,
+    mentorshipRequests: true,
+    mentorshipReminders: true,
+    
+    // Content Notifications
     discussionReplies: false,
     blogUpdates: false,
-    weeklyNewsletter: false
+    newPosts: false,
+    comments: false,
+    
+    // System Notifications
+    systemUpdates: true,
+    securityAlerts: true,
+    
+    // Marketing Notifications
+    marketingEmails: false,
+    surveyRequests: false
   });
+  
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [hasChanges, setHasChanges] = useState(false);
-  
+  const [initialLoad, setInitialLoad] = useState(true);
+
   // Fetch notification settings
   useEffect(() => {
+    const fetchNotificationSettings = async () => {
+      try {
+        const { getNotificationSettings } = await import('@/services/settingsService');
+        const response = await getNotificationSettings();
+        
+        if (response.success && response.data) {
+          setNotificationSettings(response.data.data || response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching notification settings:', error);
+        setMessage({ 
+          type: 'error', 
+          text: 'Failed to load notification settings' 
+        });
+      } finally {
+        setInitialLoad(false);
+      }
+    };
+    
     if (user) {
-      // In a real app, fetch from API
-      // const fetchNotificationSettings = async () => {
-      //   const response = await fetch(`${API_URL}/api/users/settings/notifications`, {
-      //     headers: { 'x-auth-token': localStorage.getItem('token') }
-      //   });
-      //   const data = await response.json();
-      //   setNotificationSettings(data.notificationSettings);
-      // };
-      // fetchNotificationSettings();
-      
-      // For now, use mock data
-      const mockSettings = {
-        pushNotifications: user.notificationSettings?.pushNotifications ?? true,
-        emailNotifications: user.notificationSettings?.emailNotifications ?? true,
-        eventReminders: user.notificationSettings?.eventReminders ?? true,
-        mentorshipUpdates: user.notificationSettings?.mentorshipUpdates ?? false,
-        discussionReplies: user.notificationSettings?.discussionReplies ?? false,
-        blogUpdates: user.notificationSettings?.blogUpdates ?? false,
-        weeklyNewsletter: user.notificationSettings?.weeklyNewsletter ?? false
-      };
-      setNotificationSettings(mockSettings);
+      fetchNotificationSettings();
     }
   }, [user]);
-  
   // Handle toggle changes
   const handleToggle = (key, value) => {
     setNotificationSettings(prev => ({
@@ -101,38 +82,18 @@ const NotificationsSection = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      // In a real app, implement API call
-      // Mock API call
-      setTimeout(() => {
-        console.log('Saving notification settings:', notificationSettings);
+      const { updateNotificationSettings } = await import('@/services/settingsService');
+      const response = await updateNotificationSettings(notificationSettings);
+      
+      if (response.success) {
         setMessage({ 
           type: 'success', 
           text: 'Notification settings saved successfully!' 
         });
-        setLoading(false);
         setHasChanges(false);
-      }, 1000);
-      
-      // Actual API implementation would be:
-      /*
-      const response = await fetch(`${API_URL}/api/users/settings/notifications`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-auth-token': localStorage.getItem('token')
-        },
-        body: JSON.stringify({ notificationSettings })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to save notification settings');
+      } else {
+        throw new Error(response.error || 'Failed to save notification settings');
       }
-      
-      setMessage({ type: 'success', text: 'Notification settings saved successfully!' });
-      setHasChanges(false);
-      */
     } catch (error) {
       console.error('Error saving notification settings:', error);
       setMessage({ 
@@ -143,6 +104,46 @@ const NotificationsSection = () => {
       setLoading(false);
     }
   };
+
+  // Reset to defaults
+  const resetToDefaults = async () => {
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      const { resetNotificationSettings } = await import('@/services/settingsService');
+      const response = await resetNotificationSettings();
+      
+      if (response.success) {
+        setNotificationSettings(response.data.data || response.data);
+        setMessage({ 
+          type: 'success', 
+          text: 'Notification settings reset to default!' 
+        });
+        setHasChanges(false);
+      } else {
+        throw new Error(response.error || 'Failed to reset notification settings');
+      }
+    } catch (error) {
+      console.error('Error resetting notification settings:', error);
+      setMessage({ 
+        type: 'error', 
+        text: error.message || 'Failed to reset notification settings' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (initialLoad) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="text-center">Loading notification settings...</div>
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card className="w-full">
@@ -154,26 +155,36 @@ const NotificationsSection = () => {
               Manage how you receive notifications from the platform
             </CardDescription>
           </div>
-          {hasChanges && (
+          <div className="flex gap-2">
+            {hasChanges && (
+              <Button 
+                onClick={saveSettings} 
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            )}
             <Button 
-              onClick={saveSettings} 
+              variant="outline"
+              onClick={resetToDefaults} 
               disabled={loading}
             >
-              {loading ? 'Saving...' : 'Save Changes'}
+              Reset to Default
             </Button>
-          )}
+          </div>
         </div>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="space-y-6">
         {message.text && (
-          <div className={`mb-4 p-3 rounded-md ${
+          <div className={`p-3 rounded-md ${
             message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
           }`}>
             {message.text}
           </div>
         )}
         
+        {/* Notification Methods */}
         <div className="space-y-2">
           <h3 className="text-sm font-bold uppercase text-muted-foreground">Notification Methods</h3>
           
@@ -192,9 +203,17 @@ const NotificationsSection = () => {
             label="Email Notifications"
             description="Receive important updates via email"
           />
-        </div>
+
+          <Switch
+            id="smsNotifications"
+            checked={notificationSettings.smsNotifications}
+            onChange={(value) => handleToggle('smsNotifications', value)}
+            label="SMS Notifications"
+            description="Receive urgent notifications via text message"
+          />        </div>
         
-        <div className="mt-6 space-y-2">
+        {/* Event Notifications */}
+        <div className="space-y-2">
           <h3 className="text-sm font-bold uppercase text-muted-foreground">Event Notifications</h3>
           
           <Switch
@@ -204,23 +223,57 @@ const NotificationsSection = () => {
             label="Event Reminders"
             description="Get reminders for upcoming events you've registered for"
           />
+
+          <Switch
+            id="eventUpdates"
+            checked={notificationSettings.eventUpdates}
+            onChange={(value) => handleToggle('eventUpdates', value)}
+            label="Event Updates"
+            description="Get notified when event details change"
+          />
+
+          <Switch
+            id="eventCancellations"
+            checked={notificationSettings.eventCancellations}
+            onChange={(value) => handleToggle('eventCancellations', value)}
+            label="Event Cancellations"
+            description="Get notified when events are cancelled"
+          />
         </div>
         
-        {user?.role === 'alumni' && (
-          <div className="mt-6 space-y-2">
+        {/* Mentorship Notifications */}
+        {(user?.role === 'alumni' || user?.isMentor) && (
+          <div className="space-y-2">
             <h3 className="text-sm font-bold uppercase text-muted-foreground">Mentorship Notifications</h3>
             
+            <Switch
+              id="mentorshipRequests"
+              checked={notificationSettings.mentorshipRequests}
+              onChange={(value) => handleToggle('mentorshipRequests', value)}
+              label="Mentorship Requests"
+              description="Get notified about new mentorship requests"
+            />
+
             <Switch
               id="mentorshipUpdates"
               checked={notificationSettings.mentorshipUpdates}
               onChange={(value) => handleToggle('mentorshipUpdates', value)}
               label="Mentorship Updates"
-              description="Receive updates on mentorship requests and sessions"
+              description="Receive updates on mentorship sessions"
+            />
+
+            <Switch
+              id="mentorshipReminders"
+              checked={notificationSettings.mentorshipReminders}
+              onChange={(value) => handleToggle('mentorshipReminders', value)}
+              label="Mentorship Reminders"
+              description="Get reminders for scheduled mentorship sessions"
             />
           </div>
         )}
         
-        <div className="mt-6 space-y-2">
+        {/* Content Notifications */}
+        <div className="space-y-2">
           <h3 className="text-sm font-bold uppercase text-muted-foreground">Content Notifications</h3>
           
           <Switch
@@ -238,15 +291,41 @@ const NotificationsSection = () => {
             label="Blog Updates"
             description="Get notified about new blog posts from people you follow"
           />
-          
+
           <Switch
-            id="weeklyNewsletter"
-            checked={notificationSettings.weeklyNewsletter}
-            onChange={(value) => handleToggle('weeklyNewsletter', value)}
-            label="Weekly Newsletter"
-            description="Receive weekly digest of activities and updates"
+            id="newPosts"
+            checked={notificationSettings.newPosts}
+            onChange={(value) => handleToggle('newPosts', value)}
+            label="New Posts"
+            description="Get notified about new posts in your network"
+          />
+
+          <Switch
+            id="comments"
+            checked={notificationSettings.comments}
+            onChange={(value) => handleToggle('comments', value)}
+            label="Comments"
+            description="Get notified when someone comments on your posts"
           />
         </div>
+
+        {/* System Notifications */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-bold uppercase text-muted-foreground">System Notifications</h3>
+          
+          <Switch
+            id="systemUpdates"
+            checked={notificationSettings.systemUpdates}
+            onChange={(value) => handleToggle('systemUpdates', value)}
+            label="System Updates"
+            description="Get notified about platform updates and maintenance"
+          />          <Switch
+            id="securityAlerts"
+            checked={notificationSettings.securityAlerts}
+            onChange={(value) => handleToggle('securityAlerts', value)}
+            label="Security Alerts"
+            description="Get notified about account security events"
+          />        </div>
       </CardContent>
     </Card>
   );

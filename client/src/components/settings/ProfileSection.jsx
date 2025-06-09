@@ -2,24 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/auth';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
-
-// Textarea component since it's not already in the UI components
-const Textarea = React.forwardRef(({ className, ...props }, ref) => {
-  return (
-    <textarea
-      className={`flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-      ref={ref}
-      {...props}
-    />
-  );
-});
-Textarea.displayName = "Textarea";
+import { compressImageToBase64, validateImageFile, createImagePreview, cleanupImagePreview } from '@/utils/imageUtils';
 
 const ProfileSection = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const API_URL = import.meta.env.VITE_API_URL;
   
   const [isEditing, setIsEditing] = useState(false);
@@ -46,44 +36,99 @@ const ProfileSection = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  
-  // Fetch user profile data
+    // Fetch user profile data
   useEffect(() => {
-    if (user) {
-      // In a real app, fetch from API
-      // const fetchProfileData = async () => {
-      //   const response = await fetch(`${API_URL}/api/users/profile`, {
-      //     headers: { 'x-auth-token': localStorage.getItem('token') }
-      //   });
-      //   const data = await response.json();
-      //   setProfileData(data.user);
-      // };
-      // fetchProfileData();
-      
-      // For now, use the user data from AuthContext
-      setProfileData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        address: user.address || '',
-        bio: user.bio || '',
-        profilePicture: user.profilePicture || '',
-        socialLinks: user.socialLinks || {
-          linkedin: '',
-          instagram: '',
-          twitter: '',
-          facebook: '',
-          github: '',
-        },
-        batch: user.batch || '',
-        parentGuardianContact: user.parentGuardianContact || '',
-        currentOccupation: user.currentOccupation || '',
-        subjectsTaught: user.subjectsTaught || []
-      });
-      
-      if (user.profilePicture) {
-        setImagePreview(user.profilePicture);
+    const fetchProfileData = async () => {
+      try {
+        // Import the settings service
+        const { getUserProfile } = await import('@/services/settingsService');
+        
+        // Call the API to get user profile
+        const response = await getUserProfile();
+        
+        if (response.success) {
+          const userData = response.data.user;
+          
+          setProfileData({
+            name: userData.name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            address: userData.address || '',
+            bio: userData.bio || '',
+            profilePicture: userData.profilePicture || '',
+            socialLinks: userData.socialLinks || {
+              linkedin: '',
+              instagram: '',
+              twitter: '',
+              facebook: '',
+              github: '',
+            },
+            batch: userData.batch || '',
+            parentGuardianContact: userData.parentGuardianContact || '',
+            currentOccupation: userData.currentOccupation || '',
+            subjectsTaught: userData.subjectsTaught || []
+          });
+          
+          if (userData.profilePicture) {
+            setImagePreview(userData.profilePicture);
+          }
+        } else {
+          // If API call fails, fall back to user context
+          setProfileData({
+            name: user.name || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            address: user.address || '',
+            bio: user.bio || '',
+            profilePicture: user.profilePicture || '',
+            socialLinks: user.socialLinks || {
+              linkedin: '',
+              instagram: '',
+              twitter: '',
+              facebook: '',
+              github: '',
+            },
+            batch: user.batch || '',
+            parentGuardianContact: user.parentGuardianContact || '',
+            currentOccupation: user.currentOccupation || '',
+            subjectsTaught: user.subjectsTaught || []
+          });
+          
+          if (user.profilePicture) {
+            setImagePreview(user.profilePicture);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+        // Fall back to user context
+        setProfileData({
+          name: user.name || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          address: user.address || '',
+          bio: user.bio || '',
+          profilePicture: user.profilePicture || '',
+          socialLinks: user.socialLinks || {
+            linkedin: '',
+            instagram: '',
+            twitter: '',
+            facebook: '',
+            github: '',
+          },
+          batch: user.batch || '',
+          parentGuardianContact: user.parentGuardianContact || '',
+          currentOccupation: user.currentOccupation || '',
+          subjectsTaught: user.subjectsTaught || []
+        });
+        
+        if (user.profilePicture) {
+          setImagePreview(user.profilePicture);
+        }
       }
+    };
+    
+    if (user) {
+      fetchProfileData();
     }
   }, [user]);
   
@@ -118,33 +163,91 @@ const ProfileSection = () => {
       ...prev,
       subjectsTaught: subjects
     }));
-  };
-  
-  // Handle profile image upload
-  const handleImageUpload = (e) => {
+  };  // Handle profile image upload with compression
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     
-    // For preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setLoading(true);
+    setMessage({ type: '', text: '' });
     
-    // In a real app, you'd upload to a server or cloud storage
-    // For now, just store the file object to be handled on form submission
-    setProfileData(prev => ({
-      ...prev,
-      profilePictureFile: file
-    }));
-  };
-  
-  // Auto-save functionality using debounce
-  const debouncedSave = useDebouncedCallback((data) => {
-    // In a real app, send API request to save data
-    console.log('Auto-saving:', data);
-    // saveProfile(data);
+    try {
+      // Validate the image file
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setMessage({
+          type: 'error',
+          text: validation.error
+        });
+        setLoading(false);
+        return;
+      }
+      
+      // Show loading message
+      setMessage({
+        type: 'info',
+        text: 'Compressing image...'
+      });
+      
+      // Compress and convert to base64
+      const compressedBase64 = await compressImageToBase64(file, 400, 400, 0.8);
+      
+      // Update image preview
+      setImagePreview(compressedBase64);
+      
+      // Update profile data with compressed base64 string
+      setProfileData(prev => ({
+        ...prev,
+        profilePicture: compressedBase64
+      }));
+      
+      // Clear messages
+      setMessage({ type: '', text: '' });
+      
+    } catch (error) {
+      console.error('Error processing image:', error);
+      setMessage({
+        type: 'error',
+        text: error.message || 'Error processing the image. Please try a smaller image.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };  // Auto-save functionality using debounce
+  const debouncedSave = useDebouncedCallback(async (data) => {
+    try {
+      // Check if user is still authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('No token found, skipping auto-save');
+        return;
+      }
+      
+      // Import the settings service
+      const { updateUserProfile } = await import('@/services/settingsService');
+      
+      // Prepare data for API call (remove any file objects)
+      const dataToSend = { ...data };
+      delete dataToSend.profilePictureFile;
+      
+      // Call the API to update user profile
+      const response = await updateUserProfile(dataToSend);
+      if (response.success) {
+        console.log('Auto-saved profile data');
+      } else {
+        console.error('Auto-save failed:', response.error);
+      }
+    } catch (error) {
+      console.error('Error auto-saving profile data:', error);
+      
+      // If authentication error, show message to user
+      if (error.message.includes('Authentication failed') || error.message.includes('Token is not valid')) {
+        setMessage({
+          type: 'error',
+          text: 'Session expired. Please refresh the page and login again.'
+        });
+      }
+    }
   }, 2000);
   
   // Effect to trigger auto-save when profileData changes and in edit mode
@@ -152,66 +255,87 @@ const ProfileSection = () => {
     if (isEditing) {
       debouncedSave(profileData);
     }
-  }, [profileData, isEditing, debouncedSave]);
-  
-  // Save profile changes
+  }, [profileData, isEditing, debouncedSave]);  // Save profile changes
   const saveProfile = async () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
     
     try {
-      // In a real app, implement file upload and API call
-      // For profile picture, you'd typically:
-      // 1. Upload the image to storage/server
-      // 2. Get back the URL
-      // 3. Include that URL in your profile update
+      // Import the settingsService
+      const { updateUserProfile } = await import('@/services/settingsService');
       
-      // Mock API call
-      setTimeout(() => {
-        console.log('Saving profile data:', profileData);
+      // Prepare data for API call
+      const dataToSend = { ...profileData };
+      
+      // Remove any temporary file object if it exists
+      delete dataToSend.profilePictureFile;
+      
+      const response = await updateUserProfile(dataToSend);
+        if (response.success) {
+        // Refresh user data from server to ensure navbar gets updated
+        const { refreshUserData } = await import('@/services/settingsService');
+        const refreshResponse = await refreshUserData();
+        
+        if (refreshResponse.success) {
+          // Update the user context with fresh data from server
+          updateUser(refreshResponse.data.user);
+        } else {
+          // Fallback to manual update if refresh fails
+          updateUser({
+            name: profileData.name,
+            profilePicture: profileData.profilePicture,
+            phone: profileData.phone,
+            address: profileData.address,
+            bio: profileData.bio,
+            socialLinks: profileData.socialLinks,
+            batch: profileData.batch,
+            parentGuardianContact: profileData.parentGuardianContact,
+            currentOccupation: profileData.currentOccupation,
+            subjectsTaught: profileData.subjectsTaught
+          });
+        }
+        
         setMessage({ 
           type: 'success', 
           text: 'Profile updated successfully!' 
         });
         setIsEditing(false);
-        setLoading(false);
-      }, 1000);
+      } else {
+        throw new Error(response.error || 'Failed to update profile');
+      }    } catch (error) {
+      console.error('Error updating profile:', error);
       
-      // Actual API implementation would be:
-      /*
-      const formData = new FormData();
-      Object.keys(profileData).forEach(key => {
-        if (key === 'socialLinks') {
-          formData.append(key, JSON.stringify(profileData[key]));
-        } else if (key === 'profilePictureFile' && profileData[key]) {
-          formData.append('profilePicture', profileData[key]);
-        } else {
-          formData.append(key, profileData[key]);
-        }
-      });
+      let errorMessage = 'Failed to update profile';
       
-      const response = await fetch(`${API_URL}/api/users/profile`, {
-        method: 'PUT',
-        headers: { 
-          'x-auth-token': localStorage.getItem('token')
-        },
-        body: formData
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
+      // Handle specific error types
+      if (error.message.includes('Authentication failed') || error.message.includes('Token is not valid')) {
+        errorMessage = 'Your session has expired. Please refresh the page and login again.';
+        // Optionally redirect to login after a delay
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 3000);
+      } else if (error.message.includes('No authentication token found')) {
+        errorMessage = 'Authentication required. Please login again.';
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } else if (error.message.includes('413') || error.message.includes('Payload Too Large')) {
+        errorMessage = 'Profile picture is too large. Please try a smaller image.';
+      } else if (error.message.includes('400')) {
+        errorMessage = 'Invalid profile data. Please check your inputs.';
+      } else if (error.message.includes('401')) {
+        errorMessage = 'Authentication failed. Please login again.';
+      } else if (error.message.includes('500')) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
-      setIsEditing(false);
-      */
-    } catch (error) {
-      console.error('Error updating profile:', error);
       setMessage({ 
         type: 'error', 
-        text: error.message || 'Failed to update profile' 
+        text: errorMessage
       });
     } finally {
       setLoading(false);

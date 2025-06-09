@@ -1,4 +1,6 @@
 import React from 'react';
+import { PrimaryButton } from '@/components/ui/primary-button';
+import { Icon } from '@/components/shared/icons/Icon';
 import PageHeader from '../layout/PageHeader';
 import ContentCard from '../cards/ContentCard';
 
@@ -33,15 +35,11 @@ const ForumSection = ({
       
       <div className="mt-6 space-y-6">
         {canCreateThreads && (
-          <ContentCard>
-            <div className="flex justify-between items-center">
+          <ContentCard>            <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold">Start a New Discussion</h2>
-              <button 
-                onClick={onCreateThread}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
+              <PrimaryButton onClick={onCreateThread}>
                 New Thread
-              </button>
+              </PrimaryButton>
             </div>
           </ContentCard>
         )}
@@ -55,13 +53,9 @@ const ForumSection = ({
                     <h3 
                       className="font-semibold text-lg hover:text-primary cursor-pointer"
                       onClick={() => onViewThread(thread)}
-                    >
-                      {thread.pinned && (
+                    >                      {thread.pinned && (
                         <span className="mr-2 text-primary">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 17v5" />
-                            <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
-                          </svg>
+                          <Icon name="pin" size={16} />
                         </span>
                       )}
                       {thread.title}
@@ -72,16 +66,12 @@ const ForumSection = ({
                   </div>
                   
                   {canModerate && (
-                    <div>
-                      <button 
+                    <div>                      <button
                         onClick={() => onPinThread(thread)}
                         className="text-slate-400 hover:text-primary"
                         title={thread.pinned ? "Unpin thread" : "Pin thread"}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 17v5" />
-                          <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0-4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
-                        </svg>
+                        <Icon name="pin" size={20} />
                       </button>
                     </div>
                   )}

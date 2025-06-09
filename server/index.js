@@ -6,6 +6,9 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const privacyRoutes = require('./routes/privacyRoutes');
 
 // Create Express app
 const app = express();
@@ -19,14 +22,15 @@ app.use(helmet());
 
 // CORS configuration 
 app.use(cors({
-  origin: clientOrigins,
+  origin: clientOrigins || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-auth-token'],
   credentials: true
 }));
 
-// Middleware
-app.use(express.json());
+// Middleware - increased limit for profile pictures
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 
 // CSRF protection - excluding paths that need to work without CSRF
@@ -38,10 +42,10 @@ const csrfProtection = csurf({
   }
 });
 
-// Apply CSRF protection to all routes except authentication endpoints
+// Apply CSRF protection to all routes except authentication endpoints and API endpoints
 app.use((req, res, next) => {
-  // Skip CSRF for authentication routes and public routes
-  if (req.path.startsWith('/api/auth/') || req.path === '/') {
+  // Skip CSRF for API routes since we're using token-based authentication
+  if (req.path.startsWith('/api/')) {
     next();
   } else {
     csrfProtection(req, res, next);
@@ -55,7 +59,23 @@ app.get('/api/csrf-token', csrfProtection, (req, res) => {
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB Connected'))
+  .then(() => {
+    console.log('MongoDB Connected');
+    
+    // Run migrations if env flag is set
+    if (process.env.RUN_MIGRATIONS === 'true') {
+      const { migrateUserSettings } = require('./utils/migrateSettings');
+      migrateUserSettings()
+        .then(result => console.log('Settings migration completed:', result))
+        .catch(err => console.error('Settings migration error:', err));
+    }
+    
+    // Always create default privacy settings for users who don't have them
+    const { createDefaultPrivacySettings } = require('./utils/createDefaultSettings');
+    createDefaultPrivacySettings()
+      .then(result => console.log('Default privacy settings created:', result.settingsCreated))
+      .catch(err => console.error('Failed to create default privacy settings:', err));
+  })
   .catch(err => {
     console.error('Failed to connect to MongoDB', err);
     process.exit(1);
@@ -63,6 +83,9 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/privacy', privacyRoutes);
 
 // Root route
 app.get('/', (req, res) => {

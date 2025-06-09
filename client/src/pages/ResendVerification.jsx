@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { Icon } from '@/components/shared/icons/Icon';
 
 const ResendVerification = () => {
   const [email, setEmail] = useState('');
@@ -67,12 +68,9 @@ const ResendVerification = () => {
         </CardHeader>
         <Separator className="my-2" />
         <CardContent className="flex flex-col items-center py-8">
-          {status === 'success' ? (
-            <div className="flex flex-col items-center space-y-4 text-center">
+          {status === 'success' ? (            <div className="flex flex-col items-center space-y-4 text-center">
               <div className="bg-green-100 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <Icon name="check" size={40} className="text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-green-700">Email Sent!</h3>
               <p className="text-gray-600">{message}</p>

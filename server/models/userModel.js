@@ -70,8 +70,7 @@ const userSchema = new mongoose.Schema({
   isMentor: {
     type: Boolean,
     default: false
-  },
-  networkingPreferences: {
+  },  networkingPreferences: {
     openToMentoring: {
       type: Boolean,
       default: false
@@ -83,46 +82,16 @@ const userSchema = new mongoose.Schema({
     attendingSchoolTalks: {
       type: Boolean,
       default: false
+    },
+    availableForCareerAdvice: {
+      type: Boolean,
+      default: false
     }
-  },
-  // For teachers
+  },  // For teachers
   subjectsTaught: [{
     type: String,
     trim: true
   }],
-  // Settings
-  notificationSettings: {
-    pushNotifications: {
-      type: Boolean,
-      default: true
-    },
-    emailNotifications: {
-      type: Boolean,
-      default: true
-    },
-    eventReminders: {
-      type: Boolean,
-      default: true
-    }
-  },
-  privacySettings: {
-    showEmail: {
-      type: Boolean,
-      default: false
-    },
-    showPhone: {
-      type: Boolean,
-      default: false
-    },
-    showSocialLinks: {
-      type: Boolean,
-      default: true
-    },
-    showBio: {
-      type: Boolean,
-      default: true
-    }
-  },
   accountStatus: {
     type: String,
     enum: ['active', 'deactivated'],

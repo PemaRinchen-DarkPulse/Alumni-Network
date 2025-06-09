@@ -1,47 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/auth';
 import { useNavigate } from 'react-router-dom';
-
-// Switch component (reusing from NotificationsSection)
-const Switch = React.forwardRef(({ id, checked, onChange, label, description, ...props }, ref) => {
-  return (
-    <div className="flex items-center justify-between py-3">
-      <div className="space-y-0.5">
-        <label 
-          htmlFor={id}
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          {label}
-        </label>
-        {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
-        )}
-      </div>
-      <button
-        ref={ref}
-        role="switch"
-        aria-checked={checked}
-        data-state={checked ? "checked" : "unchecked"}
-        id={id}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
-          checked ? 'bg-primary' : 'bg-input'
-        }`}
-        {...props}
-      >
-        <span 
-          data-state={checked ? "checked" : "unchecked"}
-          className={`pointer-events-none block h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform ${
-            checked ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
-    </div>
-  );
-});
-Switch.displayName = "Switch";
+import { getPrivacySettings, updatePrivacySettings, resetPrivacySettings, updateVisibilityPreference } from '@/services/settingsService';
 
 // Dialog component for confirmation modal
 const Dialog = ({
@@ -81,72 +44,239 @@ const Dialog = ({
 };
 
 const PrivacySection = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
-  
-  const [privacySettings, setPrivacySettings] = useState({
+    const [privacySettings, setPrivacySettings] = useState({
+    // Profile visibility
+    profileVisibility: 'public',
     showEmail: false,
     showPhone: false,
     showSocialLinks: true,
-    showBio: true,
+    showWorkHistory: true,
+    showEducationHistory: true,
+    
+    // Contact information
+    allowDirectMessages: true,
+    allowConnections: true,
+    
+    // Interaction settings
     allowTagging: true,
-    allowMessaging: true,
-  });
-  const [loading, setLoading] = useState(false);
+    allowMentioning: true,
+    allowProfileViewing: true,
+      // Search and discovery
+    searchableByEmail: false,
+    searchableByPhone: false,
+    appearsInSuggestions: true,
+    showInDirectory: true
+  });  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [hasChanges, setHasChanges] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
-  // Fetch privacy settings
+    // Fetch privacy settings
   useEffect(() => {
+    const fetchPrivacySettings = async () => {
+      try {
+        setLoading(true);
+          // First check if user has privacySettings in the user object
+        if (user && user.privacySettings) {
+          console.log('Using privacy settings from user object:', user.privacySettings);
+          console.log('Privacy settings profile visibility:', user.privacySettings.profileVisibility);
+          console.log('User object structure:', JSON.stringify({
+            id: user.id,
+            hasPrivacySettings: !!user.privacySettings,
+            privacySettingsType: typeof user.privacySettings,
+            privacySettingsKeys: user.privacySettings ? Object.keys(user.privacySettings) : []
+          }));
+          
+          // Validate structure of privacy settings
+          if (typeof user.privacySettings === 'object' && 
+              Object.keys(user.privacySettings).length > 0 && 
+              user.privacySettings.profileVisibility) {
+            console.log('Privacy settings appear to be valid, using them');
+            setPrivacySettings(user.privacySettings);
+          } else {
+            console.warn('Invalid privacy settings structure in user object, will fetch from API instead');
+            console.log('Invalid settings:', user.privacySettings);
+            fetchFromAPI();
+          }
+        } else {
+          console.log('User has no privacy settings in user object, fetching from API');
+          fetchFromAPI();
+        }
+        
+        // Function to fetch settings from API
+        async function fetchFromAPI() {          // Fetch from the API
+          const response = await getPrivacySettings();
+          
+          if (response.success && response.data) {
+            console.log('Successfully fetched privacy settings from API:', response.data);
+            setPrivacySettings(response.data);
+            
+            // Make sure we got valid data before updating the user
+            if (response.data && typeof response.data === 'object' && Object.keys(response.data).length > 0) {
+              // Update user object with privacy settings
+              if (user) {
+                console.log('Updating user object with fresh privacy settings from API');
+                const updatedUser = { ...user, privacySettings: response.data };
+                updateUser(updatedUser);
+              }
+            } else {
+              console.error('API returned success but invalid privacy settings data:', response.data);
+            }
+          } else {            console.error('Failed to fetch privacy settings:', response.error);
+            setMessage({ 
+              type: 'error', 
+              text: 'Failed to load privacy settings' 
+            });
+          }
+        } // End of fetchFromAPI function
+      } catch (error) {
+        console.error('Error fetching privacy settings:', error);
+        setMessage({ 
+          type: 'error', 
+          text: 'Failed to load privacy settings' 
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     if (user) {
-      // In a real app, fetch from API
-      // For now, use mock data
-      const mockSettings = {
-        showEmail: user.privacySettings?.showEmail ?? false,
-        showPhone: user.privacySettings?.showPhone ?? false,
-        showSocialLinks: user.privacySettings?.showSocialLinks ?? true,
-        showBio: user.privacySettings?.showBio ?? true,
-        allowTagging: user.privacySettings?.allowTagging ?? true,
-        allowMessaging: user.privacySettings?.allowMessaging ?? true,
-      };
-      setPrivacySettings(mockSettings);
+      fetchPrivacySettings();
     }
   }, [user]);
   
   // Handle toggle changes
   const handleToggle = (key, value) => {
     setPrivacySettings(prev => ({
-      ...prev,
-      [key]: value
+      ...prev,      [key]: value
     }));
     setHasChanges(true);
   };
-  
-  // Save privacy settings
+    // Save privacy settings
   const saveSettings = async () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
     
     try {
-      // In a real app, implement API call
-      // Mock API call
-      setTimeout(() => {
-        console.log('Saving privacy settings:', privacySettings);
+      console.log('Saving privacy settings to server:', privacySettings);
+      const response = await updatePrivacySettings(privacySettings);
+      
+      if (response.success) {
+        console.log('Privacy settings saved successfully on server. Response:', response.data);
+        
+        // Get the saved settings from response data (ensures we use what was actually saved)
+        const savedSettings = response.data;
+        
+        // Refresh user data from server to ensure settings are synced
+        const { refreshUserData } = await import('@/services/settingsService');
+        const refreshResponse = await refreshUserData();
+        
+        if (refreshResponse.success) {
+          // Get the updated user data from the response
+          const updatedUser = refreshResponse.data.user;
+          
+          // Make sure the user has the latest privacy settings from server
+          if (updatedUser.privacySettings) {
+            console.log('Server returned privacy settings:', updatedUser.privacySettings);
+          } else {
+            console.log('Server did not return privacy settings, using saved settings');
+            updatedUser.privacySettings = savedSettings;
+          }
+              
+          // Add debug logging to verify the update
+          console.log('Updated user with new privacy settings:', {
+            userId: updatedUser.id,
+            hasPrivacySettings: !!updatedUser.privacySettings,
+            profileVisibility: updatedUser.privacySettings?.profileVisibility
+          });
+        
+          // Update the user context and localStorage
+          updateUser(updatedUser);
+        } else {
+          // If refresh failed, update just the privacy settings in the existing user object
+          const updatedUser = { ...user, privacySettings: savedSettings };
+          console.log('Using fallback to update privacy settings in user object:', {
+            userId: user.id,
+            privacySettings: JSON.stringify(savedSettings)
+          });
+          updateUser(updatedUser);
+        }
+        
         setMessage({ 
           type: 'success', 
           text: 'Privacy settings saved successfully!' 
         });
-        setLoading(false);
         setHasChanges(false);
-      }, 1000);
-    } catch (error) {
+      } else {
+        throw new Error(response.error || 'Failed to save privacy settings');
+      }    } catch (error) {
       console.error('Error saving privacy settings:', error);
       setMessage({ 
         type: 'error', 
         text: error.message || 'Failed to save privacy settings' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Reset privacy settings to default
+  const resetSettings = async () => {
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      console.log('Resetting privacy settings to default');
+      const response = await resetPrivacySettings();
+      
+      if (response.success) {
+        console.log('Privacy settings reset successfully. New settings:', response.data);
+        
+        // Get default settings from the response
+        const defaultSettings = response.data;
+        
+        // Update local state with the default settings
+        setPrivacySettings(defaultSettings);
+        
+        // Refresh user data from server after reset
+        const { refreshUserData } = await import('@/services/settingsService');
+        const refreshResponse = await refreshUserData();
+        
+        if (refreshResponse.success) {
+          // Get the updated user data from the response
+          const updatedUser = refreshResponse.data.user;
+          
+          // Make sure the user has the latest privacy settings
+          // If server didn't return privacy settings, use the ones from the reset response
+          if (!updatedUser.privacySettings) {
+            console.log('Server refresh did not return privacy settings, using reset settings');
+            updatedUser.privacySettings = defaultSettings;
+          }
+          
+          // Update the user context and localStorage
+          updateUser(updatedUser);
+        } else {
+          // If refresh failed, update just the privacy settings in the existing user object
+          const updatedUser = { ...user, privacySettings: defaultSettings };
+          console.log('Using fallback to update privacy settings after reset');
+          updateUser(updatedUser);
+        }
+        
+        setMessage({ 
+          type: 'success', 
+          text: 'Privacy settings reset to default successfully!' 
+        });
+        setHasChanges(false);
+      } else {
+        throw new Error(response.error || 'Failed to reset privacy settings');
+      }
+    } catch (error) {
+      console.error('Error resetting privacy settings:', error);
+      setMessage({ 
+        type: 'error', 
+        text: error.message || 'Failed to reset privacy settings' 
       });
     } finally {
       setLoading(false);
@@ -157,13 +287,18 @@ const PrivacySection = () => {
   const handleDeactivateAccount = async () => {
     setLoading(true);
     try {
-      // In a real app, implement API call to deactivate account
-      // Mock API call
-      setTimeout(() => {
-        console.log('Deactivating account...');
+      // Import settings service
+      const { toggleAccountStatus } = await import('@/services/settingsService');
+      
+      // Call the API service to deactivate account
+      const response = await toggleAccountStatus('deactivated');
+      
+      if (response.success) {
         setShowDeactivateDialog(false);
         logout(navigate); // Log the user out after deactivation
-      }, 1000);
+      } else {
+        throw new Error(response.error || 'Failed to deactivate account');
+      }
     } catch (error) {
       console.error('Error deactivating account:', error);
       setMessage({ 
@@ -221,8 +356,7 @@ const PrivacySection = () => {
             )}
           </div>
         </CardHeader>
-        
-        <CardContent>
+          <CardContent>
           {message.text && (
             <div className={`mb-4 p-3 rounded-md ${
               message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
@@ -231,8 +365,29 @@ const PrivacySection = () => {
             </div>
           )}
           
-          <div className="space-y-2">
+          {loading && !hasChanges && (
+            <div className="mb-4 p-3 rounded-md bg-blue-50 text-blue-800">
+              Loading privacy settings...
+            </div>
+          )}
+
+          {/* Profile Visibility */}
+          <div className="space-y-4">
             <h3 className="text-sm font-bold uppercase text-muted-foreground">Profile Visibility</h3>
+            
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Profile Visibility</label>
+              <select 
+                className="w-full p-2 border rounded-md bg-background"
+                value={privacySettings.profileVisibility}
+                onChange={(e) => handleToggle('profileVisibility', e.target.value)}
+              >
+                <option value="public">Public - Anyone can view</option>
+                <option value="alumni-only">Alumni Only - Only verified alumni</option>
+                <option value="connections-only">Connections Only - Only your connections</option>
+                <option value="private">Private - Only you can view</option>
+              </select>
+            </div>
             
             <Switch
               id="showEmail"
@@ -259,15 +414,45 @@ const PrivacySection = () => {
             />
             
             <Switch
-              id="showBio"
-              checked={privacySettings.showBio}
-              onChange={(value) => handleToggle('showBio', value)}
-              label="Show Bio"
-              description="Display your bio on your public profile"
+              id="showWorkHistory"
+              checked={privacySettings.showWorkHistory}
+              onChange={(value) => handleToggle('showWorkHistory', value)}
+              label="Show Work History"
+              description="Display your work experience on your profile"
+            />
+
+            <Switch
+              id="showEducationHistory"
+              checked={privacySettings.showEducationHistory}
+              onChange={(value) => handleToggle('showEducationHistory', value)}
+              label="Show Education History"
+              description="Display your educational background on your profile"
             />
           </div>
           
-          <div className="mt-6 space-y-2">
+          {/* Contact & Connection Settings */}
+          <div className="mt-6 space-y-4">
+            <h3 className="text-sm font-bold uppercase text-muted-foreground">Contact & Connections</h3>
+            
+            <Switch
+              id="allowDirectMessages"
+              checked={privacySettings.allowDirectMessages}
+              onChange={(value) => handleToggle('allowDirectMessages', value)}
+              label="Allow Direct Messages"
+              description="Allow other users to send you direct messages"
+            />
+
+            <Switch
+              id="allowConnections"
+              checked={privacySettings.allowConnections}
+              onChange={(value) => handleToggle('allowConnections', value)}
+              label="Allow Connection Requests"
+              description="Allow other users to send you connection requests"
+            />
+          </div>
+
+          {/* Interaction Settings */}
+          <div className="mt-6 space-y-4">
             <h3 className="text-sm font-bold uppercase text-muted-foreground">Interaction Settings</h3>
             
             <Switch
@@ -279,14 +464,77 @@ const PrivacySection = () => {
             />
             
             <Switch
-              id="allowMessaging"
-              checked={privacySettings.allowMessaging}
-              onChange={(value) => handleToggle('allowMessaging', value)}
-              label="Allow Direct Messages"
-              description="Allow other users to send you direct messages"
+              id="allowMentioning"
+              checked={privacySettings.allowMentioning}
+              onChange={(value) => handleToggle('allowMentioning', value)}
+              label="Allow Mentioning"
+              description="Allow other users to mention you in posts and comments"
+            />
+
+            <Switch
+              id="allowProfileViewing"
+              checked={privacySettings.allowProfileViewing}
+              onChange={(value) => handleToggle('allowProfileViewing', value)}
+              label="Allow Profile Viewing Notifications"
+              description="Get notified when someone views your profile"
             />
           </div>
+
+          {/* Search & Discovery */}
+          <div className="mt-6 space-y-4">
+            <h3 className="text-sm font-bold uppercase text-muted-foreground">Search & Discovery</h3>
+            
+            <Switch
+              id="searchableByEmail"
+              checked={privacySettings.searchableByEmail}
+              onChange={(value) => handleToggle('searchableByEmail', value)}
+              label="Searchable by Email"
+              description="Allow others to find you by searching your email address"
+            />
+
+            <Switch
+              id="searchableByPhone"
+              checked={privacySettings.searchableByPhone}
+              onChange={(value) => handleToggle('searchableByPhone', value)}
+              label="Searchable by Phone"
+              description="Allow others to find you by searching your phone number"
+            />
+
+            <Switch
+              id="appearsInSuggestions"
+              checked={privacySettings.appearsInSuggestions}
+              onChange={(value) => handleToggle('appearsInSuggestions', value)}
+              label="Appear in Suggestions"
+              description="Allow your profile to appear in connection suggestions"
+            />
+
+            <Switch
+              id="showInDirectory"
+              checked={privacySettings.showInDirectory}
+              onChange={(value) => handleToggle('showInDirectory', value)}
+              label="Show in Alumni Directory"
+              description="Include your profile in the public alumni directory"            />
+          </div>
         </CardContent>
+        
+        <CardFooter className="flex justify-between">
+          <Button 
+            variant="outline" 
+            onClick={resetSettings}
+            disabled={loading}
+          >
+            Reset to Default
+          </Button>
+          
+          {hasChanges && (
+            <Button 
+              onClick={saveSettings} 
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+            </Button>
+          )}
+        </CardFooter>
       </Card>
       
       {/* Account Management Card */}

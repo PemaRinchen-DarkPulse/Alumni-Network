@@ -1,10 +1,11 @@
 // AuthProvider.jsx - The main provider component
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthState } from '../../hooks/useAuthState';
 import { useRegistration } from '../../hooks/useRegistration';
 import { useLogin } from '../../hooks/useLogin';
 import { useLogout } from '../../hooks/useLogout';
 import { useAuthHelpers } from '../../hooks/useAuthHelpers';
+import { isTokenValid, cleanupInvalidAuth } from '../../utils/tokenUtils';
 import AuthContext from './AuthContext';
 
 /**
@@ -43,10 +44,59 @@ export const AuthProvider = ({ children }) => {
     validatePasswordResetToken: validateResetToken,
     loading: helpersLoading 
   } = useAuthHelpers();
-
   // Determine if any auth operation is loading
   const loading = authStateLoading || registrationLoading || loginLoading || helpersLoading;
 
+  // Periodic token validation
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const checkTokenValidity = () => {
+      const currentToken = localStorage.getItem('token');
+      
+      if (!currentToken || !isTokenValid(currentToken)) {
+        console.log('Token is invalid or expired, logging out...');
+        cleanupInvalidAuth();
+        setUser(null);
+        setToken('');
+        
+        // Redirect to login if not already there
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+          window.location.href = '/login';
+        }
+      }
+    };
+
+    // Check token validity every 5 minutes
+    const tokenCheckInterval = setInterval(checkTokenValidity, 5 * 60 * 1000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(tokenCheckInterval);
+  }, [isAuthenticated, setUser, setToken]);// Function to update user data in context and localStorage
+  const updateUser = (updatedUserData) => {
+    const newUserData = { ...user, ...updatedUserData };
+    setUser(newUserData);
+    localStorage.setItem('user', JSON.stringify(newUserData));
+  };
+
+  // Function to sync user data from server
+  const syncUserFromServer = async () => {
+    try {
+      const { refreshUserData } = await import('../../services/settingsService');
+      const response = await refreshUserData();
+      
+      if (response.success && response.data.user) {
+        const serverUser = response.data.user;
+        setUser(serverUser);
+        localStorage.setItem('user', JSON.stringify(serverUser));
+        return { success: true };
+      }
+      return { success: false, error: response.error };
+    } catch (error) {
+      console.error('Error syncing user from server:', error);
+      return { success: false, error: error.message };
+    }
+  };
   // Values to provide to components
   const contextValue = {
     user,
@@ -62,6 +112,8 @@ export const AuthProvider = ({ children }) => {
     validateResetToken,
     isAuthenticated,
     setError,
+    updateUser,
+    syncUserFromServer,
   };
 
   return (

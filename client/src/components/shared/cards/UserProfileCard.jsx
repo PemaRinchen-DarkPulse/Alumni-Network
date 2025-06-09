@@ -1,10 +1,10 @@
 import React from 'react';
+import { UserAvatar } from '@/components/ui/user-avatar';
 
 /**
  * User profile card component for alumni/teacher/student directories
  * @param {string} name - User's name
- * @param {string} role - User's role (alumni, teacher, student)
- * @param {string} imageSrc - URL to user's profile image
+ * @param {string} role - User's role (alumni, teacher, student) * @param {string} profilePicture - URL to user's profile picture from database
  * @param {string} yearOrClass - Graduation year or class information
  * @param {string} field - Field of study or expertise
  * @param {Array} tags - Array of relevant tags for filtering
@@ -14,23 +14,23 @@ import React from 'react';
 const UserProfileCard = ({
   name,
   role,
-  imageSrc = "https://i.pravatar.cc/150",
+  profilePicture,
   yearOrClass,
   field,
   tags = [],
   isMentor = false,
   onContactClick
 }) => {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex items-center space-x-4">
-        <div className="h-16 w-16 rounded-full overflow-hidden">
-          <img 
-            src={imageSrc} 
-            alt={`${name}'s profile`} 
-            className="h-full w-full object-cover"
-          />
-        </div>
+  // Create user object for UserAvatar component
+  const user = {
+    name,
+    profilePicture
+  };
+  return (    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex items-center space-x-4">        <UserAvatar 
+          user={user} 
+          size="lg"
+        />
         
         <div className="flex-1">
           <div className="flex items-center justify-between">

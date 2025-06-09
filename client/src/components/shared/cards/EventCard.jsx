@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDate } from '@/lib/utils';
+import { Icon } from '@/components/shared/icons/Icon';
 
 /**
  * Event card component for displaying event information
@@ -40,35 +41,21 @@ const EventCard = ({
       <div className="p-4">
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
         
-        <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">
-          {formattedDate && (
+        <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-500 dark:text-slate-400">          {formattedDate && (
             <div className="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                <line x1="16" x2="16" y1="2" y2="6" />
-                <line x1="8" x2="8" y1="2" y2="6" />
-                <line x1="3" x2="21" y1="10" y2="10" />
-              </svg>
+              <Icon name="calendar" size={16} />
               <span>{formattedDate}</span>
             </div>
           )}
-          
-          {time && (
+            {time && (
             <div className="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
+              <Icon name="clock" size={16} />
               <span>{time}</span>
             </div>
           )}
-          
-          {location && (
+            {location && (
             <div className="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
+              <Icon name="map-pin" size={16} />
               <span>{location}</span>
             </div>
           )}
