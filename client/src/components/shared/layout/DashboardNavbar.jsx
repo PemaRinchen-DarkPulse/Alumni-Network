@@ -47,30 +47,30 @@ const DashboardNavbar = ({ toggleSidebar }) => {
           aria-label="Toggle sidebar"
         >
           <Icon name="menu" size={24} />
-        </button>
-        <div className="flex items-center text-xl font-bold text-primary">
+        </button>        <div className="flex items-center text-xl font-bold text-primary">
           DGI Alumni Connect
         </div>
 
-        <nav className="hidden md:ml-auto md:flex md:items-center md:gap-6">
-          {links.map((link, index) => (
-            <Link
-              key={index}
-              to={link.path}
-              className="text-sm font-medium text-slate-600 transition-colors hover:text-primary dark:text-slate-300 dark:hover:text-primary"
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>        <div className="ml-auto flex items-center gap-3">          <Button
-            size="lg"
-            variant="ghost"
-            className="h-10 w-10 rounded-full p-0 text-slate-600 dark:text-slate-300"
+        <div className="ml-auto flex items-center gap-4">            <button 
+            className="flex h-9 w-9 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
             aria-label="Notifications"
           >
-            <Icon name="bell" size={24} />
-          </Button>
-          
+            <Icon name="bell" size={22} />
+          </button>
+
+          <button 
+            className="flex h-9 w-9 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            aria-label="Messages"
+          >
+            <Icon name="message-square" size={22} />
+          </button>          <Link 
+            to="/dashboard/settings"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            aria-label="Settings"
+          >
+            <Icon name="settings" size={22} />
+          </Link>
+
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}

@@ -273,15 +273,24 @@ export const updateVisibilityPreference = async (preference, value) => {
 
 /**
  * Update user networking preferences (for Alumni)
- * @param {Object} networkingPreferences - Alumni networking preferences
+ * @param {Object} preferencesData - Alumni networking preferences and mentor status
  * @returns {Promise<Object>} - Response with success status and data or error
  */
-export const updateNetworkingPreferences = async (networkingPreferences) => {
+export const updateNetworkingPreferences = async (preferencesData) => {
   try {
+    // Extract networking preferences and mentor status
+    const { isMentor, ...networkingPreferences } = preferencesData;
+    
+    // Create request body with the structure expected by backend
+    const requestBody = { networkingPreferences };
+    if (isMentor !== undefined) {
+      requestBody.isMentor = isMentor;
+    }
+    
     const response = await fetch(`${API_URL}/api/users/settings/networking`, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ networkingPreferences }),
+      body: JSON.stringify(requestBody),
     });
     
     const data = await handleResponse(response);
@@ -362,6 +371,44 @@ export const saveMentorProfile = async (mentorProfile) => {
   try {
     const response = await fetch(`${API_URL}/api/users/mentor-profile`, {
       method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(mentorProfile),
+    });
+    
+    const data = await handleResponse(response);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Get mentor profile data
+ * @returns {Promise<Object>} - Response with success status and mentor data or error
+ */
+export const getMentorProfile = async () => {
+  try {
+    const response = await fetch(`${API_URL}/api/users/mentor-profile`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    
+    const data = await handleResponse(response);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Update mentor profile data
+ * @param {Object} mentorProfile - Updated mentor profile information
+ * @returns {Promise<Object>} - Response with success status and data or error
+ */
+export const updateMentorProfile = async (mentorProfile) => {
+  try {
+    const response = await fetch(`${API_URL}/api/users/mentor-profile`, {
+      method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(mentorProfile),
     });

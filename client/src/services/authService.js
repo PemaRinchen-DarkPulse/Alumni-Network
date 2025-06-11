@@ -61,8 +61,7 @@ export const loginUser = async (email, password) => {
         // Save user data and token to localStorage with security enhancements
     // Store token in localStorage (consider using httpOnly cookies in production)
     localStorage.setItem('token', data.token);
-    
-    // Don't store sensitive user data like password hash
+      // Don't store sensitive user data like password hash
     const safeUserData = {
       id: data.user.id,
       name: data.user.name,
@@ -77,6 +76,8 @@ export const loginUser = async (email, password) => {
       parentGuardianContact: data.user.parentGuardianContact,
       currentOccupation: data.user.currentOccupation,
       subjectsTaught: data.user.subjectsTaught,
+      isMentor: data.user.isMentor,
+      networkingPreferences: data.user.networkingPreferences,
       privacySettings: data.user.privacySettings,
       emailVerified: true // User can only log in if verified
     };

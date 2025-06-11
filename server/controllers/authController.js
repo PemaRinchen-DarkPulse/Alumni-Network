@@ -242,8 +242,7 @@ exports.login = async (req, res) => {
     
 
     // Generate JWT token
-    const token = generateToken(user._id);
-      // Return user info and token
+    const token = generateToken(user._id);    // Return user info and token
     return res.status(200).json({
       success: true,
       token,
@@ -261,6 +260,8 @@ exports.login = async (req, res) => {
         parentGuardianContact: user.parentGuardianContact,
         currentOccupation: user.currentOccupation,
         subjectsTaught: user.subjectsTaught,
+        isMentor: user.isMentor,
+        networkingPreferences: user.networkingPreferences,
         privacySettings: privacySettingsObj  // Use the plain object version of privacy settings
       }
     });

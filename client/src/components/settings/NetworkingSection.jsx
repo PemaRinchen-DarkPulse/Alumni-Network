@@ -44,7 +44,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 };
 
 const NetworkingSection = () => {
-  const { user } = useAuth();
+  const { user, updateUser, syncUserFromServer } = useAuth();
   const API_URL = import.meta.env.VITE_API_URL;
     const [networkingPreferences, setNetworkingPreferences] = useState({
     openToMentoring: false,
@@ -55,89 +55,143 @@ const NetworkingSection = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [hasChanges, setHasChanges] = useState(false);
-  
-  // Modal and form states
+    // Modal and form states
   const [showMentorModal, setShowMentorModal] = useState(false);
   const [mentorProfile, setMentorProfile] = useState({
-    expertise: '',
-    yearsOfExperience: '',
-    industry: '',
-    currentPosition: '',
+    // Basic Info
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phoneNumber: user?.phone || '',
+    socialLinks: {
+      linkedin: user?.socialLinks?.linkedin || '',
+      twitter: user?.socialLinks?.twitter || '',
+      github: user?.socialLinks?.github || '',
+      facebook: user?.socialLinks?.facebook || '',      instagram: user?.socialLinks?.instagram || ''
+    },
+    // Professional Details
+    currentOccupation: user?.currentOccupation || '',
     company: '',
-    mentoringAreas: '',
-    availability: '',
-    preferredMeetingType: 'video',
-    maxMentees: '',
+    yearsOfExperience: '',
+    // Mentoring Details
+    mentoringAreas: [],
+    customMentoringAreas: [],
     bio: ''
   });
-  
-  // Check if user is mentor
+    // Check if user is mentor
   const [isMentor, setIsMentor] = useState(user?.isMentor || false);
-    // Fetch networking preferences
+  
+  // Track if user has existing mentor profile
+  const [hasMentorProfile, setHasMentorProfile] = useState(false);  // Initialize preferences from user context first, then optionally sync with server
   useEffect(() => {
-    const fetchNetworkingPreferences = async () => {
-      try {
-        // Import the settings service
-        const { getUserProfile } = await import('@/services/settingsService');
-        
-        // Call the API to get user profile with networking preferences
-        const response = await getUserProfile();
-        
-        if (response.success) {
-          const userData = response.data.user;
-          
-          if (userData.networkingPreferences) {
-            const userPreferences = userData.networkingPreferences;
-            
-            setNetworkingPreferences({
-              openToMentoring: userPreferences.openToMentoring || false,
-              providingInternships: userPreferences.providingInternships || false,
-              attendingSchoolTalks: userPreferences.attendingSchoolTalks || false,
-              availableForCareerAdvice: userPreferences.availableForCareerAdvice || false
-            });
-          }
-          
-          // Set mentor status
-          if (userData.isMentor !== undefined) {
-            setIsMentor(userData.isMentor);
-          } else {
-            setIsMentor(user.isMentor || false);
-          }
-        } else {
-          // If API call fails, fall back to user context
-          const fallbackPreferences = {
-            openToMentoring: user.networkingPreferences?.openToMentoring || false,
-            providingInternships: user.networkingPreferences?.providingInternships || false,
-            attendingSchoolTalks: user.networkingPreferences?.attendingSchoolTalks || false,
-            availableForCareerAdvice: user.networkingPreferences?.availableForCareerAdvice || false
-          };
-          setNetworkingPreferences(fallbackPreferences);
-          setIsMentor(user.isMentor || false);
-        }
-      } catch (error) {
-        console.error('Error fetching networking preferences:', error);
-        // Fall back to user context
-        const fallbackPreferences = {
-          openToMentoring: user.networkingPreferences?.openToMentoring || false,
-          providingInternships: user.networkingPreferences?.providingInternships || false,
-          attendingSchoolTalks: user.networkingPreferences?.attendingSchoolTalks || false,
-          availableForCareerAdvice: user.networkingPreferences?.availableForCareerAdvice || false
-        };
-        setNetworkingPreferences(fallbackPreferences);
-        setIsMentor(user.isMentor || false);
-      }
-    };
-    
     if (user && user.role === 'alumni') {
-      fetchNetworkingPreferences();
+      // First, immediately set preferences from user context (from login data)
+      const mentorStatus = user.isMentor || false;
+      setIsMentor(mentorStatus);
+      
+      if (user.networkingPreferences) {
+        setNetworkingPreferences({
+          // If user is a mentor, openToMentoring should always be true
+          openToMentoring: mentorStatus ? true : (user.networkingPreferences.openToMentoring || false),
+          providingInternships: user.networkingPreferences.providingInternships || false,
+          attendingSchoolTalks: user.networkingPreferences.attendingSchoolTalks || false,
+          availableForCareerAdvice: user.networkingPreferences.availableForCareerAdvice || false
+        });
+      } else {
+        // If no networking preferences exist in context, set defaults based on mentor status
+        setNetworkingPreferences({
+          openToMentoring: mentorStatus,
+          providingInternships: false,
+          attendingSchoolTalks: false,
+          availableForCareerAdvice: false
+        });
+      }
+      
+      // Always check for mentor profile
+      fetchMentorProfile();
+      
+      // Then optionally sync with server for most up-to-date data (in background)
+      syncWithServer();
     }
   }, [user]);
-    // Handle toggle changes
+
+  // Separate function to sync with server in background
+  const syncWithServer = async () => {
+    try {
+      const { getUserProfile } = await import('@/services/settingsService');
+      const response = await getUserProfile();
+      
+      if (response.success) {
+        const userData = response.data.user;
+        const mentorStatus = userData.isMentor !== undefined ? userData.isMentor : (user.isMentor || false);
+        
+        // Only update if there are actual changes from server
+        if (mentorStatus !== isMentor) {
+          setIsMentor(mentorStatus);
+        }
+        
+        if (userData.networkingPreferences) {
+          const serverPreferences = {
+            openToMentoring: mentorStatus ? true : (userData.networkingPreferences.openToMentoring || false),
+            providingInternships: userData.networkingPreferences.providingInternships || false,
+            attendingSchoolTalks: userData.networkingPreferences.attendingSchoolTalks || false,
+            availableForCareerAdvice: userData.networkingPreferences.availableForCareerAdvice || false
+          };
+          
+          // Only update if preferences are different
+          setNetworkingPreferences(prev => {
+            const hasChanges = JSON.stringify(prev) !== JSON.stringify(serverPreferences);
+            return hasChanges ? serverPreferences : prev;
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error syncing with server:', error);
+      // Don't update state on error to preserve current display
+    }
+  };
+  // Fetch existing mentor profile if user is already a mentor
+  const fetchMentorProfile = async () => {
+    try {
+      const { getMentorProfile } = await import('@/services/settingsService');
+      const response = await getMentorProfile();
+      
+      if (response.success && response.data.mentor) {
+        const mentorData = response.data.mentor;
+        setHasMentorProfile(true); // User has an existing mentor profile
+        setMentorProfile({
+          fullName: mentorData.fullName || user?.name || '',
+          email: mentorData.email || user?.email || '',
+          phoneNumber: mentorData.phoneNumber || user?.phone || '',
+          socialLinks: {
+            linkedin: mentorData.socialLinks?.linkedin || user?.socialLinks?.linkedin || '',
+            twitter: mentorData.socialLinks?.twitter || user?.socialLinks?.twitter || '',
+            github: mentorData.socialLinks?.github || user?.socialLinks?.github || '',
+            facebook: mentorData.socialLinks?.facebook || user?.socialLinks?.facebook || '',
+            instagram: mentorData.socialLinks?.instagram || user?.socialLinks?.instagram || ''
+          },          currentOccupation: mentorData.currentOccupation || user?.currentOccupation || '',
+          company: mentorData.company || '',
+          yearsOfExperience: mentorData.yearsOfExperience || '',
+          mentoringAreas: mentorData.mentoringAreas || [],
+          customMentoringAreas: mentorData.customMentoringAreas || [],
+          bio: mentorData.bio || ''
+        });
+      } else {
+        setHasMentorProfile(false); // No mentor profile found
+      }
+    } catch (error) {
+      console.error('Error fetching mentor profile:', error);
+      setHasMentorProfile(false); // Assume no profile on error
+    }
+  };    // Handle toggle changes
   const handleToggle = (key, value) => {
-    // If toggling on "Open to Mentoring" and user is not already a mentor, show modal
-    if (key === 'openToMentoring' && value && !isMentor) {
-      setShowMentorModal(true);
-      return;
+    // If toggling on "Open to Mentoring"
+    if (key === 'openToMentoring' && value) {
+      // If user doesn't have a mentor profile yet, show modal to create one
+      if (!hasMentorProfile) {
+        setShowMentorModal(true);
+        return;
+      }
+      // If user has mentor profile, allow direct toggle
     }
     
     // If toggling off "Open to Mentoring", turn off mentor status
@@ -155,7 +209,7 @@ const NetworkingSection = () => {
       setIsMentor(value);
     }
   };
-    // Handle mentor form submission
+  // Handle mentor form submission
   const handleMentorFormSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -165,21 +219,33 @@ const NetworkingSection = () => {
       const { saveMentorProfile } = await import('@/services/settingsService');
       
       // Save mentor profile data
-      const response = await saveMentorProfile(mentorProfile);
-      
-      if (response.success) {
-        // Set the preferences with mentoring enabled
+      const response = await saveMentorProfile(mentorProfile);        if (response.success) {
+        // Update local state first
         setNetworkingPreferences(prev => ({
           ...prev,
           openToMentoring: true
         }));
         setIsMentor(true);
+        setHasMentorProfile(true); // User now has a mentor profile
         setHasChanges(true);
         setShowMentorModal(false);
         
+        // Update user context to reflect mentor status and networking preferences
+        const updatedUserData = {
+          isMentor: true,
+          networkingPreferences: {
+            ...networkingPreferences,
+            openToMentoring: true
+          }
+        };
+        updateUser(updatedUserData);
+        
+        // Sync from server to ensure we have the latest data
+        await syncUserFromServer();
+        
         setMessage({ 
           type: 'success', 
-          text: 'Mentor profile created successfully! Don\'t forget to save your changes.' 
+          text: 'Mentor profile created successfully! You can now access the Mentorship section.' 
         });
       } else {
         throw new Error(response.error || 'Failed to save mentor profile');
@@ -194,33 +260,72 @@ const NetworkingSection = () => {
       setLoading(false);
     }
   };
-  
-  // Handle mentor form input changes
+    // Handle mentor form input changes
   const handleMentorFormChange = (field, value) => {
-    setMentorProfile(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+    if (field.startsWith('socialLinks.')) {
+      const socialField = field.split('.')[1];
+      setMentorProfile(prev => ({
+        ...prev,
+        socialLinks: {
+          ...prev.socialLinks,
+          [socialField]: value
+        }
+      }));    } else if (field === 'mentoringAreas') {
+      // Handle multi-select for mentoring areas
+      setMentorProfile(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    } else if (field === 'customMentoringAreas') {
+      // Handle array of custom mentoring areas
+      setMentorProfile(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    } else {
+      setMentorProfile(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }  };
   
   // Handle modal close
   const handleModalClose = () => {
     setShowMentorModal(false);
+    
+    // Reset the "Open to Mentoring" toggle if user cancels mentor profile creation
+    // Only reset if user doesn't have an existing mentor profile
+    if (!hasMentorProfile) {
+      setNetworkingPreferences(prev => ({
+        ...prev,
+        openToMentoring: false
+      }));
+      setIsMentor(false);
+    }
+    
     // Reset mentor profile form
     setMentorProfile({
-      expertise: '',
-      yearsOfExperience: '',
-      industry: '',
-      currentPosition: '',
+      // Basic Info
+      fullName: user?.name || '',
+      email: user?.email || '',
+      phoneNumber: user?.phone || '',
+      socialLinks: {
+        linkedin: user?.socialLinks?.linkedin || '',
+        twitter: user?.socialLinks?.twitter || '',
+        github: user?.socialLinks?.github || '',
+        facebook: user?.socialLinks?.facebook || '',
+        instagram: user?.socialLinks?.instagram || ''
+      },
+      // Professional Details      currentOccupation: user?.currentOccupation || '',
       company: '',
-      mentoringAreas: '',
-      availability: '',
-      preferredMeetingType: 'video',
-      maxMentees: '',
+      yearsOfExperience: '',
+      // Mentoring Details
+      mentoringAreas: [],
+      customMentoringAreas: [],
       bio: ''
     });
   };
-    // Save networking preferences
+  // Save networking preferences
   const savePreferences = async () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
@@ -240,6 +345,16 @@ const NetworkingSection = () => {
       const response = await updateNetworkingPreferences(preferencesWithMentor);
       
       if (response.success) {
+        // Update the user context with the new networking preferences and mentor status
+        const updatedUserData = {
+          networkingPreferences: networkingPreferences,
+          isMentor: isMentor
+        };
+        updateUser(updatedUserData);
+        
+        // Also sync from server to ensure we have the latest data
+        await syncUserFromServer();
+        
         setMessage({ 
           type: 'success', 
           text: 'Networking preferences saved successfully!' 
@@ -291,21 +406,20 @@ const NetworkingSection = () => {
             </div>
           )}
           
-          <div className="space-y-2">
-            <Switch
+          <div className="space-y-2">            <Switch
               id="openToMentoring"
               checked={networkingPreferences.openToMentoring}
               onChange={(value) => handleToggle('openToMentoring', value)}
               label="Open to Mentoring"
-              description="Make yourself available as a mentor to students and junior alumni"
+              description="Make yourself available as a mentor to current high school students"
             />
             
             <Switch
               id="providingInternships"
               checked={networkingPreferences.providingInternships}
               onChange={(value) => handleToggle('providingInternships', value)}
-              label="Providing Internships"
-              description="Indicate if you or your company can provide internship opportunities"
+              label="Providing Internships/Job Shadowing"
+              description="Indicate if you or your organization can provide internship or job shadowing opportunities"
             />
             
             <Switch
@@ -321,7 +435,7 @@ const NetworkingSection = () => {
               checked={networkingPreferences.availableForCareerAdvice}
               onChange={(value) => handleToggle('availableForCareerAdvice', value)}
               label="Available for Career Advice"
-              description="Open to providing career guidance and advice to students and fellow alumni"
+              description="Open to providing college and career guidance to high school students"
             />
           </div>
           
@@ -332,11 +446,10 @@ const NetworkingSection = () => {
           }`}>
             <h3 className="text-sm font-medium mb-2">
               {isMentor ? 'You are a Mentor 🎓' : 'Become a Mentor'}
-            </h3>
-            <p className="text-sm text-muted-foreground">
+            </h3>            <p className="text-sm text-muted-foreground">
               {isMentor 
-                ? 'Thank you for volunteering as a mentor! Your profile now displays a mentor badge, and you will be listed in the mentorship directory.' 
-                : 'Becoming a mentor allows you to give back to the community by helping current students and junior alumni. Enable the "Open to Mentoring" option above to become a mentor.'}
+                ? 'Thank you for volunteering as a mentor! Your profile now displays a mentor badge, and you will be listed in the mentorship directory to help current high school students.' 
+                : 'Becoming a mentor allows you to give back by helping current high school students navigate their academic journey and prepare for college. Enable the "Open to Mentoring" option above to become a mentor.'}
             </p>
           </div>
         </CardContent>
@@ -395,167 +508,316 @@ const NetworkingSection = () => {
         </CardContent>
       </Card>
         {/* Mentor Profile Modal */}
-      <Modal isOpen={showMentorModal} onClose={handleModalClose}>
-        <form onSubmit={handleMentorFormSubmit} className="space-y-6">
-          {/* Basic Information Section */}
-          <div className="space-y-4">
+      <Modal isOpen={showMentorModal} onClose={handleModalClose}>        <form onSubmit={handleMentorFormSubmit} className="space-y-6">
+          {/* Basic Information Section */}          <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
               Basic Information
             </h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="expertise" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Areas of Expertise *
-                </label>
-                <Input
-                  id="expertise"
-                  value={mentorProfile.expertise}
-                  onChange={(e) => handleMentorFormChange('expertise', e.target.value)}
-                  placeholder="e.g., Software Development, Marketing"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Years of Experience *
-                </label>
-                <Input
-                  id="yearsOfExperience"
-                  type="number"
-                  value={mentorProfile.yearsOfExperience}
-                  onChange={(e) => handleMentorFormChange('yearsOfExperience', e.target.value)}
-                  placeholder="5"
-                  min="1"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="industry" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Industry *
-                </label>
-                <Input
-                  id="industry"
-                  value={mentorProfile.industry}
-                  onChange={(e) => handleMentorFormChange('industry', e.target.value)}
-                  placeholder="e.g., Technology, Healthcare"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="currentPosition" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Current Position *
-                </label>
-                <Input
-                  id="currentPosition"
-                  value={mentorProfile.currentPosition}
-                  onChange={(e) => handleMentorFormChange('currentPosition', e.target.value)}
-                  placeholder="e.g., Senior Developer"
-                  required
-                />
-              </div>
-            </div>
-            
             <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Full Name *
+              </label>
+              <Input
+                id="fullName"
+                value={mentorProfile.fullName}
+                onChange={(e) => handleMentorFormChange('fullName', e.target.value)}
+                placeholder="Your full name"
+                required
+                disabled
+                className="bg-gray-50 dark:bg-gray-700"
+              />
+              <p className="text-xs text-gray-500 mt-1">This information is fetched from your profile</p>
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email *
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={mentorProfile.email}
+                onChange={(e) => handleMentorFormChange('email', e.target.value)}
+                placeholder="your.email@example.com"
+                required
+                disabled
+                className="bg-gray-50 dark:bg-gray-700"
+              />
+              <p className="text-xs text-gray-500 mt-1">This information is fetched from your backend profile</p>
+            </div>
+
+            <div>
+              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Phone Number
+              </label>
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={mentorProfile.phoneNumber}
+                onChange={(e) => handleMentorFormChange('phoneNumber', e.target.value)}
+                placeholder="+1 (555) 123-4567"
+                disabled
+                className="bg-gray-50 dark:bg-gray-700"
+              />
+              <p className="text-xs text-gray-500 mt-1">This information is fetched from your backend profile if available</p>
+            </div>
+
+            {/* Social Links - Optional */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Social Links (Optional)
+              </label>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="linkedin" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    LinkedIn
+                  </label>
+                  <Input
+                    id="linkedin"
+                    value={mentorProfile.socialLinks.linkedin}
+                    onChange={(e) => handleMentorFormChange('socialLinks.linkedin', e.target.value)}
+                    placeholder="https://linkedin.com/in/yourprofile"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="twitter" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Twitter
+                  </label>
+                  <Input
+                    id="twitter"
+                    value={mentorProfile.socialLinks.twitter}
+                    onChange={(e) => handleMentorFormChange('socialLinks.twitter', e.target.value)}
+                    placeholder="https://twitter.com/yourhandle"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="github" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    GitHub
+                  </label>
+                  <Input
+                    id="github"
+                    value={mentorProfile.socialLinks.github}
+                    onChange={(e) => handleMentorFormChange('socialLinks.github', e.target.value)}
+                    placeholder="https://github.com/yourusername"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="facebook" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Facebook
+                  </label>
+                  <Input
+                    id="facebook"
+                    value={mentorProfile.socialLinks.facebook}
+                    onChange={(e) => handleMentorFormChange('socialLinks.facebook', e.target.value)}
+                    placeholder="https://facebook.com/yourprofile"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="instagram" className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    Instagram
+                  </label>
+                  <Input
+                    id="instagram"
+                    value={mentorProfile.socialLinks.instagram}
+                    onChange={(e) => handleMentorFormChange('socialLinks.instagram', e.target.value)}
+                    placeholder="https://instagram.com/yourprofile"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>          {/* Professional Details Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+              Professional Details
+            </h3>
+              <div>
+              <label htmlFor="currentOccupation" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Current Occupation/Role *
+              </label>
+              <Input
+                id="currentOccupation"
+                value={mentorProfile.currentOccupation}
+                onChange={(e) => handleMentorFormChange('currentOccupation', e.target.value)}
+                placeholder="e.g., College Student, Software Engineer, Teacher, Business Owner"
+                required
+              />
+            </div>
+              <div>
               <label htmlFor="company" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Company *
+                Company / Organization / Institution *
               </label>
               <Input
                 id="company"
                 value={mentorProfile.company}
                 onChange={(e) => handleMentorFormChange('company', e.target.value)}
-                placeholder="e.g., Tech Corp"
+                placeholder="e.g., Harvard University, Google, Local High School, Self-Employed"
                 required
               />
             </div>
-          </div>
-
-          {/* Mentoring Details Section */}
+            
+            <div>
+              <label htmlFor="yearsOfExperience" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Years Since High School Graduation *
+              </label>
+              <Input
+                id="yearsOfExperience"
+                type="number"
+                value={mentorProfile.yearsOfExperience}
+                onChange={(e) => handleMentorFormChange('yearsOfExperience', e.target.value)}
+                placeholder="e.g., 2"
+                min="0"
+                max="50"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">Enter the number of years since you graduated from high school</p>
+            </div>
+          </div>          {/* Mentoring Details Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
               Mentoring Details
             </h3>
-            
-            <div>
-              <label htmlFor="mentoringAreas" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Mentoring Areas *
+              <div>              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                Subjects You Can Mentor *
               </label>
-              <Input
-                id="mentoringAreas"
-                value={mentorProfile.mentoringAreas}
-                onChange={(e) => handleMentorFormChange('mentoringAreas', e.target.value)}
-                placeholder="e.g., Career guidance, Technical skills, Interview preparation"
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="availability" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Availability *
-                </label>
-                <Input
-                  id="availability"
-                  value={mentorProfile.availability}
-                  onChange={(e) => handleMentorFormChange('availability', e.target.value)}
-                  placeholder="e.g., Weekends, Evenings"
-                  required
-                />
+              <p className="text-xs text-gray-500 mb-3">Choose subjects where you excel and can help high school students.</p><div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-white dark:bg-gray-700">
+                {[
+                  { value: 'mathematics', label: 'Mathematics' },
+                  { value: 'physics', label: 'Physics' },
+                  { value: 'chemistry', label: 'Chemistry' },
+                  { value: 'biology', label: 'Biology' },
+                  { value: 'dzongkha', label: 'Dzongkha' },
+                  { value: 'english', label: 'English' },
+                  { value: 'history', label: 'History' },
+                  { value: 'geography', label: 'Geography' },
+                  { value: 'economics', label: 'Economics' },
+                  { value: 'computer-science', label: 'Computer Science' },
+                  { value: 'environmental-science', label: 'Environmental Science' },
+                  { value: 'literature', label: 'Literature' },
+                  { value: 'business-studies', label: 'Business Studies' },
+                  { value: 'accounting', label: 'Accounting' },
+                  { value: 'psychology', label: 'Psychology' },
+                  { value: 'sociology', label: 'Sociology' },
+                  { value: 'political-science', label: 'Political Science' },
+                  { value: 'art-design', label: 'Art & Design' },
+                  { value: 'music', label: 'Music' },
+                  { value: 'physical-education', label: 'Physical Education' },
+                  { value: 'health-education', label: 'Health Education' },
+                  { value: 'general-study-skills', label: 'General Study Skills' },
+                  { value: 'college-preparation', label: 'College Preparation' },
+                  { value: 'career-guidance', label: 'Career Guidance' },
+                  { value: 'other', label: 'Other (Specify below)' }
+                ].map((area) => (
+                  <label key={area.value} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 p-1 rounded">
+                    <input
+                      type="checkbox"
+                      value={area.value}
+                      checked={mentorProfile.mentoringAreas.includes(area.value)}                      onChange={(e) => {
+                        const value = e.target.value;
+                        const isChecked = e.target.checked;
+                        let updatedAreas;
+                        
+                        if (isChecked) {
+                          updatedAreas = [...mentorProfile.mentoringAreas, value];
+                          
+                          // Auto-initialize: When "other" is first selected, add empty custom area
+                          if (value === 'other' && mentorProfile.customMentoringAreas.length === 0) {
+                            handleMentorFormChange('customMentoringAreas', ['']);
+                          }
+                        } else {
+                          updatedAreas = mentorProfile.mentoringAreas.filter(area => area !== value);                          // If unchecking "other", also clear the custom areas
+                          if (value === 'other') {
+                            handleMentorFormChange('customMentoringAreas', []);
+                          }
+                        }
+                        
+                        handleMentorFormChange('mentoringAreas', updatedAreas);
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{area.label}</span>
+                  </label>
+                ))}
               </div>
-              
-              <div>
-                <label htmlFor="maxMentees" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Max Mentees *
-                </label>
-                <Input
-                  id="maxMentees"
-                  type="number"
-                  value={mentorProfile.maxMentees}
-                  onChange={(e) => handleMentorFormChange('maxMentees', e.target.value)}
-                  placeholder="3"
-                  min="1"
-                  max="10"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="preferredMeetingType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Preferred Meeting Type *
-              </label>
-              <select
-                id="preferredMeetingType"
-                value={mentorProfile.preferredMeetingType}
-                onChange={(e) => handleMentorFormChange('preferredMeetingType', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              >
-                <option value="video">Video Call</option>
-                <option value="phone">Phone Call</option>
-                <option value="inPerson">In Person</option>
-                <option value="email">Email</option>
-                <option value="flexible">Flexible</option>
-              </select>
+                {/* Show custom areas input if "other" is selected */}
+              {mentorProfile.mentoringAreas.includes('other') && (
+                <div className="mt-3 space-y-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Please specify your other mentoring subjects:
+                  </label>
+                  
+                  {/* Display existing custom areas */}
+                  {mentorProfile.customMentoringAreas.map((area, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={area}
+                        onChange={(e) => {
+                          const updatedAreas = [...mentorProfile.customMentoringAreas];
+                          updatedAreas[index] = e.target.value;
+                          handleMentorFormChange('customMentoringAreas', updatedAreas);
+                        }}
+                        placeholder="e.g., Rigzhung, Statistics, Philosophy"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const updatedAreas = mentorProfile.customMentoringAreas.filter((_, i) => i !== index);
+                          handleMentorFormChange('customMentoringAreas', updatedAreas);
+                        }}
+                        className="px-3 py-1 text-red-600 hover:text-red-800 hover:bg-red-50"
+                      >
+                        <Icon name="x" size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                  
+                  {/* Add new custom area button */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const updatedAreas = [...mentorProfile.customMentoringAreas, ''];
+                      handleMentorFormChange('customMentoringAreas', updatedAreas);
+                    }}
+                    className="w-full py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 border-dashed"
+                  >
+                    <Icon name="plus" size={16} className="mr-2" />
+                    Add Another Subject
+                  </Button>
+                  
+                  <p className="text-xs text-gray-500">
+                    You can add multiple subjects that aren't listed above. Each subject should be specific (e.g., "Advanced Calculus" rather than just "Math").
+                  </p>
+                </div>
+              )}
+                {mentorProfile.mentoringAreas.length === 0 && (
+                <p className="text-xs text-red-500 mt-1">Please select at least one subject you can mentor.</p>
+              )}
             </div>
               <div>
               <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Bio *
+                Short Bio - Why do you want to become a mentor? *
               </label>
               <Textarea
                 id="bio"
                 value={mentorProfile.bio}
                 onChange={(e) => handleMentorFormChange('bio', e.target.value)}
-                placeholder="Tell students about yourself, your experience, and how you can help them grow professionally..."
-                rows={4}
+                placeholder="Share your motivation for becoming a mentor. What drives you to help high school students? What unique perspective or experience from your high school journey can you offer? How do you plan to make a positive impact on current students' academic and personal growth?"
+                rows={5}
                 className="resize-vertical"
+                maxLength={1000}
                 required
               />
+              <p className="text-xs text-gray-500 mt-1">Tell us about your passion for mentoring high school students and what you hope to achieve (max 1000 characters)</p>
             </div>
           </div>
           

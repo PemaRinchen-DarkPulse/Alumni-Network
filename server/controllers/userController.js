@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const Mentor = require('../models/mentorModel');
 const bcrypt = require('bcryptjs');
 
 // Get user profile
@@ -406,12 +407,140 @@ exports.deleteAccount = async (req, res) => {
     // 4. Send confirmation email
     
     await User.findByIdAndDelete(userId);
-    
-    res.status(200).json({ 
+      res.status(200).json({ 
       message: 'Account deleted successfully' 
     });
       } catch (error) {
     console.error('Error deleting account:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Save mentor profile
+exports.saveMentorProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const mentorData = req.body;
+    
+    // Validate that user exists and is alumni
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    if (user.role !== 'alumni') {
+      return res.status(403).json({ message: 'Only alumni can become mentors' });
+    }
+    
+    // Check if mentor profile already exists
+    let mentor = await Mentor.findOne({ user: userId });
+    
+    if (mentor) {
+      // Update existing mentor profile
+      Object.assign(mentor, mentorData);
+      mentor.updatedAt = Date.now();
+    } else {
+      // Create new mentor profile
+      mentor = new Mentor({
+        user: userId,
+        ...mentorData
+      });
+    }
+    
+    // Calculate and set profile completeness
+    mentor.calculateProfileCompleteness();
+    
+    // Save mentor profile
+    await mentor.save();
+    
+    // Update user's isMentor status
+    user.isMentor = true;
+    await user.save();
+    
+    res.status(200).json({
+      success: true,
+      message: 'Mentor profile saved successfully',
+      mentor: mentor
+    });
+    
+  } catch (error) {
+    console.error('Error saving mentor profile:', error);
+      // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: validationErrors 
+      });
+    }
+    
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Get mentor profile
+exports.getMentorProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Find mentor profile
+    const mentor = await Mentor.findOne({ user: userId }).populate('user', 'name email profilePicture batch role');
+    
+    if (!mentor) {
+      return res.status(404).json({ message: 'Mentor profile not found' });
+    }
+    
+    res.status(200).json({
+      success: true,
+      mentor: mentor
+    });
+    
+  } catch (error) {
+    console.error('Error fetching mentor profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Update mentor profile
+exports.updateMentorProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const updateData = req.body;
+    
+    // Find and update mentor profile
+    const mentor = await Mentor.findOne({ user: userId });
+    
+    if (!mentor) {
+      return res.status(404).json({ message: 'Mentor profile not found' });
+    }
+    
+    // Update mentor data
+    Object.assign(mentor, updateData);
+    mentor.updatedAt = Date.now();
+    
+    // Recalculate profile completeness
+    mentor.calculateProfileCompleteness();
+    
+    // Save updated mentor profile
+    await mentor.save();
+    
+    res.status(200).json({
+      success: true,
+      message: 'Mentor profile updated successfully',
+      mentor: mentor
+    });
+    
+  } catch (error) {
+    console.error('Error updating mentor profile:', error);
+    
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: validationErrors 
+      });
+    }
+    
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
