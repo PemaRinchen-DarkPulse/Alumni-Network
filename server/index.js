@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const privacyRoutes = require('./routes/privacyRoutes');
+const alumniRoutes = require('./routes/alumniRoutes');
 
 // Create Express app
 const app = express();
@@ -86,6 +87,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/privacy', privacyRoutes);
+app.use('/api/alumni', alumniRoutes);
 
 // Root route
 app.get('/', (req, res) => {

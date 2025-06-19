@@ -59,8 +59,7 @@ exports.updatePrivacySettings = async (req, res) => {
     
     // Convert to plain object to avoid mongoose document behavior
     const settingsObj = settings.toObject();
-    
-    console.log(`Privacy settings updated successfully for user ${userId}. New profile visibility: ${settingsObj.profileVisibility}`);
+      console.log(`Privacy settings updated successfully for user ${userId}.`);
     
     res.status(200).json({
       success: true,

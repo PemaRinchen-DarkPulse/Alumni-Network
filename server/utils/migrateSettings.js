@@ -61,11 +61,9 @@ const migrateUserSettings = async () => {
         if (user.privacySettings) {
           const existingPrivacySettings = await PrivacySettings.findOne({ userId: user._id });
           
-          if (!existingPrivacySettings) {
-            await PrivacySettings.create({
+          if (!existingPrivacySettings) {            await PrivacySettings.create({
               userId: user._id,
               // Map old settings to new structure
-              profileVisibility: 'public',
               contactInformation: {
                 showEmail: user.privacySettings.showEmail ?? false,
                 showPhone: user.privacySettings.showPhone ?? false,

@@ -235,12 +235,9 @@ exports.login = async (req, res) => {
       const { createDefaultPrivacySettingsForUser } = require('../utils/createDefaultSettings');
       privacySettings = await createDefaultPrivacySettingsForUser(user._id);
     }
-    
-    // Convert to plain object to avoid mongoose document behavior
+      // Convert to plain object to avoid mongoose document behavior
     const privacySettingsObj = privacySettings.toObject();
-    console.log(`Login: Privacy settings loaded for user ${user._id}. Profile visibility: ${privacySettingsObj.profileVisibility}`);
-    
-
+    console.log(`Login: Privacy settings loaded for user ${user._id}.`);
     // Generate JWT token
     const token = generateToken(user._id);    // Return user info and token
     return res.status(200).json({

@@ -28,11 +28,9 @@ const createDefaultPrivacySettings = async () => {
     
     // Create default privacy settings for each user
     for (const user of usersWithoutSettings) {
-      try {
-        // Create default privacy settings
+      try {        // Create default privacy settings
         await PrivacySettings.create({
           userId: user._id,
-          profileVisibility: 'public',
           showEmail: false,
           showPhone: false,
           showSocialLinks: true,
@@ -91,11 +89,9 @@ const createDefaultPrivacySettings = async () => {
 const createDefaultPrivacySettingsForUser = async (userId) => {
   try {
     console.log(`Creating default privacy settings for user ${userId}`);
-    
-    // Create and return default privacy settings
+      // Create and return default privacy settings
     const privacySettings = await PrivacySettings.create({
       userId: userId,
-      profileVisibility: 'public',
       showEmail: false,
       showPhone: false,
       showSocialLinks: true,

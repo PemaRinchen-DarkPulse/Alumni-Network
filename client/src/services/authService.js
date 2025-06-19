@@ -48,13 +48,9 @@ export const loginUser = async (email, password) => {
     if (!response.ok) {
       throw new Error(data.message || 'Login failed');
     }
-    
-    // Log if privacy settings are included in the login response
+      // Log if privacy settings are included in the login response
     if (data.user && data.user.privacySettings) {
-      console.log('Login successful - Privacy settings included:', 
-        JSON.stringify({
-          profileVisibility: data.user.privacySettings.profileVisibility
-        }));
+      console.log('Login successful - Privacy settings included');
     } else {
       console.warn('WARNING: Privacy settings not included in login response');
     }
@@ -85,9 +81,8 @@ export const loginUser = async (email, password) => {
     // Add debug logging for privacy settings during login
     console.log('Login successful - Privacy settings included in response:', 
       data.user.privacySettings ? 'Yes' : 'No');
-    
-    if (data.user.privacySettings) {
-      console.log('Login: Privacy settings profile visibility:', data.user.privacySettings.profileVisibility);
+      if (data.user.privacySettings) {
+      console.log('Login: Privacy settings included');
     } else {
       console.warn('WARNING: Privacy settings not included in login response');
     }

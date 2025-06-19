@@ -28,12 +28,11 @@ exports.getUserProfile = async (req, res) => {
     
     // Convert to plain object to avoid mongoose document behavior
     const privacySettingsObj = privacySettings.toObject();
-    
-    // Add privacy settings to user object
+      // Add privacy settings to user object
     const userObj = user.toObject();
     userObj.privacySettings = privacySettingsObj;
     
-    console.log(`Returning user profile with privacy settings. Profile visibility: ${privacySettingsObj.profileVisibility}`);
+    console.log(`Returning user profile with privacy settings.`);
     
     res.status(200).json({ user: userObj });
   } catch (error) {

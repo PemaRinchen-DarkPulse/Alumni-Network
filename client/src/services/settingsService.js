@@ -427,25 +427,74 @@ export const updateMentorProfile = async (mentorProfile) => {
  */
 export const getUsersDirectory = async (params = {}) => {
   try {
-    const queryParams = new URLSearchParams();
-    
-    // Add query parameters if provided
-    if (params.role) queryParams.append('role', params.role);
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    
-    const queryString = queryParams.toString();
-    const url = `${API_URL}/api/users/directory${queryString ? '?' + queryString : ''}`;
-    
-    const response = await fetch(url, {
+    // Build query parameters for the API request
+    const queryParams = new URLSearchParams({
+      ...params,
+      role: 'alumni', // Ensure we're filtering for alumni users
+      page: params.page || 1,
+      limit: params.limit || 12
+    }).toString();
+
+    // Make a real API call to fetch alumni data from MongoDB
+    const response = await fetch(`${API_URL}/api/users/directory?${queryParams}`, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
     
-    const data = await handleResponse(response);
-    return { success: true, data };
+    const data = await handleResponse(response);    // Get the current user ID to ensure we filter them out client-side as well
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const currentUserId = currentUser._id || null;
+    
+    console.log('Current user ID (client side):', currentUserId);
+    console.log('Returned users count:', data.users?.length || 0);
+    
+    // Filter out the current user, if present in the results - ensure we handle type differences
+    const filteredUsers = data.users?.filter(user => {
+      // If no current user ID, return all users
+      if (!currentUserId) return true;
+      // Handle both string and ObjectId comparisons
+      return user._id !== currentUserId && user._id !== currentUserId.toString();
+    }) || [];
+    
+    // Convert social links from object to array format if needed
+    const processedUsers = filteredUsers.map(user => {
+      // Handle social links conversion from object to array format
+      let formattedSocialLinks = [];
+      if (user.socialLinks) {
+        if (Array.isArray(user.socialLinks)) {
+          formattedSocialLinks = user.socialLinks;
+        } else {
+          // Convert object format to array format
+          formattedSocialLinks = Object.entries(user.socialLinks)
+            .filter(([_, url]) => url && url.trim() !== '')
+            .map(([platform, url]) => ({ platform, url }));
+        }
+      }
+      
+      return {
+        ...user,
+        socialLinks: formattedSocialLinks,
+        // Ensure these fields exist for rendering
+        yearOrClass: user.yearOrClass || user.batch || '',
+        field: user.field || user.currentOccupation || user.major || ''
+      };
+    });
+    
+    return {
+      success: true,
+      data: {
+        users: processedUsers,
+        currentPage: data.pagination?.currentPage || params.page || 1,
+        totalPages: data.pagination?.totalPages || 1,
+        totalUsers: data.pagination?.totalUsers || 0
+      }
+    };
   } catch (error) {
-    return { success: false, error: error.message };
+    console.error('Error fetching alumni directory:', error);
+    return { 
+      success: false, 
+      error: error.message || 'Failed to fetch alumni directory'
+    };
   }
 };
 
@@ -458,15 +507,9 @@ export const refreshUserData = async () => {
     });
     
     // Use handleResponse helper to ensure consistent error handling
-    const data = await handleResponse(response);
-
-    // Add debug logs to track privacy settings
-    if (data && data.user) {
-      console.log('Refreshed user data from server - User ID:', data.user.id);
+    const data = await handleResponse(response);    // Add debug logs to track privacy settings
+    if (data && data.user) {      console.log('Refreshed user data from server - User ID:', data.user._id || 'Unknown ID');
       console.log('Privacy settings included?', data.user.privacySettings ? 'Yes' : 'No');
-      if (data.user.privacySettings) {
-        console.log('Privacy settings profile visibility:', data.user.privacySettings.profileVisibility);
-      }
       
       // Store updated user data in localStorage to ensure consistency
       if (data.user) {
@@ -490,6 +533,41 @@ export const refreshUserData = async () => {
     return { success: true, data };
   } catch (error) {
     console.error('Error refreshing user data:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Get user by ID
+ * @param {String} userId - User ID to fetch
+ * @returns {Promise<Object>} - Response with success status and user data or error
+ */
+export const getUserById = async (userId) => {
+  try {
+    const response = await fetch(`${API_URL}/api/users/${userId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    
+    const data = await handleResponse(response);
+    
+    // Handle social links formatting just like in directory function
+    if (data.user && data.user.socialLinks) {
+      let formattedSocialLinks = [];
+      if (Array.isArray(data.user.socialLinks)) {
+        formattedSocialLinks = data.user.socialLinks;
+      } else {
+        // Convert object format to array format
+        formattedSocialLinks = Object.entries(data.user.socialLinks)
+          .filter(([_, url]) => url && url.trim() !== '')
+          .map(([platform, url]) => ({ platform, url }));
+      }
+      data.user.socialLinks = formattedSocialLinks;
+    }
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error fetching user profile by ID:', error);
     return { success: false, error: error.message };
   }
 };

@@ -1,18 +1,10 @@
 const mongoose = require('mongoose');
 
-const privacySettingsSchema = new mongoose.Schema({
-  userId: {
+const privacySettingsSchema = new mongoose.Schema({  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
     unique: true
-  },
-  
-  // Profile Visibility
-  profileVisibility: {
-    type: String,
-    enum: ['public', 'alumni-only', 'connections-only', 'private'],
-    default: 'public'
   },
   
   // Contact Information Visibility

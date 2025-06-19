@@ -10,6 +10,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import ResendVerification from "./pages/ResendVerification";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AlumniDetailPage from "./pages/AlumniDetailPage";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
             <Route path="/profile" element={<Navigate to="/dashboard/settings" replace />} />
+            <Route path="/alumni/:id" element={<AlumniDetailPage />} />
           </Route>
           
           {/* Redirect from the old verify-pending route to the new verify-email route */}

@@ -47,9 +47,8 @@ const PrivacySection = () => {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
-    const [privacySettings, setPrivacySettings] = useState({
-    // Profile visibility
-    profileVisibility: 'public',
+  const [privacySettings, setPrivacySettings] = useState({
+    // Contact information
     showEmail: false,
     showPhone: false,
     showSocialLinks: true,
@@ -69,7 +68,7 @@ const PrivacySection = () => {
     searchableByPhone: false,
     appearsInSuggestions: true,
     showInDirectory: true
-  });  const [loading, setLoading] = useState(false);
+  });const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [hasChanges, setHasChanges] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
@@ -80,20 +79,16 @@ const PrivacySection = () => {
       try {
         setLoading(true);
           // First check if user has privacySettings in the user object
-        if (user && user.privacySettings) {
-          console.log('Using privacy settings from user object:', user.privacySettings);
-          console.log('Privacy settings profile visibility:', user.privacySettings.profileVisibility);
+        if (user && user.privacySettings) {          console.log('Using privacy settings from user object:', user.privacySettings);
           console.log('User object structure:', JSON.stringify({
             id: user.id,
             hasPrivacySettings: !!user.privacySettings,
             privacySettingsType: typeof user.privacySettings,
             privacySettingsKeys: user.privacySettings ? Object.keys(user.privacySettings) : []
           }));
-          
-          // Validate structure of privacy settings
+            // Validate structure of privacy settings
           if (typeof user.privacySettings === 'object' && 
-              Object.keys(user.privacySettings).length > 0 && 
-              user.privacySettings.profileVisibility) {
+              Object.keys(user.privacySettings).length > 0) {
             console.log('Privacy settings appear to be valid, using them');
             setPrivacySettings(user.privacySettings);
           } else {
@@ -185,12 +180,10 @@ const PrivacySection = () => {
             console.log('Server did not return privacy settings, using saved settings');
             updatedUser.privacySettings = savedSettings;
           }
-              
-          // Add debug logging to verify the update
+                // Add debug logging to verify the update
           console.log('Updated user with new privacy settings:', {
             userId: updatedUser.id,
-            hasPrivacySettings: !!updatedUser.privacySettings,
-            profileVisibility: updatedUser.privacySettings?.profileVisibility
+            hasPrivacySettings: !!updatedUser.privacySettings
           });
         
           // Update the user context and localStorage
@@ -369,25 +362,9 @@ const PrivacySection = () => {
             <div className="mb-4 p-3 rounded-md bg-blue-50 text-blue-800">
               Loading privacy settings...
             </div>
-          )}
-
-          {/* Profile Visibility */}
+          )}          {/* Contact Information Visibility */}
           <div className="space-y-4">
-            <h3 className="text-sm font-bold uppercase text-muted-foreground">Profile Visibility</h3>
-            
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Profile Visibility</label>
-              <select 
-                className="w-full p-2 border rounded-md bg-background"
-                value={privacySettings.profileVisibility}
-                onChange={(e) => handleToggle('profileVisibility', e.target.value)}
-              >
-                <option value="public">Public - Anyone can view</option>
-                <option value="alumni-only">Alumni Only - Only verified alumni</option>
-                <option value="connections-only">Connections Only - Only your connections</option>
-                <option value="private">Private - Only you can view</option>
-              </select>
-            </div>
+            <h3 className="text-sm font-bold uppercase text-muted-foreground">Contact Information Visibility</h3>
             
             <Switch
               id="showEmail"

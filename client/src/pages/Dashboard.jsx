@@ -23,7 +23,6 @@ import CollaborationSection from '@/components/shared/sections/CollaborationSect
 // Import mentorship components directly
 import MentorshipRequestSection from '@/components/shared/mentorship/MentorshipRequestSection';
 import MentorshipManagementSection from '@/components/shared/mentorship/MentorshipManagementSection';
-import BecomeMentorSection from '@/components/shared/mentorship/BecomeMentorSection';
 
 // Import card components directly
 import ContentCard from '@/components/shared/cards/ContentCard';
@@ -60,7 +59,8 @@ const Dashboard = () => {
               {/* Main Dashboard Route */}
               <Route path="/" element={<DashboardHome user={user} userRole={userRole} />} />
               
-              {/* Routes common to all user types using shared components */}              <Route path="/directory" element={<DirectoryPage />} />
+              {/* Routes common to all user types using shared components */}
+              <Route path="/directory" element={<DirectoryPage />} />
               
               <Route path="/blog" element={
                 <BlogSection 
@@ -208,8 +208,7 @@ const DashboardHome = ({ user, userRole }) => {
         title="Dashboard" 
         description={`Welcome back, ${user?.name || 'User'}! (${userRole})`}
       />
-      
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">        <DashboardCard 
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">        <DashboardCard 
           title="Quick Stats"
           description="View your key performance indicators"
           icon={<Icon name="bar-chart" size={24} />}
@@ -225,6 +224,13 @@ const DashboardHome = ({ user, userRole }) => {
           title="Upcoming Events"
           description="Don't miss important dates"
           icon={<Icon name="calendar" size={24} />}
+        />
+        
+        <DashboardCard 
+          title="Alumni Directory"
+          description="Connect with alumni from your institution"
+          icon={<Icon name="users" size={24} />}
+          link="/dashboard/directory"
         /></div>
       
       <div className="mt-8">
