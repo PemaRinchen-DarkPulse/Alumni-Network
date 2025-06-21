@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/auth";
 import ProtectedRoute from "./components/shared/auth/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
@@ -11,6 +11,22 @@ import ResendVerification from "./pages/ResendVerification";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AlumniDetailPage from "./pages/AlumniDetailPage";
+
+// Helper component to redirect while preserving URL parameters
+function RedirectWithParams({ to }) {
+  const params = useParams();
+  const navigate = useNavigate();
+  
+  React.useEffect(() => {
+    const path = Object.keys(params).reduce(
+      (path, param) => path.replace(`:${param}`, params[param]),
+      to
+    );
+    navigate(path, { replace: true });
+  }, [navigate, params, to]);
+  
+  return null;
+};
 
 function App() {
   return (
@@ -31,7 +47,10 @@ function App() {
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
             <Route path="/profile" element={<Navigate to="/dashboard/settings" replace />} />
-            <Route path="/alumni/:id" element={<AlumniDetailPage />} />
+            {/* Alumni detail moved to dashboard nested routes */}
+            <Route path="/alumni/:id" element={
+              <RedirectWithParams to="/dashboard/alumni/:id" />
+            } />
           </Route>
           
           {/* Redirect from the old verify-pending route to the new verify-email route */}

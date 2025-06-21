@@ -33,7 +33,7 @@ const AlumniDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center p-12">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
       </div>
     );
@@ -46,7 +46,7 @@ const AlumniDetailPage = () => {
         <h2 className="text-2xl font-bold mb-4">Alumni Not Found</h2>
         <p className="text-gray-600 mb-8">{error || "We couldn't find the alumni you're looking for."}</p>
         <button
-          onClick={() => navigate('/directory')}
+          onClick={() => navigate('/dashboard/directory')}
           className="px-6 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
         >
           Return to Directory
@@ -56,10 +56,10 @@ const AlumniDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-6">
       {/* Back button */}
       <button
-        onClick={() => navigate('/directory')}
+        onClick={() => navigate('/dashboard/directory')}
         className="flex items-center text-gray-600 hover:text-primary mb-6"
       >
         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

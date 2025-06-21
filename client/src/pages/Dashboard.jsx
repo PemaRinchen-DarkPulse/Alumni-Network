@@ -7,11 +7,9 @@ import { Icon } from '@/components/shared/icons/Icon';
 // Import layout components directly
 import DashboardNavbar from '@/components/shared/layout/DashboardNavbar';
 import DashboardSidebar from '@/components/shared/layout/DashboardSidebar';
-import PageSection from '@/components/shared/layout/PageSection';
 import PageHeader from '@/components/shared/layout/PageHeader';
 
 // Import section components directly
-import DirectorySection from '@/components/shared/sections/DirectorySection';
 import BlogSection from '@/components/shared/sections/BlogSection';
 import EventsSection from '@/components/shared/sections/EventsSection';
 import MediaGallerySection from '@/components/shared/sections/MediaGallerySection';
@@ -31,6 +29,7 @@ import SettingsPage from '@/components/settings/SettingsPage';
 
 // Import page components
 import DirectoryPage from './DirectoryPage';
+import AlumniDetailPage from './AlumniDetailPage';
 
 const Dashboard = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -61,6 +60,7 @@ const Dashboard = () => {
               
               {/* Routes common to all user types using shared components */}
               <Route path="/directory" element={<DirectoryPage />} />
+              <Route path="/alumni/:id" element={<AlumniDetailPage />} />
               
               <Route path="/blog" element={
                 <BlogSection 

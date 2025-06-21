@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllAlumni } from '@/services/directoryService';
+import { useAuth } from '@/contexts/auth';
+import PageHeader from '../layout/PageHeader';
+import ContentCard from '../cards/ContentCard';
 
-const DirectorySection = () => {
-  const [alumni, setAlumni] = useState([]);
+const DirectorySection = () => {  const [alumni, setAlumni] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBatch, setSelectedBatch] = useState('');
+  const [selectedOccupation, setSelectedOccupation] = useState('');
+  const { user: currentUser } = useAuth();
+    // Constants for the header
+  const headerTitle = "Alumni Directory";
+  const headerDescription = "Connect with fellow alumni from your institution.";
 
   useEffect(() => {
     const fetchAlumni = async () => {
@@ -14,8 +22,11 @@ const DirectorySection = () => {
         setLoading(true);
         const response = await getAllAlumni();
         
-        if (response.success) {
-          setAlumni(response.data.data.alumni);
+        if (response.success) {          // Filter out the current user from the alumni list
+          const filteredAlumni = response.data.data.alumni.filter(
+            alumnus => alumnus._id !== currentUser?.id && alumnus.id !== currentUser?.id
+          );
+          setAlumni(filteredAlumni);
         } else {
           setError(response.error || 'Failed to fetch alumni directory');
         }
@@ -28,32 +39,27 @@ const DirectorySection = () => {
     };
 
     fetchAlumni();
-  }, []);  if (loading) {
+  }, [currentUser]);
+  
+  if (loading) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Alumni Directory</h1>
-          <p className="text-gray-600 mb-10">Connect with fellow alumni from your institution.</p>
-        </div>
+      <>
+        <PageHeader title={headerTitle} description={headerDescription} />
         
-        <div className="flex justify-center items-center">
+        <div className="flex flex-col items-center justify-center py-12">
           <div className="w-16 h-16 relative">
             <div className="absolute top-0 left-0 w-full h-full border-4 border-gray-200 rounded-full"></div>
             <div className="absolute top-0 left-0 w-full h-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
           </div>
+          
+          <p className="text-center mt-4 text-slate-500">Loading alumni profiles...</p>
         </div>
-        
-        <p className="text-center mt-4 text-gray-500">Loading alumni profiles...</p>
-      </div>
+      </>
     );
-  }
-  if (error) {
+  }  if (error) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Alumni Directory</h1>
-          <p className="text-gray-600 mb-10">Connect with fellow alumni from your institution.</p>
-        </div>
+      <>
+        <PageHeader title={headerTitle} description={headerDescription} />
         
         <div className="max-w-md mx-auto text-center p-6 bg-white rounded-xl shadow-md">
           <div className="w-16 h-16 bg-red-50 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -64,8 +70,7 @@ const DirectorySection = () => {
           
           <h2 className="text-xl font-bold text-gray-800 mb-2">Unable to Load Directory</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          
-          <button 
+            <button 
             onClick={() => window.location.reload()} 
             className="px-6 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary/90 transition-colors inline-flex items-center"
           >
@@ -75,51 +80,118 @@ const DirectorySection = () => {
             Try Again
           </button>
         </div>
-      </div>
-    );
+      </>    );
   }
+  // Get unique batch years for filter dropdown
+  const uniqueBatches = [...new Set(alumni.map(person => person.batch).filter(Boolean))].sort();
+  
+  // Get unique occupations for filter dropdown
+  const uniqueOccupations = [...new Set(alumni.map(person => person.currentOccupation).filter(Boolean))].sort();
+  
   const filteredAlumni = alumni.filter(person => {
-    if (!searchTerm) return true;
+    // Text search filter
+    const matchesSearch = !searchTerm || 
+      person.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      person.currentOccupation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      person.batch?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      person.bio?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const search = searchTerm.toLowerCase();
-    return (
-      person.name?.toLowerCase().includes(search) ||
-      person.currentOccupation?.toLowerCase().includes(search) ||
-      person.batch?.toLowerCase().includes(search) ||
-      person.bio?.toLowerCase().includes(search)
-    );
+    // Batch filter
+    const matchesBatch = !selectedBatch || person.batch === selectedBatch;
+    
+    // Occupation filter
+    const matchesOccupation = !selectedOccupation || person.currentOccupation === selectedOccupation;
+    
+    // Return true only if all active filters match
+    return matchesSearch && matchesBatch && matchesOccupation;
   });
+  
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Page Title and Search Bar */}
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Alumni Directory</h1>
-        <p className="text-gray-600 mb-10">Connect with fellow alumni from your institution.</p>
-        
-        <div className="max-w-xl mx-auto relative">
-          <div className="flex items-center border border-gray-300 rounded-full bg-white shadow-sm">
-            <div className="pl-4">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <>
+      {/* Page Title and Search Bar */}      <PageHeader title={headerTitle} description={headerDescription} />
+      
+      <div className="mb-6">
+        <ContentCard>
+          <div className="flex items-center gap-3">
+            {/* Search Bar - 50% width */}
+            <div className="relative w-1/2">
+              <input
+                type="text"
+                placeholder="Search alumni..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-md border border-slate-300 px-4 py-2 pr-8 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+              />
+              <svg 
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </div>
-            <input
-              type="text"
-              placeholder="Search alumni by name, batch, occupation..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full py-3 px-4 rounded-full focus:outline-none text-gray-700"
-            />
+            
+            {/* Filter dropdowns container - 50% width combined */}
+            <div className="flex w-1/2 gap-3">
+              {/* Batch Filter */}
+              <select
+                value={selectedBatch}
+                onChange={(e) => setSelectedBatch(e.target.value)}
+                className="w-1/2 rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600 dark:text-white text-sm"
+                aria-label="Filter by batch"
+              >
+                <option value="">Batch: All</option>
+                {uniqueBatches.map(batch => (
+                  <option key={batch} value={batch}>{batch}</option>
+                ))}
+              </select>
+              
+              {/* Occupation Filter */}
+              <select
+                value={selectedOccupation}
+                onChange={(e) => setSelectedOccupation(e.target.value)}
+                className="w-1/2 rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-primary focus:ring-primary dark:bg-slate-800 dark:border-slate-600 dark:text-white text-sm"
+                aria-label="Filter by occupation"
+              >
+                <option value="">Role: All</option>
+                {uniqueOccupations.map(occupation => (
+                  <option key={occupation} value={occupation}>{occupation}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Clear Filters Button - Only show when filters are applied */}
+            {(searchTerm || selectedBatch || selectedOccupation) && (
+              <div className="flex-none">
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedBatch('');
+                    setSelectedOccupation('');
+                  }}
+                  className="text-xs text-primary hover:text-primary/80 font-medium flex items-center whitespace-nowrap px-2 py-1.5 border border-primary/20 rounded-md"
+                >
+                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  Clear
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
-        {/* Results Information - More subtle counter */}
-      <div className="flex justify-center mb-6">
-        <div className="text-sm text-gray-500">
+        </ContentCard>
+      </div>{/* Results Information - More subtle counter */}      <div className="flex justify-center mb-4">
+        <div className="text-sm text-slate-500">
           Showing {filteredAlumni.length} alumni
+          {selectedBatch && ` from batch ${selectedBatch}`}
+          {selectedOccupation && ` in ${selectedOccupation}`}
+          {(searchTerm || selectedBatch || selectedOccupation) && 
+            ` (filtered from ${alumni.length} total)`}
         </div>
       </div>
-        {/* Alumni Cards */}
+      
+      {/* Alumni Cards */}
       {filteredAlumni.length === 0 ? (
         <div className="text-center py-16 max-w-lg mx-auto">
           <div className="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
@@ -127,25 +199,31 @@ const DirectorySection = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
-          <h2 className="text-2xl font-bold mb-3">No alumni found</h2>
-          <p className="text-gray-500 mb-6">
+          <h2 className="text-2xl font-bold mb-3">No alumni found</h2>          <p className="text-gray-500 mb-6">
             {alumni.length > 0 
-              ? 'We couldn\'t find alumni matching your search criteria. Try adjusting your search or browsing the full directory.' 
+              ? 'We couldn\'t find alumni matching your filter criteria. Try adjusting your filters or browsing the full directory.' 
               : 'No alumni are registered in the system yet. Check back soon!'}
           </p>
           {alumni.length > 0 && (
             <button 
-              onClick={() => setSearchTerm('')}
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedBatch('');
+                setSelectedOccupation('');
+              }}
               className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
               View All Alumni
             </button>
           )}
-        </div>) : (        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAlumni.map((person) => (
-            <div              key={person._id} 
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">          {filteredAlumni.map((person) => (
+            <div
+              key={person._id} 
               className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col min-h-[450px]"
-            >              {/* Use flex with h-full to create a proper layout structure */}
+            >
+              {/* Use flex with h-full to create a proper layout structure */}
               <div className="flex flex-col h-full">
                 {/* Top content area */}
                 <div className="flex-grow">
@@ -185,13 +263,12 @@ const DirectorySection = () => {
                         </svg>
                         Available for mentoring
                       </div>
-                    )}
-                  </div>
-                    
+                    )}</div>
+                  
                   {/* Bio Section */}
                   <div className="px-6 pb-4">
                     {person.bio ? (
-                      <p className="text-gray-600 text-sm line-clamp-3">
+                      <p className="text-gray-600 text-sm h-16 overflow-hidden text-ellipsis">
                         {person.bio}
                       </p>
                     ) : (
@@ -200,11 +277,10 @@ const DirectorySection = () => {
                   </div>
                 </div>
                 
-                {/* Action Buttons - Always at the bottom */}
-                <div className="px-6 py-4 mt-auto border-t border-gray-100">
+                {/* Action Buttons - Always at the bottom */}                <div className="px-6 py-4 mt-auto border-t border-gray-100">
                   <div className="flex space-x-2">
                     <Link 
-                      to={`/alumni/${person._id}`} 
+                      to={`/dashboard/alumni/${person._id}`} 
                       className="flex-1 text-center py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                     >
                       View Profile
@@ -218,11 +294,10 @@ const DirectorySection = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            </div>          ))}
         </div>
       )}
-    </div>
+    </>
   );
 };
 
