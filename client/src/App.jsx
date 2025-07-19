@@ -3,9 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useNavigat
 import { AuthProvider } from "./contexts/auth";
 import ProtectedRoute from "./components/shared/auth/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Home";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResendVerification from "./pages/ResendVerification";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -34,8 +33,8 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Auth />} />
+          <Route path="/login" element={<Auth />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/resend-verification" element={<ResendVerification />} />

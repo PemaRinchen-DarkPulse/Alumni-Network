@@ -146,3 +146,40 @@
 .animate-spin-slow {
   animation: slower-spin 1.5s linear infinite;
 }
+
+/* Custom animations for enhanced UI */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+.delay-1500 {
+  animation-delay: 1.5s;
+}
+
+.delay-2000 {
+  animation-delay: 2s;
+}
+
+/* Enhanced form focus states */
+.focus-enhanced:focus {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+  border-color: rgb(249, 115, 22);
+}
