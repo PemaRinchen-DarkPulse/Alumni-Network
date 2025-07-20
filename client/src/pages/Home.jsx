@@ -9,13 +9,15 @@ import DashboardSidebar from '@/components/shared/layout/DashboardSidebar';
 import PageHeader from '@/components/shared/layout/PageHeader';
 
 // Import section components directly
-import BlogSection from '@/components/shared/sections/BlogSection';
 import EventsSection from '@/components/shared/sections/EventsSection';
 import MediaGallerySection from '@/components/shared/sections/MediaGallerySection';
 import FeedbackSection from '@/components/shared/sections/FeedbackSection';
 import TributeSection from '@/components/shared/sections/TributeSection';
 import ForumSection from '@/components/shared/sections/ForumSection';
 import CollaborationSection from '@/components/shared/sections/CollaborationSection';
+import BlogSection from '@/components/shared/sections/BlogSection';
+
+
 
 // Import mentorship components directly
 import MentorshipRequestSection from '@/components/shared/mentorship/MentorshipRequestSection';
@@ -56,7 +58,9 @@ const Home = () => {
               {/* Routes common to all user types using shared components */}
               <Route path="/directory" element={<DirectoryPage />} />
               <Route path="/alumni/:id" element={<AlumniDetailPage />} />
+          
               
+              {/* Legacy blog section route */}
               <Route path="/blog" element={
                 <BlogSection/>
               } />

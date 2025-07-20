@@ -14,7 +14,6 @@ const VerifyEmail = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const { resendVerification } = useAuth();
   
-  // Process the state if coming from registration
   useEffect(() => {
     const { email, message } = location.state || {};
     
@@ -122,78 +121,41 @@ const VerifyEmail = () => {
     navigate('/');
   };
   
-  // Common illustration section for all states
-  const IllustrationSection = () => (
-    <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden transition-all duration-500 ease-in-out">
-      <img 
-        src="https://images.pexels.com/photos/6347534/pexels-photo-6347534.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-        alt="Email verification illustration"
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-br from-black/30 to-black/10">
-        <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
-          <h2 className="text-3xl font-bold mb-4 transition-all duration-500">
-            Verify your email
-          </h2>
-          <p className="text-lg text-white/80 max-w-md">
-            We need to verify your email address to secure your account.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  // We don't need the IllustrationSection for the centered card design
 
   // Content based on status
   const renderContent = () => {
     // Loading state
     if (status === 'loading' && token) {
-      return (
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600">Please wait while we verify your email...</p>
-        </div>
-      );
+      return null; // We're handling loading in the Messages Section now
     }
     
     // Resending state
     if (status === 'resending') {
-      return (
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600">Sending new verification email...</p>
-        </div>
-      );
+      return null; // We're handling resending in the Messages Section now
     }
     
     // Pending state
     if (status === 'pending') {
       return (
-        <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="bg-blue-100 p-3 rounded-full">
-            <Icon name="mail" size={40} className="text-blue-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-700">Check Your Inbox</h3>
-          <p className="text-gray-600">{message}</p>
-          {userEmail && (
-            <p className="text-sm text-gray-500">
-              We've sent a verification link to <strong>{userEmail}</strong>
+        <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-100 text-blue-600 p-4 rounded-lg text-sm">
+            <p className="mb-2">{message}</p>
+            {userEmail && (
+              <p className="font-medium">
+                We've sent a verification link to <strong>{userEmail}</strong>
+              </p>
+            )}
+            <p className="mt-2 text-xs text-blue-500">
+              The verification link will expire in 5 minutes.
             </p>
-          )}
-          <p className="text-sm text-gray-500 mt-2">
-            The verification link will expire in 5 minutes.
-          </p>
-          <div className="mt-4 space-y-3 w-full">
+          </div>
+          <div className="pt-2">
             <Button 
               onClick={handleResendVerification}
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Resend Verification Email
-            </Button>
-            <Button 
-              onClick={handleGoToLogin}
-              className="w-full py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              Go to Login
             </Button>
           </div>
         </div>
@@ -203,32 +165,24 @@ const VerifyEmail = () => {
     // Expired token state
     if (status === 'expired') {
       return (
-        <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="bg-amber-100 p-3 rounded-full">
-            <Icon name="clock" size={40} className="text-amber-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-amber-700">Verification Link Expired</h3>
-          <p className="text-gray-600">{message}</p>
-          {userEmail && (
-            <p className="text-sm text-gray-500">
-              For email: <strong>{userEmail}</strong>
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-100 text-amber-600 p-4 rounded-lg text-sm">
+            <p className="mb-2">{message}</p>
+            {userEmail && (
+              <p className="font-medium">
+                For email: <strong>{userEmail}</strong>
+              </p>
+            )}
+            <p className="mt-2 text-xs text-amber-500">
+              Verification links are valid for 5 minutes. Please request a new one.
             </p>
-          )}
-          <p className="text-sm text-gray-500 mt-2">
-            Verification links are valid for 5 minutes. Please request a new one.
-          </p>
-          <div className="mt-4 space-y-3 w-full">
+          </div>
+          <div className="pt-2">
             <Button 
               onClick={handleResendVerification}
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Get New Verification Link
-            </Button>
-            <Button 
-              onClick={handleGoToLogin}
-              className="w-full py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              Back to Login
             </Button>
           </div>
         </div>
@@ -238,24 +192,26 @@ const VerifyEmail = () => {
     // Success state
     if (status === 'success') {
       return (
-        <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="bg-green-100 p-3 rounded-full">
-            <Icon name="check" size={40} className="text-green-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-green-700">Email Verified Successfully!</h3>
-          <p className="text-gray-600">{message}</p>
-          {userEmail && (
-            <p className="text-sm text-gray-500">
-              Verified email: <strong>{userEmail}</strong>
+        <div className="space-y-4">
+          <div className="bg-green-50 border border-green-100 text-green-600 p-4 rounded-lg text-sm">
+            <p className="mb-2">{message}</p>
+            {userEmail && (
+              <p className="font-medium">
+                Verified email: <strong>{userEmail}</strong>
+              </p>
+            )}
+            <p className="mt-2 text-xs text-green-500">
+              Redirecting to login page...
             </p>
-          )}
-          <p className="text-sm text-gray-500">Redirecting to login page...</p>
-          <Button 
-            onClick={handleGoToLogin}
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl mt-2"
-          >
-            Go to Login
-          </Button>
+          </div>
+          <div className="pt-2">
+            <Button 
+              onClick={handleGoToLogin}
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Go to Login
+            </Button>
+          </div>
         </div>
       );
     }
@@ -263,17 +219,15 @@ const VerifyEmail = () => {
     // Error state
     if (status === 'error') {
       return (
-        <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="bg-red-100 p-3 rounded-full">
-            <Icon name="alert-circle" size={40} className="text-red-600" />
+        <div className="space-y-4">
+          <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-lg text-sm">
+            <p>{message}</p>
           </div>
-          <h3 className="text-lg font-semibold text-red-700">Verification Failed</h3>
-          <p className="text-gray-600">{message}</p>
-          <div className="mt-4 space-y-3 w-full">
+          <div className="pt-2">
             {userEmail && (
               <Button 
                 onClick={handleResendVerification}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl mb-3"
               >
                 Resend Verification Email
               </Button>
@@ -291,52 +245,84 @@ const VerifyEmail = () => {
     
     // Default/fallback state
     return (
-      <div className="flex flex-col items-center space-y-4 text-center">
-        <p className="text-gray-600">Something went wrong. Please try again later.</p>
-        <Button 
-          onClick={handleGoToLogin}
-          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
-        >
-          Go to Login
-        </Button>
+      <div className="space-y-4">
+        <div className="bg-gray-50 border border-gray-200 text-gray-600 p-4 rounded-lg text-sm">
+          <p>Something went wrong. Please try again later.</p>
+        </div>
+        <div className="pt-2">
+          <Button 
+            onClick={handleGoToLogin}
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            Go to Login
+          </Button>
+        </div>
       </div>
     );
   };
   
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100">
-      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
-        <div className="flex h-[700px]">
-          {/* Left side - Content */}
-          <div className="w-full lg:w-1/2 flex items-center justify-center p-8 transition-all duration-500 ease-in-out">
-            <div className="w-full max-w-md flex items-center justify-center min-h-full">
-              <div className="w-full flex flex-col justify-center min-h-full py-4">
-                {/* Header Section */}
-                <div className="text-center mb-4">
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    {status === 'success' ? 'Email Verified!' : 'Email Verification'}
-                  </h1>
-                  <p className="text-gray-600 text-sm">
-                    {status === 'pending' || status === 'resending' 
-                      ? 'Check your inbox for the verification link' 
-                      : status === 'success'
-                      ? 'Your email has been successfully verified'
-                      : status === 'expired'
-                      ? 'Your verification link has expired'
-                      : 'Verify your email address to continue'}
-                  </p>
-                </div>
-                
-                {/* Content Section */}
-                <div className="flex-1 flex flex-col justify-center">
-                  {renderContent()}
-                </div>
-              </div>
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div className="p-8">
+          {/* Email Icon */}
+          <div className="flex justify-center mb-4">
+            <div className="bg-blue-50 p-3 rounded-full">
+              <Icon name="mail" size={28} className="text-blue-600" />
             </div>
           </div>
           
-          {/* Right side - Illustration */}
-          <IllustrationSection />
+          {/* Header Section */}
+          <div className="text-center mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              {status === 'success' ? 'Email Verified!' : 'Email Verification'}
+            </h1>
+            <p className="text-gray-600 text-sm">
+              {status === 'pending' || status === 'resending' 
+                ? 'Check your inbox for the verification link' 
+                : status === 'success'
+                ? 'Your email has been successfully verified'
+                : status === 'expired'
+                ? 'Your verification link has expired'
+                : 'Verify your email address to continue'}
+            </p>
+          </div>
+          
+          {/* Messages Section */}
+          <div className="min-h-[40px] flex flex-col justify-start">
+            {(status === 'loading' || status === 'resending') && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-600 p-3 rounded-lg text-sm mb-3 flex items-center justify-center">
+                <Icon name="loader" size={18} className="animate-spin mr-2 flex-shrink-0" />
+                <span>{message || 'Processing your request...'}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Content Section */}
+          <div className="flex-1 flex flex-col justify-center">
+            {renderContent()}
+          </div>
+          
+          {/* Bottom Section */}
+          <div className="mt-6 space-y-3">
+            <div className="text-center">
+              <p className="text-gray-600 text-sm mb-2">
+                Having trouble?
+              </p>
+              <Link to="/contact-support" className="text-blue-600 text-sm font-medium hover:text-blue-500 transition-colors underline">
+                Contact Support
+              </Link>
+            </div>
+            
+            <div className="text-center pt-2">
+              <p className="text-gray-600 text-sm">
+                Remember your password?{" "}
+                <Link to="/login" className="text-blue-600 font-medium hover:text-blue-500 transition-colors">
+                  Back to Login
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

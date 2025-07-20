@@ -13,11 +13,19 @@ const apiClient = axios.create({
 
 /**
  * Get all alumni users
+ * @param {string} [excludeUserId] - Optional user ID to exclude from results
  * @returns {Promise<Object>} Response with alumni data
  */
-export const getAllAlumni = async () => {
+export const getAllAlumni = async (excludeUserId) => {
   try {
-    const response = await apiClient.get('/api/alumni');
+    let url = '/api/alumni';
+    
+    // If an ID is provided to exclude, add it as a query parameter
+    if (excludeUserId) {
+      url += `?exclude=${excludeUserId}`;
+    }
+    
+    const response = await apiClient.get(url);
     return {
       success: true,
       data: response.data
