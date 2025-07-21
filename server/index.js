@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
+const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
@@ -19,21 +20,51 @@ const PORT = process.env.PORT || 5000;
 // Get allowed origins from environment variables or use defaults
 const clientOrigins = process.env.CLIENT_URL;
 
-// Security headers
-app.use(helmet());
+// Security headers with customization for image loading
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false,
+}));
 
 // CORS configuration 
 app.use(cors({
-  origin: clientOrigins || 'http://localhost:5173',
+  origin: clientOrigins || 'http://localhost:5173', // Use specific origin instead of wildcard
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-auth-token'],
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['Content-Type', 'Content-Length']
 }));
 
 // Middleware - increased limit for profile pictures
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Debug endpoint to list uploaded blog images
+app.get('/api/debug/blog-images', async (req, res) => {
+  const fs = require('fs').promises;
+  try {
+    const uploadPath = path.join(__dirname, 'uploads', 'blog');
+    const files = await fs.readdir(uploadPath);
+    
+    res.json({ 
+      success: true, 
+      path: uploadPath, 
+      files,
+      baseUrl: `${req.protocol}://${req.get('host')}/uploads/blog/`
+    });
+  } catch (error) {
+    console.error('Error reading blog images directory:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Could not read blog images directory',
+      error: error.message
+    });
+  }
+});
 
 // CSRF protection - excluding paths that need to work without CSRF
 const csrfProtection = csurf({ 

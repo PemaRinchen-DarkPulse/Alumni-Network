@@ -3,6 +3,29 @@
  */
 
 /**
+ * Get a full URL for a blog image from the API
+ * @param {string|Object} imageData - Either the blog post ID or the full featuredImage object
+ * @returns {string} The full URL to the image
+ */
+export const getImageUrl = (imageData) => {
+  if (!imageData) return 'https://via.placeholder.com/400x250?text=No+Image';
+  
+  // If it's already a full URL, return it as is
+  if (typeof imageData === 'string' && imageData.startsWith('http')) {
+    return imageData;
+  }
+  
+  // If it's a blog post ID, create a URL to the image endpoint with timestamp to prevent caching
+  if (typeof imageData === 'string') {
+    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+    return `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/blog/image/${imageData}?t=${timestamp}`;
+  }
+  
+  // Fallback to placeholder
+  return 'https://via.placeholder.com/400x250?text=No+Image';
+};
+
+/**
  * Compresses an image file and converts it to base64
  * @param {File} file - The image file to compress
  * @param {number} maxWidth - Maximum width for the compressed image (default: 400)

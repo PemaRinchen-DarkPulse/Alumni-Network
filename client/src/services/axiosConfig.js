@@ -9,6 +9,9 @@ const instance = axios.create({
   withCredentials: true // This is needed if you're using cookies for authentication
 });
 
+// Make sure our client-side baseURL is correct for use elsewhere
+console.log('API Base URL:', instance.defaults.baseURL);
+
 // Add a request interceptor to add auth token to requests
 instance.interceptors.request.use(
   config => {

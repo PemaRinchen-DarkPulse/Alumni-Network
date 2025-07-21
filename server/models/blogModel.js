@@ -33,8 +33,9 @@ const blogPostSchema = new mongoose.Schema({
     trim: true
   },
   featuredImage: {
-    type: String,
-    default: ''
+    data: Buffer,
+    contentType: String,
+    fileName: String
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,

@@ -19,16 +19,36 @@ export const getApiBaseUrl = () => {
  * @returns {string} Formatted date string
  */
 export function formatDate(date, options = {}) {
-  const defaultOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  };
+  // Make a copy of options to avoid modifying the original
+  const safeOptions = { ...options };
+  
+  // If dateStyle or timeStyle is specified, we can't use individual date components
+  const defaultOptions = safeOptions.dateStyle || safeOptions.timeStyle
+    ? {}
+    : {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      };
   
   const dateToFormat = date instanceof Date ? date : new Date(date);
   
-  return new Intl.DateTimeFormat('en-US', {
-    ...defaultOptions,
-    ...options
-  }).format(dateToFormat);
+  // Handle invalid dates gracefully
+  if (isNaN(dateToFormat.getTime())) {
+    console.warn('Invalid date provided to formatDate:', date);
+    return 'Invalid date';
+  }
+  
+  try {
+    // Merge options correctly
+    const finalOptions = safeOptions.dateStyle || safeOptions.timeStyle
+      ? safeOptions  // If dateStyle/timeStyle is present, don't mix with individual components
+      : { ...defaultOptions, ...safeOptions };
+      
+    return new Intl.DateTimeFormat('en-US', finalOptions).format(dateToFormat);
+  } catch (error) {
+    console.error('Error formatting date:', error, 'with options:', safeOptions);
+    // Fallback to a basic format
+    return dateToFormat.toLocaleDateString();
+  }
 }

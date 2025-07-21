@@ -4,9 +4,13 @@ const User = require('../models/userModel');
 const emailService = require('../utils/emailService');
 
 // Generate JWT Token with more security options
-const generateToken = (id) => {
+const generateToken = (user) => {
   return jwt.sign(
-    { id }, 
+    { 
+      id: user.id || user._id,
+      role: user.role,
+      name: user.name
+    }, 
     process.env.JWT_SECRET, 
     {
       expiresIn: '30d',
@@ -239,7 +243,7 @@ exports.login = async (req, res) => {
     const privacySettingsObj = privacySettings.toObject();
     console.log(`Login: Privacy settings loaded for user ${user._id}.`);
     // Generate JWT token
-    const token = generateToken(user._id);    // Return user info and token
+    const token = generateToken(user);    // Return user info and token
     return res.status(200).json({
       success: true,
       token,
