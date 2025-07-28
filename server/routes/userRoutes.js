@@ -11,7 +11,8 @@ const {
   getUsersDirectory,
   saveMentorProfile,
   getMentorProfile,
-  updateMentorProfile
+  updateMentorProfile,
+  updateMentorshipSubjects
 } = require('../controllers/userController');
 
 // Profile Routes
@@ -32,6 +33,7 @@ router.put('/settings/networking', authenticateJWT, updateNetworkingPreferences)
 router.post('/mentor-profile', authenticateJWT, saveMentorProfile);
 router.get('/mentor-profile', authenticateJWT, getMentorProfile);
 router.put('/mentor-profile', authenticateJWT, updateMentorProfile);
+router.put('/mentorship-subjects', authenticateJWT, updateMentorshipSubjects);
 
 // Support
 router.post('/support/contact', authenticateJWT, contactSupport);

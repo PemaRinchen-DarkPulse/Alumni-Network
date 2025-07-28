@@ -55,6 +55,7 @@ const NetworkingSection = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [hasChanges, setHasChanges] = useState(false);
+  const [availableSubjects, setAvailableSubjects] = useState([]);
     // Modal and form states
   const [showMentorModal, setShowMentorModal] = useState(false);
   const [mentorProfile, setMentorProfile] = useState({
@@ -106,6 +107,9 @@ const NetworkingSection = () => {
         });
       }
       
+      // Fetch available subjects
+      fetchAvailableSubjects();
+      
       // Always check for mentor profile
       fetchMentorProfile();
       
@@ -149,6 +153,22 @@ const NetworkingSection = () => {
       // Don't update state on error to preserve current display
     }
   };
+  
+  // Fetch available subjects from the database
+  const fetchAvailableSubjects = async () => {
+    try {
+      const { getSubjects } = await import('@/services/mentorshipService');
+      const response = await getSubjects();
+      
+      if (response.success) {
+        setAvailableSubjects(response.data);
+      } else {
+        console.error('Failed to fetch subjects:', response.error);
+      }
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+    }
+  };
   // Fetch existing mentor profile if user is already a mentor
   const fetchMentorProfile = async () => {
     try {
@@ -158,6 +178,19 @@ const NetworkingSection = () => {
       if (response.success && response.data.mentor) {
         const mentorData = response.data.mentor;
         setHasMentorProfile(true); // User has an existing mentor profile
+        
+        // Extract subject IDs from the mentoring areas
+        const mentoringAreaIds = mentorData.mentoringAreas.map(area => 
+          typeof area === 'object' && area._id ? area._id : area
+        );
+        
+        // Add "other" option if custom areas exist
+        const areas = [...mentoringAreaIds];
+        if (mentorData.hasOtherMentoringArea || 
+            (mentorData.customMentoringAreas && mentorData.customMentoringAreas.length > 0)) {
+          areas.push('other');
+        }
+        
         setMentorProfile({
           fullName: mentorData.fullName || user?.name || '',
           email: mentorData.email || user?.email || '',
@@ -168,13 +201,19 @@ const NetworkingSection = () => {
             github: mentorData.socialLinks?.github || user?.socialLinks?.github || '',
             facebook: mentorData.socialLinks?.facebook || user?.socialLinks?.facebook || '',
             instagram: mentorData.socialLinks?.instagram || user?.socialLinks?.instagram || ''
-          },          currentOccupation: mentorData.currentOccupation || user?.currentOccupation || '',
+          },
+          currentOccupation: mentorData.currentOccupation || user?.currentOccupation || '',
           company: mentorData.company || '',
           yearsOfExperience: mentorData.yearsOfExperience || '',
-          mentoringAreas: mentorData.mentoringAreas || [],
+          mentoringAreas: areas,
           customMentoringAreas: mentorData.customMentoringAreas || [],
           bio: mentorData.bio || ''
         });
+        
+        // If we have new subjects from custom fields, let's refresh the available subjects
+        if (mentorData.customMentoringAreas && mentorData.customMentoringAreas.length > 0) {
+          fetchAvailableSubjects();
+        }
       } else {
         setHasMentorProfile(false); // No mentor profile found
       }
@@ -218,8 +257,17 @@ const NetworkingSection = () => {
       // Import the settings service for saving mentor profile
       const { saveMentorProfile } = await import('@/services/settingsService');
       
+      // Prepare the mentor profile data
+      // Remove any empty custom mentoring areas
+      const profileToSave = {
+        ...mentorProfile,
+        customMentoringAreas: mentorProfile.customMentoringAreas.filter(area => area.trim() !== '')
+      };
+      
       // Save mentor profile data
-      const response = await saveMentorProfile(mentorProfile);        if (response.success) {
+      const response = await saveMentorProfile(profileToSave);
+      
+      if (response.success) {
         // Update local state first
         setNetworkingPreferences(prev => ({
           ...prev,
@@ -243,9 +291,15 @@ const NetworkingSection = () => {
         // Sync from server to ensure we have the latest data
         await syncUserFromServer();
         
+        // Determine if custom subjects were added
+        const hasCustomSubjects = profileToSave.customMentoringAreas && 
+                                 profileToSave.customMentoringAreas.filter(area => area.trim() !== '').length > 0;
+        
         setMessage({ 
           type: 'success', 
-          text: 'Mentor profile created successfully! You can now access the Mentorship section.' 
+          text: hasCustomSubjects 
+            ? 'Mentor profile created successfully! Your custom subjects have been added to the database and will be available for others to select. You can now access the Mentorship section.' 
+            : 'Mentor profile created successfully! You can now access the Mentorship section.'
         });
       } else {
         throw new Error(response.error || 'Failed to save mentor profile');
@@ -685,32 +739,20 @@ const NetworkingSection = () => {
               <div>              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                 Subjects You Can Mentor *
               </label>
-              <p className="text-xs text-gray-500 mb-3">Choose subjects where you excel and can help high school students.</p><div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-white dark:bg-gray-700">
-                {[
-                  { value: 'mathematics', label: 'Mathematics' },
-                  { value: 'physics', label: 'Physics' },
-                  { value: 'chemistry', label: 'Chemistry' },
-                  { value: 'biology', label: 'Biology' },
-                  { value: 'dzongkha', label: 'Dzongkha' },
-                  { value: 'english', label: 'English' },
-                  { value: 'history', label: 'History' },
-                  { value: 'geography', label: 'Geography' },
-                  { value: 'economics', label: 'Economics' },
-                  { value: 'computer-science', label: 'Computer Science' },
-                  { value: 'environmental-science', label: 'Environmental Science' },
-                  { value: 'literature', label: 'Literature' },
-                  { value: 'business-studies', label: 'Business Studies' },
-                  { value: 'accounting', label: 'Accounting' },
-                  { value: 'psychology', label: 'Psychology' },
-                  { value: 'sociology', label: 'Sociology' },
-                  { value: 'political-science', label: 'Political Science' },
-                  { value: 'art-design', label: 'Art & Design' },
-                  { value: 'music', label: 'Music' },
-                  { value: 'physical-education', label: 'Physical Education' },
-                  { value: 'health-education', label: 'Health Education' },
-                  { value: 'general-study-skills', label: 'General Study Skills' },
-                  { value: 'college-preparation', label: 'College Preparation' },
-                  { value: 'career-guidance', label: 'Career Guidance' },
+              <p className="text-xs text-gray-500 mb-3">Choose subjects where you excel and can help high school students. Custom subjects you add will be available for other mentors to select.</p><div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-md p-3 bg-white dark:bg-gray-700">
+                {/* Show loading indicator if subjects are still being fetched */}
+                {availableSubjects.length === 0 ? (
+                  <div className="col-span-2 flex justify-center items-center py-4">
+                    <Icon name="loader" size={20} className="animate-spin mr-2" />
+                    <span>Loading subjects...</span>
+                  </div>
+                ) : (
+                  /* Map through subjects from the database */
+                  [...availableSubjects.map(subject => ({
+                    value: subject._id,
+                    label: subject.name
+                  })), 
+                  /* Always add "Other" option */
                   { value: 'other', label: 'Other (Specify below)' }
                 ].map((area) => (
                   <label key={area.value} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 p-1 rounded">
@@ -730,7 +772,9 @@ const NetworkingSection = () => {
                             handleMentorFormChange('customMentoringAreas', ['']);
                           }
                         } else {
-                          updatedAreas = mentorProfile.mentoringAreas.filter(area => area !== value);                          // If unchecking "other", also clear the custom areas
+                          updatedAreas = mentorProfile.mentoringAreas.filter(area => area !== value);
+                          
+                          // If unchecking "other", also clear the custom areas
                           if (value === 'other') {
                             handleMentorFormChange('customMentoringAreas', []);
                           }
@@ -742,7 +786,7 @@ const NetworkingSection = () => {
                     />
                     <span className="text-sm text-gray-700 dark:text-gray-300">{area.label}</span>
                   </label>
-                ))}
+                )))}
               </div>
                 {/* Show custom areas input if "other" is selected */}
               {mentorProfile.mentoringAreas.includes('other') && (
@@ -795,7 +839,8 @@ const NetworkingSection = () => {
                   </Button>
                   
                   <p className="text-xs text-gray-500">
-                    You can add multiple subjects that aren't listed above. Each subject should be specific (e.g., "Advanced Calculus" rather than just "Math").
+                    You can add multiple subjects that aren't listed above. Each subject should be specific (e.g., "Advanced Calculus" rather than just "Math"). 
+                    Your custom subjects will be added to the database and available for other mentors to select.
                   </p>
                 </div>
               )}

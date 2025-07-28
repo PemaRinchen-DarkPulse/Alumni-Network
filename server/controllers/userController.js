@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const Mentor = require('../models/mentorModel');
+const Subject = require('../models/subjectModel');
 const bcrypt = require('bcryptjs');
 
 // Get user profile
@@ -431,6 +432,53 @@ exports.saveMentorProfile = async (req, res) => {
       return res.status(403).json({ message: 'Only alumni can become mentors' });
     }
     
+    // Process mentoring areas - Check if it contains the 'other' option
+    const hasOther = mentorData.mentoringAreas.includes('other');
+    if (hasOther) {
+      // Filter out 'other' from mentoringAreas since it's not an actual subject ID
+      mentorData.mentoringAreas = mentorData.mentoringAreas.filter(area => area !== 'other');
+      mentorData.hasOtherMentoringArea = true;
+      
+      // Save custom subjects to the Subject collection so others can select them
+      if (mentorData.customMentoringAreas && mentorData.customMentoringAreas.length > 0) {
+        const customSubjectPromises = mentorData.customMentoringAreas.map(async (customName) => {
+          // Only process non-empty custom subjects
+          if (customName && customName.trim()) {
+            // Check if this subject already exists
+            let existingSubject = await Subject.findOne({ 
+              name: { $regex: new RegExp(`^${customName.trim()}$`, 'i') } 
+            });
+            
+            if (!existingSubject) {
+              // Create a new subject
+              const newSubject = new Subject({
+                name: customName.trim(),
+                description: `Custom subject added by ${user.name || 'a mentor'}`,
+                category: 'academic'
+              });
+              
+              existingSubject = await newSubject.save();
+              console.log(`Created new subject: ${existingSubject.name}`);
+            }
+            
+            // Add this subject ID to the mentor's mentoring areas if not already there
+            if (!mentorData.mentoringAreas.includes(existingSubject._id.toString())) {
+              mentorData.mentoringAreas.push(existingSubject._id);
+            }
+            
+            return existingSubject._id;
+          }
+        });
+        
+        // Wait for all custom subjects to be processed
+        await Promise.all(customSubjectPromises);
+      }
+    } else {
+      mentorData.hasOtherMentoringArea = false;
+      // Clear custom areas if 'other' is not selected
+      mentorData.customMentoringAreas = [];
+    }
+    
     // Check if mentor profile already exists
     let mentor = await Mentor.findOne({ user: userId });
     
@@ -482,11 +530,18 @@ exports.getMentorProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     
-    // Find mentor profile
-    const mentor = await Mentor.findOne({ user: userId }).populate('user', 'name email profilePicture batch role');
+    // Find mentor profile and populate both user and subject details
+    const mentor = await Mentor.findOne({ user: userId })
+      .populate('user', 'name email profilePicture batch role')
+      .populate('mentoringAreas', 'name description category'); // Populate subjects details
     
     if (!mentor) {
-      return res.status(404).json({ message: 'Mentor profile not found' });
+      // Return an empty mentor profile instead of 404 error
+      return res.status(200).json({
+        success: true,
+        mentor: null,
+        message: 'No mentor profile exists yet'
+      });
     }
     
     res.status(200).json({
@@ -540,6 +595,58 @@ exports.updateMentorProfile = async (req, res) => {
       });
     }
     
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// Update mentorship subjects for alumni
+exports.updateMentorshipSubjects = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { mentorshipSubjects } = req.body;
+    
+    // Check if user is alumni
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    if (user.role !== 'alumni') {
+      return res.status(403).json({ message: 'Only alumni can set mentorship subjects' });
+    }
+    
+    // Validate mentorshipSubjects is an array
+    if (!Array.isArray(mentorshipSubjects)) {
+      return res.status(400).json({ message: 'Mentorship subjects must be an array' });
+    }
+    
+    // Update user's mentorship subjects
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { 
+        $set: { 
+          mentorshipSubjects: mentorshipSubjects,
+          isMentor: mentorshipSubjects.length > 0 // Set isMentor to true if subjects exist
+        }
+      },
+      { new: true, runValidators: true }
+    ).select('mentorshipSubjects isMentor');
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.status(200).json({ 
+      success: true,
+      message: 'Mentorship subjects updated successfully',
+      data: {
+        mentorshipSubjects: updatedUser.mentorshipSubjects,
+        isMentor: updatedUser.isMentor
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error updating mentorship subjects:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

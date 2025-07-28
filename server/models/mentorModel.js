@@ -62,36 +62,15 @@ const mentorSchema = new mongoose.Schema({
     min: [0, 'Years since graduation cannot be negative']
   },  // Mentoring Details
   mentoringAreas: [{
-    type: String,
-    enum: [
-      'mathematics',
-      'physics',
-      'chemistry',
-      'biology',
-      'dzongkha',
-      'english',
-      'history',
-      'geography',
-      'economics',
-      'computer-science',
-      'environmental-science',
-      'literature',
-      'business-studies',
-      'accounting',
-      'psychology',
-      'sociology',
-      'political-science',
-      'art-design',
-      'music',
-      'physical-education',
-      'health-education',
-      'general-study-skills',
-      'college-preparation',
-      'career-guidance',
-      'other'
-    ],
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subject',
     required: true
-  }],  bio: {
+  }],
+  // Special case for 'other' option
+  hasOtherMentoringArea: {
+    type: Boolean,
+    default: false
+  },  bio: {
     type: String,
     required: [true, 'Bio is required'],
     trim: true,

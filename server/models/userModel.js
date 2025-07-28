@@ -70,7 +70,13 @@ const userSchema = new mongoose.Schema({
   isMentor: {
     type: Boolean,
     default: false
-  },  networkingPreferences: {
+  },
+  // Mentorship subjects (for alumni who are mentors)
+  mentorshipSubjects: [{
+    type: String,
+    trim: true
+  }],
+  networkingPreferences: {
     openToMentoring: {
       type: Boolean,
       default: false

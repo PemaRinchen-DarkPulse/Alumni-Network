@@ -396,7 +396,13 @@ export const getMentorProfile = async () => {
     const data = await handleResponse(response);
     return { success: true, data };
   } catch (error) {
-    return { success: false, error: error.message };
+    console.error('Error fetching mentor profile:', error);
+    // Return a structured error response that won't break the UI
+    return { 
+      success: false, 
+      error: error.message, 
+      data: { mentor: null, message: 'Failed to fetch mentor profile' } 
+    };
   }
 };
 

@@ -1,4 +1,40 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/userModel');
+
+// Protect routes - verify token and add user to request
+exports.protect = async (req, res, next) => {
+  try {
+    // Get token from header
+    let token = req.header('x-auth-token') || req.header('Authorization');
+    
+    // Check if using Bearer format
+    if (token && token.startsWith('Bearer ')) {
+      token = token.slice(7);
+    }
+
+    // Check if no token
+    if (!token) {
+      return res.status(401).json({ message: 'Not authorized to access this resource' });
+    }
+    
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Get user from the token
+    const user = await User.findById(decoded.id).select('-password');
+    
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+    
+    // Add user to request
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    return res.status(401).json({ message: 'Not authorized, token failed' });
+  }
+};
 
 exports.authenticateJWT = async (req, res, next) => {
   // Log detailed request info for debugging
