@@ -31,7 +31,7 @@ app.use(helmet({
 // CORS configuration 
 app.use(cors({
   origin: clientOrigins || 'http://localhost:5173', // Use specific origin instead of wildcard
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-auth-token'],
   credentials: true,
   exposedHeaders: ['Content-Type', 'Content-Length']
