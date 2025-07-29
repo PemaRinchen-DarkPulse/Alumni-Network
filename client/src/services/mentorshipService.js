@@ -1,36 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL;
-
-/**
- * Get authenticated request headers
- * @returns {Object} - Headers with auth token
- */
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  
-  if (!token) {
-    throw new Error('No authentication token found. Please login again.');
-  }
-  
-  return {
-    'Content-Type': 'application/json',
-    'x-auth-token': token
-  };
-};
-
-/**
- * Handle API response
- * @param {Response} response - Fetch response object
- * @returns {Promise<Object>} - Parsed response data
- */
-const handleResponse = async (response) => {
-  const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(data.message || `HTTP error! status: ${response.status}`);
-  }
-  
-  return data;
-};
+import axios from './axiosConfig';
 
 /**
  * Get all subjects
@@ -38,33 +6,108 @@ const handleResponse = async (response) => {
  */
 export const getSubjects = async () => {
   try {
-    const response = await fetch(`${API_URL}/api/mentorship/subjects`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-    
-    const data = await handleResponse(response);
-    return { success: true, data: data.data };
+    const response = await axios.get('/api/mentorship/subjects');
+    return { success: true, data: response.data.data };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.response?.data?.message || error.message };
   }
 };
 
 /**
  * Get mentors by subject
- * @param {string} subject - Subject name
+ * @param {string} subjectId - The subject ID to filter mentors by
  * @returns {Promise<Object>} - Response with mentors data
  */
-export const getMentorsBySubject = async (subject) => {
+export const getMentorsBySubject = async (subjectId) => {
   try {
-    const response = await fetch(`${API_URL}/api/mentorship/subjects/mentors/${encodeURIComponent(subject)}`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
-    
-    const data = await handleResponse(response);
-    return { success: true, data: data.data };
+    const response = await axios.get(`/api/mentorship/mentors/subject/${subjectId}`);
+    return { success: true, data: response.data.data };
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+};
+
+/**
+ * Create a new mentorship request
+ * @param {Object} requestData - The mentorship request data
+ * @param {string} requestData.mentorId - The mentor ID
+ * @param {string} requestData.subjectId - The subject ID
+ * @param {string} requestData.reason - The reason for the request
+ * @param {string} requestData.goals - The goals and expectations
+ * @returns {Promise<Object>} - Response with request data
+ */
+export const createMentorshipRequest = async (requestData) => {
+  try {
+    const response = await axios.post('/api/mentorship/request', requestData);
+    return { success: true, data: response.data.data, message: response.data.message };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+};
+
+/**
+ * Get mentorship requests for mentor grouped by subject
+ * @returns {Promise<Object>} - Response with requests data
+ */
+export const getMentorshipRequestsForMentor = async () => {
+  try {
+    const response = await axios.get('/api/mentorship/requests/mentor');
+    return { success: true, data: response.data.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+};
+
+/**
+ * Get accepted mentorships for student
+ * @returns {Promise<Object>} - Response with mentorships data
+ */
+export const getAcceptedMentorshipsForStudent = async () => {
+  try {
+    const response = await axios.get('/api/mentorship/student/mentorships');
+    return { success: true, data: response.data.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+};
+
+/**
+ * Get all mentorship requests for student (all statuses)
+ * @returns {Promise<Object>} - Response with request history data
+ */
+export const getMentorshipRequestsForStudent = async () => {
+  try {
+    const response = await axios.get('/api/mentorship/student/requests');
+    return { success: true, data: response.data.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+};
+
+/**
+ * Get accepted mentorships for alumni (as mentor)
+ * @returns {Promise<Object>} - Response with mentorships data
+ */
+export const getAcceptedMentorshipsForMentor = async () => {
+  try {
+    const response = await axios.get('/api/mentorship/mentor/mentorships');
+    return { success: true, data: response.data.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+};
+
+/**
+ * Update mentorship request status (accept/reject)
+ * @param {string} requestId - The mentorship request ID
+ * @param {string} status - The new status ('accepted' or 'rejected')
+ * @returns {Promise<Object>} - Response with updated request data
+ */
+export const updateMentorshipRequestStatus = async (requestId, status) => {
+  try {
+    const response = await axios.patch(`/api/mentorship/request/${requestId}/status`, { status });
+    return { success: true, data: response.data.data, message: response.data.message };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
   }
 };

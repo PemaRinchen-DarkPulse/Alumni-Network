@@ -13,6 +13,7 @@ const privacyRoutes = require('./routes/privacyRoutes');
 const alumniRoutes = require('./routes/alumniRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const mentorshipRoutes = require('./routes/mentorshipRoutes');
 
 // Create Express app
 const app = express();
@@ -123,6 +124,7 @@ app.use('/api/privacy', privacyRoutes);
 app.use('/api/alumni', alumniRoutes);
 app.use('/api/blog', require('./routes/blogRoutes'));
 app.use('/api/events', eventRoutes);
+app.use('/api/mentorship', mentorshipRoutes);
 
 // Root route
 app.get('/', (req, res) => {
