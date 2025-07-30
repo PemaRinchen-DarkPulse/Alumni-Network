@@ -97,9 +97,16 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('MongoDB Connected');
     
-    // Run migrations if env flag is set
+    // Always run the subject colors migration for existing subjects
+    const migrateSubjectColors = require('./utils/migrateSubjectColors');
+    migrateSubjectColors()
+      .then(() => console.log('Subject colors migration completed'))
+      .catch(err => console.error('Subject colors migration error:', err));
+    
+    // Run other migrations if env flag is set
     if (process.env.RUN_MIGRATIONS === 'true') {
       const { migrateUserSettings } = require('./utils/migrateSettings');
+      
       migrateUserSettings()
         .then(result => console.log('Settings migration completed:', result))
         .catch(err => console.error('Settings migration error:', err));

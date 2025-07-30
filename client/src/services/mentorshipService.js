@@ -98,6 +98,19 @@ export const getAcceptedMentorshipsForMentor = async () => {
 };
 
 /**
+ * Get accepted mentorships grouped by subject for alumni (as mentor) - for card view
+ * @returns {Promise<Object>} - Response with mentorships data grouped by subject
+ */
+export const getAcceptedMentorshipsBySubjectForMentor = async () => {
+  try {
+    const response = await axios.get('/api/mentorship/mentor/mentorships/by-subject');
+    return { success: true, data: response.data.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+};
+
+/**
  * Update mentorship request status (accept/reject)
  * @param {string} requestId - The mentorship request ID
  * @param {string} status - The new status ('accepted' or 'rejected')

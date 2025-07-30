@@ -74,7 +74,7 @@ mentorshipRequestSchema.statics.getPendingRequestsForMentor = function(mentorId)
     status: 'pending' 
   })
   .populate('student', 'name profilePicture email')
-  .populate('subject', 'name category')
+  .populate('subject', 'name category cardColor')
   .sort({ createdAt: -1 });
 };
 
@@ -85,7 +85,7 @@ mentorshipRequestSchema.statics.getAcceptedMentorshipsForStudent = function(stud
     status: 'accepted' 
   })
   .populate('mentor', 'fullName email')
-  .populate('subject', 'name category')
+  .populate('subject', 'name category cardColor')
   .sort({ updatedAt: -1 });
 };
 
@@ -95,7 +95,7 @@ mentorshipRequestSchema.statics.getRequestsBySubjectForMentor = async function(m
     mentor: mentorId
   })
   .populate('student', 'name profilePicture email')
-  .populate('subject', 'name category')
+  .populate('subject', 'name category cardColor')
   .sort({ createdAt: -1 });
   
   // Group requests by subject
@@ -112,6 +112,34 @@ mentorshipRequestSchema.statics.getRequestsBySubjectForMentor = async function(m
   });
   
   return Object.values(groupedRequests);
+};
+
+// Static method to get accepted mentorships grouped by subject for a mentor
+mentorshipRequestSchema.statics.getAcceptedMentorshipsBySubjectForMentor = async function(mentorId) {
+  const mentorships = await this.find({ 
+    mentor: mentorId, 
+    status: 'accepted' 
+  })
+  .populate('student', 'fullName email profilePicture')
+  .populate('subject', 'name category cardColor')
+  .sort({ acceptedAt: -1 });
+  
+  // Group mentorships by subject and add student count
+  const groupedMentorships = {};
+  mentorships.forEach(mentorship => {
+    const subjectId = mentorship.subject._id.toString();
+    if (!groupedMentorships[subjectId]) {
+      groupedMentorships[subjectId] = {
+        subject: mentorship.subject,
+        studentCount: 0,
+        mentorships: []
+      };
+    }
+    groupedMentorships[subjectId].studentCount++;
+    groupedMentorships[subjectId].mentorships.push(mentorship);
+  });
+  
+  return Object.values(groupedMentorships);
 };
 
 const MentorshipRequest = mongoose.model('MentorshipRequest', mentorshipRequestSchema);

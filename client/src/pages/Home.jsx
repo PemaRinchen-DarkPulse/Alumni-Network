@@ -10,11 +10,10 @@ import PageHeader from '@/components/shared/layout/PageHeader';
 
 // Import section components directly
 import EventsSection from '@/components/shared/sections/EventsSection';
-import MediaGallerySection from '@/components/shared/sections/MediaGallerySection';
+import MediaGallerySection from '@/components/shared/sections/Collaboration';
 import FeedbackSection from '@/components/shared/sections/FeedbackSection';
 import TributeSection from '@/components/shared/sections/TributeSection';
 import ForumSection from '@/components/shared/sections/ForumSection';
-import CollaborationSection from '@/components/shared/sections/CollaborationSection';
 import BlogSection from '@/components/shared/sections/BlogSection';
 
 // Import mentorship components directly
@@ -93,9 +92,6 @@ const Home = () => {
                   
                   <Route path="/feedback" element={
                     <FeedbackSection />
-                  } />
-                    <Route path="/collaboration" element={
-                    <CollaborationSection/>
                   } />
                 </>
               )}

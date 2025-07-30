@@ -28,6 +28,9 @@ router.get('/student/requests', mentorshipController.getMentorshipRequestsForStu
 // Get accepted mentorships for mentor
 router.get('/mentor/mentorships', mentorshipController.getAcceptedMentorshipsForMentor);
 
+// Get accepted mentorships grouped by subject for mentor (for card view)
+router.get('/mentor/mentorships/by-subject', mentorshipController.getAcceptedMentorshipsBySubjectForMentor);
+
 // Update mentorship request status (accept/reject)
 router.patch('/request/:requestId/status', mentorshipController.updateMentorshipRequestStatus);
 

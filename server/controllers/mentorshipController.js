@@ -295,7 +295,7 @@ exports.getMentorshipRequestsForStudent = async (req, res) => {
     // Get all requests for this student
     const requests = await MentorshipRequest.find({ student: studentId })
       .populate('mentor', 'fullName company currentOccupation')
-      .populate('subject', 'name')
+      .populate('subject', 'name cardColor')
       .sort({ createdAt: -1 }); // Most recent first
 
     res.status(200).json({
@@ -341,7 +341,7 @@ exports.getAcceptedMentorshipsForMentor = async (req, res) => {
       status: 'accepted' 
     })
       .populate('student', 'fullName email profilePicture')
-      .populate('subject', 'name')
+      .populate('subject', 'name cardColor')
       .sort({ acceptedAt: -1 }); // Most recently accepted first
 
     res.status(200).json({
@@ -350,6 +350,46 @@ exports.getAcceptedMentorshipsForMentor = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching mentorships for mentor:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch mentoring relationships',
+      error: error.message
+    });
+  }
+};
+
+// Get accepted mentorships grouped by subject for a mentor (alumni) - for card view
+exports.getAcceptedMentorshipsBySubjectForMentor = async (req, res) => {
+  try {
+    const userId = req.user.id; // from auth middleware
+
+    // Check if user is an alumni and has a mentor profile
+    const user = await User.findById(userId);
+    if (user.role !== 'alumni') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only alumni with mentor profiles can access their mentoring relationships'
+      });
+    }
+
+    // Find mentor profile
+    const mentor = await Mentor.findOne({ user: userId });
+    if (!mentor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Mentor profile not found'
+      });
+    }
+
+    // Get mentorships grouped by subject
+    const mentorshipsBySubject = await MentorshipRequest.getAcceptedMentorshipsBySubjectForMentor(mentor._id);
+
+    res.status(200).json({
+      success: true,
+      data: mentorshipsBySubject
+    });
+  } catch (error) {
+    console.error('Error fetching mentorships by subject for mentor:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch mentoring relationships',

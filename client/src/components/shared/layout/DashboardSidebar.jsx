@@ -17,11 +17,10 @@ const DashboardSidebar = ({ isExpanded }) => {
       { name: 'Alumni Directory', path: '/dashboard/directory', icon: 'users' },
       { name: 'Blog Section', path: '/dashboard/blog', icon: 'file-text' },
       { name: 'Events', path: '/dashboard/events', icon: 'calendar' },
-      { name: 'Photos & Videos', path: '/dashboard/media', icon: 'image' },
+      { name: 'Collaboration', path: '/dashboard/media', icon: 'handshake' },
       { name: 'Discussion Forum', path: '/dashboard/forum', icon: 'message-square' },
       { name: 'Tribute to Teachers', path: '/dashboard/tribute', icon: 'award' },
       { name: 'Alumni Feedback', path: '/dashboard/feedback', icon: 'thumbs-up' },
-      { name: 'Collaboration', path: '/dashboard/collaboration', icon: 'handshake' },
     ],    
     student: [
       { name: 'Dashboard', path: '/dashboard', icon: 'layout-dashboard' },
@@ -29,7 +28,7 @@ const DashboardSidebar = ({ isExpanded }) => {
       { name: 'Alumni Blog', path: '/dashboard/blog', icon: 'file-text' },
       { name: 'Request Mentorship', path: '/dashboard/mentorship', icon: 'user-plus' },
       { name: 'Events', path: '/dashboard/events', icon: 'calendar' },
-      { name: 'Photos & Videos', path: '/dashboard/media', icon: 'image' },
+      { name: 'Collaboration', path: '/dashboard/media', icon: 'handshake' },
       { name: 'Tribute to Teachers', path: '/dashboard/tribute', icon: 'award' },
     ],
     alumni: [
@@ -38,7 +37,7 @@ const DashboardSidebar = ({ isExpanded }) => {
       { name: 'Alumni Blog', path: '/dashboard/blog', icon: 'file-text' },
       { name: 'Mentorship', path: '/dashboard/mentorship', icon: 'user-plus' },
       { name: 'Events', path: '/dashboard/events', icon: 'calendar' },
-      { name: 'Photos & Videos', path: '/dashboard/media', icon: 'image' },
+      { name: 'Collaboration', path: '/dashboard/media', icon: 'handshake' },
       { name: 'Discussion Forum', path: '/dashboard/forum', icon: 'message-square' },
       { name: 'Tribute to Teachers', path: '/dashboard/tribute', icon: 'award' },
     ]

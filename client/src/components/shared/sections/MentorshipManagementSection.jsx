@@ -8,6 +8,7 @@ import {
   getAcceptedMentorshipsForStudent,
   getMentorshipRequestsForStudent,
   getAcceptedMentorshipsForMentor,
+  getAcceptedMentorshipsBySubjectForMentor,
   updateMentorshipRequestStatus
 } from '../../../services/mentorshipService';
 
@@ -58,7 +59,7 @@ const MentorshipManagementSection = () => {
     if (user?.role === 'student') {
       setActiveTab('mentorships');
     } else if (user?.role === 'alumni') {
-      setActiveTab('requests');
+      setActiveTab('mentoring');
     }
   }, [user?.role]);
 
@@ -157,7 +158,7 @@ const MentorshipManagementSection = () => {
     }
     
     try {
-      const response = await getAcceptedMentorshipsForMentor();
+      const response = await getAcceptedMentorshipsBySubjectForMentor();
       if (response.success) {
         setMentorMentorships(response.data);
       } else {
@@ -277,19 +278,23 @@ const MentorshipManagementSection = () => {
   const StudentView = () => (
     <div className="w-full">
       {/* Tab Navigation */}
-      <div className="flex justify-start items-center mb-5 border-b-2 border-gray-200 pb-2.5">
-        <div className="flex gap-2.5">
+      <div className="flex justify-start items-center mb-8 bg-white rounded-xl p-1 shadow-sm border border-gray-200">
+        <div className="flex gap-1 w-full">
           <button 
-            className={`px-5 py-3 bg-transparent border-none border-b-4 border-transparent cursor-pointer text-base font-medium text-gray-600 transition-all duration-300 hover:text-blue-600 hover:bg-gray-50 ${
-              activeTab === 'mentorships' ? 'text-blue-600 border-b-blue-600 bg-gray-50' : ''
+            className={`flex-1 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+              activeTab === 'mentorships' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
             }`}
             onClick={() => setActiveTab('mentorships')}
           >
             Active Mentorships ({acceptedMentorships.length})
           </button>
           <button 
-            className={`px-5 py-3 bg-transparent border-none border-b-4 border-transparent cursor-pointer text-base font-medium text-gray-600 transition-all duration-300 hover:text-blue-600 hover:bg-gray-50 ${
-              activeTab === 'requests' ? 'text-blue-600 border-b-blue-600 bg-gray-50' : ''
+            className={`flex-1 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+              activeTab === 'requests' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
             }`}
             onClick={() => setActiveTab('requests')}
           >
@@ -302,30 +307,82 @@ const MentorshipManagementSection = () => {
       {activeTab === 'mentorships' && (
         <>
           {acceptedMentorships.length === 0 ? (
-            <div className="text-center py-10 text-gray-600 bg-gray-50 rounded-lg my-5 border-2 border-dashed border-gray-300">
-              <p className="mb-4 text-lg">You haven't joined any mentorship programs yet.</p>
+            <div className="text-center py-16 text-gray-600 bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="mb-4">
+                <svg className="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.196-2.121L17 20zM21 4a2 2 0 11-4 0 2 2 0 014 0zM9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0118 12M6 20v-2a2 2 0 01.586-1.414L12 12l3.586 3.586A2 2 0 0116 18v2m-5-5v.01" />
+                </svg>
+              </div>
+              <p className="mb-6 text-lg font-medium text-gray-900">You haven't joined any mentorship programs yet.</p>
+              <p className="mb-6 text-gray-600">Connect with experienced alumni to accelerate your learning journey.</p>
               <button 
-                className="px-5 py-2.5 bg-blue-600 text-white border-none rounded cursor-pointer font-medium text-lg mt-4 transition-colors duration-200 hover:bg-blue-700" 
+                className="px-6 py-3 bg-blue-600 text-white border-none rounded-lg cursor-pointer font-medium text-base transition-all duration-200 hover:bg-blue-700 hover:shadow-lg" 
                 onClick={handleOpenModal}
               >
                 Get Started with a New Mentorship
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
               {acceptedMentorships.map((mentorship) => (
-                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white" key={mentorship._id}>
-                  <div className="p-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="m-0 text-lg text-gray-800">{mentorship.subject.name}</h3>
-                    <p className="mt-1 text-gray-600 text-sm">Mentor: {mentorship.mentor.fullName}</p>
+                <div className="rounded-xl shadow-lg bg-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer relative" key={mentorship._id}>
+                  {/* Card Header with Subject Color and Pattern */}
+                  <div 
+                    className="h-32 p-4 relative overflow-hidden rounded-t-xl"
+                    style={{ 
+                      backgroundColor: mentorship.subject.cardColor || '#8B5CF6',
+                      backgroundImage: `
+                        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0%, transparent 50%),
+                        linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)
+                      `
+                    }}
+                  >
+                    {/* Three-dot menu */}
+                    <div className="absolute top-4 right-4">
+                      <button className="text-white opacity-70 hover:opacity-100 transition-opacity">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="4" r="1.5" fill="currentColor"/>
+                          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                          <circle cx="10" cy="16" r="1.5" fill="currentColor"/>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {/* Card Title */}
+                    <div className="absolute bottom-4 left-4 right-16">
+                      <h3 className="text-white font-bold text-lg mb-1 leading-tight">
+                        {mentorship.subject.name} – Mentorship
+                      </h3>
+                      <p className="text-white text-sm opacity-90">
+                        Mentor: {mentorship.mentor.fullName}
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Your goals:</strong> {mentorship.goals}
-                    </p>
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Reason for mentorship:</strong> {mentorship.reason}
-                    </p>
+                    
+                  {/* Card Content */}
+                  <div className="p-8 bg-white rounded-b-xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium text-gray-900">Joined:</span> {new Date(mentorship.acceptedAt || mentorship.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      
+                      <button className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Mentor Profile Badge - positioned to straddle the border */}
+                  <div className="absolute top-32 right-8 transform -translate-y-1/2 z-10">
+                    <div className="w-12 h-12 rounded-full bg-gray-700 border-2 border-white flex items-center justify-center shadow-lg">
+                      <span className="text-white text-lg font-bold">
+                        {mentorship.mentor.fullName?.charAt(0) || 'M'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -337,50 +394,94 @@ const MentorshipManagementSection = () => {
       {activeTab === 'requests' && (
         <>
           {studentRequests.length === 0 ? (
-            <div className="text-center py-10 text-gray-600 bg-gray-50 rounded-lg my-5 border-2 border-dashed border-gray-300">
-              <p className="mb-4 text-lg">You haven't made any mentorship requests yet.</p>
+            <div className="text-center py-16 text-gray-600 bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="mb-4">
+                <svg className="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0118 12m-6 8a7.962 7.962 0 01-5.196-2.121L9 20l.063.063A7.952 7.952 0 0012 21a7.952 7.952 0 002.937-.937L15 20v-.021c.662-.413 1.252-.906 1.772-1.465L17 20h5v-2a3 3 0 00-5.196-2.121L17 20z" />
+                </svg>
+              </div>
+              <p className="mb-6 text-lg font-medium text-gray-900">You haven't made any mentorship requests yet.</p>
+              <p className="mb-6 text-gray-600">Start your mentoring journey by connecting with an experienced alumni.</p>
               <button 
-                className="px-5 py-2.5 bg-blue-600 text-white border-none rounded cursor-pointer font-medium text-lg mt-4 transition-colors duration-200 hover:bg-blue-700" 
+                className="px-6 py-3 bg-blue-600 text-white border-none rounded-lg cursor-pointer font-medium text-base transition-all duration-200 hover:bg-blue-700 hover:shadow-lg" 
                 onClick={handleOpenModal}
               >
                 Make Your First Request
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
               {studentRequests.map((request) => (
-                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white" key={request._id}>
-                  <div className="p-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="m-0 text-lg text-gray-800">{request.subject.name}</h3>
-                    <p className="mt-1 text-gray-600 text-sm">Mentor: {request.mentor.fullName}</p>
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
-                      request.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
-                      request.status === 'accepted' ? 'bg-green-100 text-green-800 border border-green-200' :
-                      'bg-red-100 text-red-800 border border-red-200'
-                    }`}>
-                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                    </span>
+                <div className="rounded-xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-all duration-300 hover:scale-105" key={request._id}>
+                  {/* Card Header with Subject Color and Pattern */}
+                  <div 
+                    className="h-32 p-4 relative overflow-hidden"
+                    style={{ 
+                      backgroundColor: request.subject.cardColor || '#8B5CF6',
+                      backgroundImage: `
+                        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0%, transparent 50%),
+                        linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)
+                      `
+                    }}
+                  >
+                    {/* Three-dot menu */}
+                    <div className="absolute top-4 right-4">
+                      <button className="text-white opacity-70 hover:opacity-100 transition-opacity">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="4" r="1.5" fill="currentColor"/>
+                          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                          <circle cx="10" cy="16" r="1.5" fill="currentColor"/>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {/* Card Title */}
+                    <div className="absolute bottom-4 left-4 right-12">
+                      <h3 className="text-white font-bold text-lg mb-1 leading-tight">
+                        {request.subject.name} – Request
+                      </h3>
+                      <p className="text-white text-sm opacity-90">
+                        Mentor: {request.mentor.fullName}
+                      </p>
+                    </div>
+                    
+                    {/* Status indicator */}
+                    <div className="absolute bottom-4 right-4">
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
+                        request.status === 'pending' ? 'bg-yellow-400 text-yellow-900' :
+                        request.status === 'accepted' ? 'bg-green-400 text-green-900' :
+                        'bg-red-400 text-red-900'
+                      }`}>
+                        {request.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Your goals:</strong> {request.goals}
-                    </p>
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Reason for mentorship:</strong> {request.reason}
-                    </p>
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Requested on:</strong> {new Date(request.createdAt).toLocaleDateString()}
-                    </p>
-                    {request.status === 'rejected' && request.rejectedAt && (
-                      <p className="mb-2.5 text-gray-700">
-                        <strong>Rejected on:</strong> {new Date(request.rejectedAt).toLocaleDateString()}
-                      </p>
-                    )}
-                    {request.status === 'accepted' && request.acceptedAt && (
-                      <p className="mb-2.5 text-gray-700">
-                        <strong>Accepted on:</strong> {new Date(request.acceptedAt).toLocaleDateString()}
-                      </p>
-                    )}
+                  
+                  {/* Card Content */}
+                  <div className="p-4 bg-white">
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium text-gray-900">Your goals:</span> {request.goals}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium text-gray-900">Reason:</span> {request.reason}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>Requested: {new Date(request.createdAt).toLocaleDateString()}</span>
+                        {request.status === 'rejected' && request.rejectedAt && (
+                          <span>Rejected: {new Date(request.rejectedAt).toLocaleDateString()}</span>
+                        )}
+                        {request.status === 'accepted' && request.acceptedAt && (
+                          <span>Accepted: {new Date(request.acceptedAt).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -395,28 +496,111 @@ const MentorshipManagementSection = () => {
   const AlumniView = () => (
     <div className="w-full">
       {/* Tab Navigation */}
-      <div className="flex justify-start items-center mb-5 border-b-2 border-gray-200 pb-2.5">
-        <div className="flex gap-2.5">
+      <div className="flex justify-start items-center mb-8 bg-white rounded-xl p-1 shadow-sm border border-gray-200">
+        <div className="flex gap-1 w-full">
           <button 
-            className={`px-5 py-3 bg-transparent border-none border-b-4 border-transparent cursor-pointer text-base font-medium text-gray-600 transition-all duration-300 hover:text-blue-600 hover:bg-gray-50 ${
-              activeTab === 'requests' ? 'text-blue-600 border-b-blue-600 bg-gray-50' : ''
-            }`}
-            onClick={() => setActiveTab('requests')}
-          >
-            New Requests ({mentorshipRequests.reduce((total, group) => total + group.requests.filter(r => r.status === 'pending').length, 0)})
-          </button>
-          <button 
-            className={`px-5 py-3 bg-transparent border-none border-b-4 border-transparent cursor-pointer text-base font-medium text-gray-600 transition-all duration-300 hover:text-blue-600 hover:bg-gray-50 ${
-              activeTab === 'mentoring' ? 'text-blue-600 border-b-blue-600 bg-gray-50' : ''
+            className={`flex-1 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+              activeTab === 'mentoring' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
             }`}
             onClick={() => setActiveTab('mentoring')}
           >
             My Mentoring ({mentorMentorships.length})
           </button>
+          <button 
+            className={`flex-1 px-6 py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
+              activeTab === 'requests' 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
+            onClick={() => setActiveTab('requests')}
+          >
+            New Requests ({mentorshipRequests.reduce((total, group) => total + group.requests.filter(r => r.status === 'pending').length, 0)})
+          </button>
         </div>
       </div>
 
       {/* Tab Content */}
+      {activeTab === 'mentoring' && (
+        <>
+          {mentorMentorships.length === 0 ? (
+            <div className="text-center py-16 text-gray-600 bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="mb-4">
+                <svg className="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 20h5v-2a3 3 0 00-5.196-2.121L17 20zM21 4a2 2 0 11-4 0 2 2 0 014 0zM9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0118 12" />
+                </svg>
+              </div>
+              <p className="mb-4 text-lg font-medium text-gray-900">You are not currently mentoring any students.</p>
+              <p className="text-gray-600">When students request mentorship in your expertise areas, they'll appear here.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
+              {mentorMentorships.map((subjectGroup) => (
+                <div className="rounded-xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer" key={subjectGroup.subject._id}>
+                  {/* Card Header with Subject Color and Pattern */}
+                  <div 
+                    className="h-32 p-4 relative overflow-hidden"
+                    style={{ 
+                      backgroundColor: subjectGroup.subject.cardColor || '#8B5CF6',
+                      backgroundImage: `
+                        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0%, transparent 50%),
+                        linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%)
+                      `
+                    }}
+                  >
+                    {/* Three-dot menu */}
+                    <div className="absolute top-4 right-4">
+                      <button className="text-white opacity-70 hover:opacity-100 transition-opacity">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="4" r="1.5" fill="currentColor"/>
+                          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                          <circle cx="10" cy="16" r="1.5" fill="currentColor"/>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {/* Card Title */}
+                    <div className="absolute bottom-4 left-4 right-12">
+                      <h3 className="text-white font-bold text-lg mb-1 leading-tight">
+                        {subjectGroup.subject.name} – Mentoring
+                      </h3>
+                      <p className="text-white text-sm opacity-90">
+                        {subjectGroup.studentCount} {subjectGroup.studentCount === 1 ? 'student' : 'students'} enrolled
+                      </p>
+                    </div>
+                    
+                    {/* Completion indicator */}
+                    <div className="absolute bottom-4 right-4">
+                      <div className="text-white text-xs opacity-75">
+                        Active
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Card Content - Show general mentorship info */}
+                  <div className="p-8 bg-white">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium text-gray-900">Active since:</span> {new Date(subjectGroup.mentorships[0].acceptedAt || subjectGroup.mentorships[0].createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      
+                      <button className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
       {activeTab === 'requests' && (
         <>
           {mentorshipRequests.length === 0 ? (
@@ -485,50 +669,6 @@ const MentorshipManagementSection = () => {
                           No pending requests for this subject.
                         </p>
                       )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-
-      {activeTab === 'mentoring' && (
-        <>
-          {mentorMentorships.length === 0 ? (
-            <div className="text-center py-10 text-gray-600 bg-gray-50 rounded-lg my-5 border-2 border-dashed border-gray-300">
-              <p>You are not currently mentoring any students.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5">
-              {mentorMentorships.map((mentorship) => (
-                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white" key={mentorship._id}>
-                  <div className="p-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="m-0 text-lg text-gray-800">{mentorship.subject.name}</h3>
-                    <p className="mt-1 text-gray-600 text-sm">Student: {mentorship.student.fullName}</p>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center mb-2.5">
-                      <img 
-                        src={mentorship.student.profilePicture || '/default-avatar.png'} 
-                        alt={mentorship.student.fullName}
-                        className="w-8 h-8 rounded-full mr-2.5 object-cover"
-                      />
-                      <div className="flex flex-col ml-2.5">
-                        <span className="font-semibold text-gray-800">{mentorship.student.fullName}</span>
-                        <span className="text-sm text-gray-600">{mentorship.student.email}</span>
-                      </div>
-                    </div>
-                    
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Student's goals:</strong> {mentorship.goals}
-                    </p>
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Reason for mentorship:</strong> {mentorship.reason}
-                    </p>
-                    <p className="mb-2.5 text-gray-700">
-                      <strong>Started on:</strong> {new Date(mentorship.acceptedAt || mentorship.createdAt).toLocaleDateString()}
-                    </p>
                   </div>
                 </div>
               ))}
@@ -635,53 +775,55 @@ const MentorshipManagementSection = () => {
   );
 
   return (
-    <div className="p-5 max-w-6xl mx-auto">
-      {error && (
-        <div className="bg-red-100 text-red-800 px-4 py-2.5 mb-5 rounded border border-red-200">
-          {error}
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-6 max-w-7xl mx-auto">
+        {error && (
+          <div className="bg-red-100 text-red-800 px-4 py-3 mb-5 rounded-lg border border-red-200 shadow-sm">
+            {error}
+          </div>
+        )}
+        {successMessage && (
+          <div className="bg-green-100 text-green-800 px-4 py-3 mb-5 rounded-lg border border-green-200 shadow-sm">
+            {successMessage}
+          </div>
+        )}
+        
+        {/* Header with conditional button for students */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="mb-0 text-3xl font-bold text-gray-900">Mentorship Management</h1>
+          {!authLoading && isAuthenticated && user && user.role === 'student' && (
+            <button 
+              className="px-6 py-3 bg-blue-600 text-white border-none rounded-lg cursor-pointer font-medium text-base transition-all duration-200 hover:bg-blue-700 hover:shadow-lg" 
+              onClick={handleOpenModal}
+            >
+              Request New Mentorship
+            </button>
+          )}
         </div>
-      )}
-      {successMessage && (
-        <div className="bg-green-100 text-green-800 px-4 py-2.5 mb-5 rounded border border-green-200">
-          {successMessage}
-        </div>
-      )}
-      
-      {/* Header with conditional button for students */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="mb-0 text-3xl text-gray-800">Mentorship Management</h1>
-        {!authLoading && isAuthenticated && user && user.role === 'student' && (
-          <button 
-            className="px-5 py-2.5 bg-blue-600 text-white border-none rounded cursor-pointer font-medium text-lg transition-colors duration-200 hover:bg-blue-700" 
-            onClick={handleOpenModal}
-          >
-            Request New Mentorship
-          </button>
+        
+        {/* Show loading state while authentication is being checked */}
+        {authLoading && (
+          <div className="text-center py-20">
+            <p className="text-base text-gray-600 m-0">Loading...</p>
+          </div>
+        )}
+        
+        {/* Show authentication message if user is not authenticated */}
+        {!authLoading && !isAuthenticated && (
+          <div className="text-center py-20 bg-white rounded-xl border border-gray-200 shadow-sm">
+            <p className="text-base text-gray-600 m-0">Please log in to access mentorship management features.</p>
+          </div>
+        )}
+        
+        {/* Show content only when user is authenticated */}
+        {!authLoading && isAuthenticated && user && (
+          <>
+            {user.role === 'student' && <StudentView />}
+            {user.role === 'alumni' && <AlumniView />}
+            <MentorshipRequestModal />
+          </>
         )}
       </div>
-      
-      {/* Show loading state while authentication is being checked */}
-      {authLoading && (
-        <div className="text-center py-10">
-          <p className="text-base text-gray-600 m-0">Loading...</p>
-        </div>
-      )}
-      
-      {/* Show authentication message if user is not authenticated */}
-      {!authLoading && !isAuthenticated && (
-        <div className="text-center py-10 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-base text-gray-600 m-0">Please log in to access mentorship management features.</p>
-        </div>
-      )}
-      
-      {/* Show content only when user is authenticated */}
-      {!authLoading && isAuthenticated && user && (
-        <>
-          {user.role === 'student' && <StudentView />}
-          {user.role === 'alumni' && <AlumniView />}
-          <MentorshipRequestModal />
-        </>
-      )}
     </div>
   );
 };
