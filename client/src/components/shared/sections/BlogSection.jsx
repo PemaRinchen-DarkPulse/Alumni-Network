@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserAvatar } from '../../ui/user-avatar';
 import { Button } from '../../ui/button';
 import { Card } from '../../ui/card';
+import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { formatDate } from '../../../lib/utils';
 import { getImageUrl } from '../../../utils/imageUtils';
 import { useAuth } from '../../../contexts/auth';
 import blogService from '../../../services/blogService';
+import SectionHero from '@/components/shared/layout/SectionHero';
 
 const BlogCard = ({ post }) => {
   // Extract necessary data from post
@@ -247,8 +249,6 @@ const BlogSection = () => {
     <section className="py-10">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Blog Posts</h2>
-          
           {/* Show New Post button only for alumni and teachers */}
           {canCreateBlog && (
             <Button onClick={() => setIsModalOpen(true)}>
@@ -266,9 +266,7 @@ const BlogSection = () => {
         
         {/* Loading state */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-          </div>
+          <SectionLoadingSpinner section="blog" />
         ) : (
           // Blog posts grid
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -7,7 +7,9 @@ const BlogListPage = () => {
     <div>
       <PageHeader 
         title="Blog" 
-        description="Discover insights, stories, and knowledge shared by our community."
+        description="Discover insights, stories, and knowledge shared by our alumni and educator community."
+        icon="file-text"
+        gradient="from-emerald-500 to-teal-600"
       />
       <BlogSection />
     </div>

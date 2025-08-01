@@ -23,6 +23,7 @@ import SettingsPage from '@/components/settings/SettingsPage';
 // Import page components
 import DirectoryPage from './DirectoryPage';
 import AlumniDetailPage from './AlumniDetailPage';
+import BlogListPage from './BlogListPage';
 
 const Home = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -57,9 +58,7 @@ const Home = () => {
           
               
               {/* Legacy blog section route */}
-              <Route path="/blog" element={
-                <BlogSection/>
-              } />
+              <Route path="/blog" element={<BlogListPage />} />
               
               <Route path="/events" element={
                 <EventsSection/>
@@ -107,6 +106,8 @@ const Home = () => {
                   <PageHeader 
                     title="Settings & Profile" 
                     description="Manage your account settings and profile information"
+                    icon="settings"
+                    gradient="from-gray-600 to-gray-800"
                   />
                   <div className="mt-6">
                     <SettingsPage />

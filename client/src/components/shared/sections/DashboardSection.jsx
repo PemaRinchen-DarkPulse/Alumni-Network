@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 // Animations and variants
 const containerVariants = {
@@ -140,11 +141,7 @@ const DashboardSection = () => {
   }, []);
   
   if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
-      </div>
-    );
+    return <SectionLoadingSpinner section="dashboard" />;
   }
   
   return (

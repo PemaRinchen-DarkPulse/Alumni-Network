@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/contexts/auth';
 
 const NotificationsSection = () => {
@@ -136,13 +137,7 @@ const NotificationsSection = () => {
   };
 
   if (initialLoad) {
-    return (
-      <Card className="w-full">
-        <CardContent className="p-6">
-          <div className="text-center">Loading notification settings...</div>
-        </CardContent>
-      </Card>
-    );
+    return <SectionLoadingSpinner section="settings" message="Loading notification settings..." />;
   }
   
   return (

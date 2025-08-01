@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/auth';
 import { Button } from '../../ui/button';
+import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { 
   getSubjects, 
   getMentorsBySubject, 
@@ -12,6 +13,7 @@ import {
   getAcceptedMentorshipsBySubjectForMentor,
   updateMentorshipRequestStatus
 } from '../../../services/mentorshipService';
+import SectionHero from '@/components/shared/layout/SectionHero';
 
 // Separate Modal Component to avoid re-renders
 const MentorshipRequestModal = ({ 
@@ -861,23 +863,21 @@ const MentorshipManagementSection = () => {
         )}
         
         {/* Header with conditional button for students */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="mb-0 text-3xl font-bold text-gray-900">Mentorship Management</h1>
-          {!authLoading && isAuthenticated && user && user.role === 'student' && (
-            <Button onClick={handleOpenModal}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Request New Mentorship
-            </Button>
-          )}
-        </div>
+        <SectionHero 
+          title="Mentorship Management"
+          description="Connect with experienced mentors and guide the next generation. Build meaningful relationships that foster growth and learning."
+          icon="user-plus"
+          gradient="from-purple-600 to-pink-600"
+          actionButton={(!authLoading && isAuthenticated && user && user.role === 'student') ? {
+            label: "Request New Mentorship",
+            icon: "plus",
+            onClick: handleOpenModal
+          } : undefined}
+        />
         
         {/* Show loading state while authentication is being checked */}
         {authLoading && (
-          <div className="text-center py-20">
-            <p className="text-base text-gray-600 m-0">Loading...</p>
-          </div>
+          <SectionLoadingSpinner section="mentorship" />
         )}
         
         {/* Show authentication message if user is not authenticated */}

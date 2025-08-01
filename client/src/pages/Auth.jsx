@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/shared/icons/Icon';
+import { InlineSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '../contexts/auth';
 
 // Login Form Component - Memoized to prevent unnecessary re-renders
@@ -113,7 +114,7 @@ const LoginForm = React.memo(({
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
-                <Icon name="loader" size={16} className="animate-spin -ml-1 mr-2 text-white" />
+                <InlineSpinner variant="white" className="mr-2" />
                 Signing in...
               </span>
             ) : 'Sign In'}
@@ -342,7 +343,7 @@ const SignupForm = React.memo(({
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
-                <Icon name="loader" size={16} className="animate-spin -ml-1 mr-2 text-white" />
+                <InlineSpinner variant="white" className="mr-2" />
                 Creating Account...
               </span>
             ) : 'Create Account'}

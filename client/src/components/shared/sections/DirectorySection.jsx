@@ -3,8 +3,10 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/shared/icons/Icon';
+import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/contexts/auth';
 import { getAllAlumni } from '@/services/directoryService';
+import SectionHero from '@/components/shared/layout/SectionHero';
 
 const AlumniCard = ({ alumni, onConnect, onViewDetails }) => {
   const { name, profilePicture, batch, email, socialLinks = {} } = alumni;
@@ -181,12 +183,7 @@ const DirectorySection = () => {
   };
   
   if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-[400px] bg-gradient-to-b from-white to-gray-50 rounded-xl p-8">
-        <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-        <p className="text-gray-600 font-medium">Loading alumni directory...</p>
-      </div>
-    );
+    return <SectionLoadingSpinner section="directory" />;
   }
   
   if (error) {
@@ -216,18 +213,13 @@ const DirectorySection = () => {
   return (
     <div className="container mx-auto py-12 px-4">
       {/* Enhanced Header Section */}
-      <div className="mb-12 text-center">
-        <div className="inline-flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <Icon name="users" className="text-white" size={24} />
-          </div>
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-indigo-800 to-purple-800 bg-clip-text text-transparent">
-            Alumni Directory
-          </h2>
-        </div>
-        <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed mb-8">
-          Connect with fellow alumni and expand your professional network. Discover opportunities, share experiences, and build meaningful connections.
-        </p>
+      <div className="mb-12">
+        <SectionHero 
+          title="Alumni Directory"
+          description="Connect with fellow alumni and expand your professional network. Discover opportunities, share experiences, and build meaningful connections."
+          icon="users"
+          gradient="from-indigo-500 to-purple-600"
+        />
       </div>
       
       {/* Enhanced Grid with staggered animations */}

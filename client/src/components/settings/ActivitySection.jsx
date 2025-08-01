@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/contexts/auth';
 import { Icon } from '../shared/icons/Icon';
 
@@ -263,9 +264,7 @@ const ActivitySection = () => {
       
       <CardContent>
         {loading ? (
-          <div className="flex justify-center items-center h-32">
-            <p className="text-sm text-muted-foreground">Loading activity history...</p>
-          </div>
+          <SectionLoadingSpinner section="settings" size="medium" showMessage={false} />
         ) : error ? (
           <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-md text-red-800 dark:text-red-200">
             <p>{error}</p>
