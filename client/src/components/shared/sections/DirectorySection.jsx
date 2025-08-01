@@ -20,82 +20,72 @@ const AlumniCard = ({ alumni, onConnect, onViewDetails }) => {
   };
 
   return (
-    <Card className="w-full bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 p-0">
-      <div className="relative">
-        {/* Blue background banner */}
-        <div className="w-full h-28 bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-xl"></div>
+    <Card className="w-full bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-[1.02] border-0 p-0 group relative backdrop-blur-sm">
+      {/* Gradient overlay for premium feel */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      
+      {/* Profile Image Section - Enhanced design */}
+      <div className="relative h-40 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        {profilePicture ? (
+          <img 
+            src={profilePicture} 
+            alt={name}
+            className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out filter group-hover:brightness-110"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100 flex items-center justify-center relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10"></div>
+            <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 shadow-xl group-hover:scale-110 transition-transform duration-300">
+              <Icon name="user" className="text-indigo-500" size={36} />
+            </div>
+          </div>
+        )}
         
-        {/* Profile picture overlapping the banner */}
-        <div className="absolute left-1/2 transform -translate-x-1/2" style={{ top: "60%" }}>
-          <Avatar className="size-30 ring-4 ring-white shadow-lg">
-            <AvatarImage src={profilePicture} alt={name} />
-            <AvatarFallback className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold">
-              {getInitials(name)}
-            </AvatarFallback>
-          </Avatar>
+        {/* Subtle overlay for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"></div>
+        
+        {/* Floating badge */}
+        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+          <span className="text-xs font-semibold text-indigo-600">Alumni</span>
         </div>
       </div>
       
-      {/* Content starts below the overlapping avatar */}
-      <div className="flex flex-col items-center px-6 pt-20 pb-2">
-        
-        <h3 className="font-bold text-center text-lg text-gray-800">{name}</h3>
-        <p className="text-indigo-600 text-sm font-medium text-center">Batch of {batch}</p>
-        
-        {/* Social Links */}
-        <div className="flex justify-center gap-4 mt-4 mb-2">
-          {/* Email is separate from socialLinks in the user model */}
-          {email && (
-            <a 
-              href={`mailto:${email}`} 
-              aria-label="Email"
-              className="bg-gray-100 p-2 rounded-full hover:bg-indigo-100 transition-colors duration-200"
-            >
-              <Icon name="mail" className="text-gray-500 hover:text-indigo-600" />
-            </a>
-          )}
+      {/* Content Section - Modern spacing and typography */}
+      <div className="relative flex flex-col justify-between h-36 p-5 bg-gradient-to-b from-white to-gray-50/30">
+        {/* User Info with enhanced styling */}
+        <div className="text-center space-y-2">
+          {/* Name with gradient hover effect */}
+          <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2 group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+            {name}
+          </h3>
           
-          {socialLinks?.linkedin && (
-            <a 
-              href={socialLinks.linkedin} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              aria-label="LinkedIn"
-              className="bg-gray-100 p-2 rounded-full hover:bg-indigo-100 transition-colors duration-200"
-            >
-              <Icon name="linkedin" className="text-gray-500 hover:text-indigo-600" />
-            </a>
-          )}
-          
-          {socialLinks?.facebook && (
-            <a 
-              href={socialLinks.facebook} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              aria-label="Facebook"
-              className="bg-gray-100 p-2 rounded-full hover:bg-indigo-100 transition-colors duration-200"
-            >
-              <Icon name="facebook" className="text-gray-500 hover:text-indigo-600" />
-            </a>
-          )}
+          {/* Batch Information with decorative elements */}
+          <div className="flex items-center justify-center gap-2 text-gray-600">
+            <div className="w-1.5 h-1.5 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
+            <p className="text-sm font-medium">
+              Batch of {batch}
+            </p>
+            <div className="w-1.5 h-1.5 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
+          </div>
+        </div>
+        
+        {/* Action Buttons - Premium design */}
+        <div className="flex gap-3 mt-4 mb-6">
+          <Button 
+            className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold py-2.5 text-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0"
+            onClick={() => onViewDetails(alumni._id)}
+          >
+            View Details
+          </Button>
+          <Button 
+            variant="outline" 
+            className="flex-1 border-2 border-gray-200 bg-white/80 backdrop-blur-sm hover:bg-gray-50 hover:border-indigo-200 text-gray-700 hover:text-indigo-700 font-semibold py-2.5 text-sm rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
+            onClick={() => onConnect(alumni._id)}
+          >
+            Connect
+          </Button>
         </div>
       </div>
-      
-      <CardFooter className="flex gap-3 p-4 pt-3 pb-6">
-        <Button 
-          variant="outline" 
-          className="flex-1 border-gray-200 hover:bg-gray-50 font-medium"
-          onClick={() => onViewDetails(alumni._id)}
-        >
-          View Details
-        </Button>
-        <Button 
-          className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium shadow-md"
-          onClick={() => onConnect(alumni._id)}
-        >
-          Connect
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
@@ -104,8 +94,18 @@ const DirectorySection = () => {
   const [alumni, setAlumni] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const auth = useAuth();
   const user = auth?.user;
+  
+  // Calculate pagination
+  const cardsPerRow = 4;
+  const rowsPerPage = 2;
+  const itemsPerPage = cardsPerRow * rowsPerPage; // 8 items per page
+  
+  const itemsToShow = currentPage * itemsPerPage;
+  const displayedAlumni = alumni.slice(0, itemsToShow);
+  const hasMoreItems = alumni.length > itemsToShow;
   
   useEffect(() => {
     const fetchAlumni = async () => {
@@ -214,23 +214,31 @@ const DirectorySection = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-3">
-      <div className="mb-6 text-center">
-        <h2 className="text-3xl font-bold mb-3 text-gray-800 relative inline-block">
-          Alumni Directory
-          <span className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600 transform -translate-y-1"></span>
-        </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">Connect with fellow alumni and expand your professional network</p>
+    <div className="container mx-auto py-12 px-4">
+      {/* Enhanced Header Section */}
+      <div className="mb-12 text-center">
+        <div className="inline-flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <Icon name="users" className="text-white" size={24} />
+          </div>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-indigo-800 to-purple-800 bg-clip-text text-transparent">
+            Alumni Directory
+          </h2>
+        </div>
+        <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed mb-8">
+          Connect with fellow alumni and expand your professional network. Discover opportunities, share experiences, and build meaningful connections.
+        </p>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-5">
-        {alumni.map((alumnus, index) => (
+      {/* Enhanced Grid with staggered animations */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {displayedAlumni.map((alumnus, index) => (
           <div 
             key={alumnus._id} 
-            className="transform transition-all duration-500"
+            className="transform transition-all duration-700"
             style={{ 
-              animationDelay: `${index * 100}ms`,
-              animation: 'fadeInUp 0.6s ease-out forwards'
+              animationDelay: `${index * 150}ms`,
+              animation: 'slideInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards'
             }}
           >
             <AlumniCard
@@ -242,16 +250,52 @@ const DirectorySection = () => {
         ))}
       </div>
       
+      {/* Enhanced Show More/Show Less Buttons */}
+      {(hasMoreItems || currentPage > 1) && (
+        <div className="flex justify-center mt-12">
+          <div className="flex gap-4">
+            {currentPage > 1 && (
+              <Button 
+                onClick={() => setCurrentPage(1)}
+                variant="outline"
+                className="border-2 border-indigo-200 bg-white/80 backdrop-blur-sm text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 font-semibold px-8 py-3 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                <Icon name="chevron-up" className="mr-2" size={16} />
+                Show Less
+              </Button>
+            )}
+            
+            {hasMoreItems && (
+              <Button 
+                onClick={() => setCurrentPage(currentPage + 1)}
+                className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:via-indigo-800 hover:to-purple-800 text-white font-semibold px-8 py-3 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0"
+              >
+                Show More
+                <Icon name="chevron-down" className="ml-2" size={16} />
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+      
       <style jsx>{`
-        @keyframes fadeInUp {
+        @keyframes slideInUp {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(60px) scale(0.95);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
           }
+        }
+        
+        /* Subtle background pattern */
+        .container {
+          background-image: 
+            radial-gradient(circle at 25px 25px, rgba(99, 102, 241, 0.03) 2%, transparent 0%), 
+            radial-gradient(circle at 75px 75px, rgba(168, 85, 247, 0.03) 2%, transparent 0%);
+          background-size: 100px 100px;
         }
       `}</style>
     </div>

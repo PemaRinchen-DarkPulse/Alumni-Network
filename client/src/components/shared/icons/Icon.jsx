@@ -397,7 +397,6 @@ const Icon = ({
       </svg>
     ),
 
-    // Loading & Progress
     'loader': (
       <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={cn(iconClasses, 'animate-spin')} {...props}>
         <line x1="12" x2="12" y1="2" y2="6" />
@@ -408,6 +407,20 @@ const Icon = ({
         <line x1="18" x2="22" y1="12" y2="12" />
         <line x1="4.93" x2="7.76" y1="19.07" y2="16.24" />
         <line x1="16.24" x2="19.07" y1="7.76" y2="4.93" />
+      </svg>
+    ),
+
+    // Additional icons for Collaboration section
+    'bookmark': (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={iconClasses} {...props}>
+        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+      </svg>
+    ),
+    'more-horizontal': (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={iconClasses} {...props}>
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="19" cy="12" r="1" />
+        <circle cx="5" cy="12" r="1" />
       </svg>
     ),
 
