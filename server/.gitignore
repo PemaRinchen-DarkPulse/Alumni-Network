@@ -1,25 +1,77 @@
-HELP.md
+# ====================
+# Maven/Build
+# ====================
 target/
 .mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.properties
 !**/src/main/**/target/
 !**/src/test/**/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/wrapper/MavenWrapperDownloader.class
 
-### STS ###
+# ====================
+# Compiled Class Files
+# ====================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# ====================
+# Spring Boot Specific
+# ====================
+HELP.md
+.springBeans
+.sts4-cache
+spring.log
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+
+# ====================
+# Environment Variables
+# ====================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+!.env.example
+
+# ====================
+# IDE - Eclipse/STS
+# ====================
 .apt_generated
 .classpath
 .factorypath
 .project
 .settings
-.springBeans
-.sts4-cache
+.loadpath
+.recommenders
 
-### IntelliJ IDEA ###
+# ====================
+# IDE - IntelliJ IDEA
+# ====================
 .idea
 *.iws
 *.iml
 *.ipr
+out/
+.idea_modules/
 
-### NetBeans ###
+# ====================
+# IDE - NetBeans
+# ====================
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -29,30 +81,71 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+# ====================
+# IDE - VS Code
+# ====================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.history/
 
-### Environment Variables & Configuration ###
-.env
-.env.local
-.env.*.local
-application-local.properties
-application-local.yml
-
-### Logs ###
+# ====================
+# Logs
+# ====================
 *.log
 logs/
-spring.log
+*.log.*
+*.log.gz
 
-### OS ###
+# ====================
+# OS Specific
+# ====================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-### Temporary files ###
+# ====================
+# Temporary Files
+# ====================
 *.tmp
 *.temp
 *~
+*.bak
+*.backup
+*.old
+*.swp
+*.swo
+*.orig
 
-### Maven ###
-.mvn/timing.properties
-.mvn/wrapper/maven-wrapper.properties
+# ====================
+# Testing
+# ====================
+coverage/
+.nyc_output/
+test-results/
+
+# ====================
+# Database
+# ====================
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+
+# ====================
+# Security/Sensitive
+# ====================
+*.key
+*.pem
+*.p12
+*.jks
+credentials.*
+secrets.*
