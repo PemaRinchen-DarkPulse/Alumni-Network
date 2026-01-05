@@ -45,7 +45,6 @@ const Modal = ({ isOpen, onClose, children }) => {
 
 const NetworkingSection = () => {
   const { user, updateUser, syncUserFromServer } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL;
     const [networkingPreferences, setNetworkingPreferences] = useState({
     openToMentoring: false,
     providingInternships: false,
@@ -112,116 +111,28 @@ const NetworkingSection = () => {
       
       // Always check for mentor profile
       fetchMentorProfile();
-      
-      // Then optionally sync with server for most up-to-date data (in background)
-      syncWithServer();
     }
   }, [user]);
 
-  // Separate function to sync with server in background
+  // Backend sync removed
   const syncWithServer = async () => {
-    try {
-      const { getUserProfile } = await import('@/services/settingsService');
-      const response = await getUserProfile();
-      
-      if (response.success) {
-        const userData = response.data.user;
-        const mentorStatus = userData.isMentor !== undefined ? userData.isMentor : (user.isMentor || false);
-        
-        // Only update if there are actual changes from server
-        if (mentorStatus !== isMentor) {
-          setIsMentor(mentorStatus);
-        }
-        
-        if (userData.networkingPreferences) {
-          const serverPreferences = {
-            openToMentoring: mentorStatus ? true : (userData.networkingPreferences.openToMentoring || false),
-            providingInternships: userData.networkingPreferences.providingInternships || false,
-            attendingSchoolTalks: userData.networkingPreferences.attendingSchoolTalks || false,
-            availableForCareerAdvice: userData.networkingPreferences.availableForCareerAdvice || false
-          };
-          
-          // Only update if preferences are different
-          setNetworkingPreferences(prev => {
-            const hasChanges = JSON.stringify(prev) !== JSON.stringify(serverPreferences);
-            return hasChanges ? serverPreferences : prev;
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error syncing with server:', error);
-      // Don't update state on error to preserve current display
-    }
+    // Backend removed
+    console.log('Backend removed - no server sync');
   };
   
-  // Fetch available subjects from the database
+  // Fetch available subjects (backend removed)
   const fetchAvailableSubjects = async () => {
-    try {
-      const { getSubjects } = await import('@/services/mentorshipService');
-      const response = await getSubjects();
-      
-      if (response.success) {
-        setAvailableSubjects(response.data);
-      } else {
-        console.error('Failed to fetch subjects:', response.error);
-      }
-    } catch (error) {
-      console.error('Error fetching subjects:', error);
-    }
+    // Backend removed - no subjects to fetch
+    setAvailableSubjects([]);
   };
-  // Fetch existing mentor profile if user is already a mentor
+  
+  // Fetch existing mentor profile (backend removed)
   const fetchMentorProfile = async () => {
-    try {
-      const { getMentorProfile } = await import('@/services/settingsService');
-      const response = await getMentorProfile();
-      
-      if (response.success && response.data.mentor) {
-        const mentorData = response.data.mentor;
-        setHasMentorProfile(true); // User has an existing mentor profile
-        
-        // Extract subject IDs from the mentoring areas
-        const mentoringAreaIds = mentorData.mentoringAreas.map(area => 
-          typeof area === 'object' && area._id ? area._id : area
-        );
-        
-        // Add "other" option if custom areas exist
-        const areas = [...mentoringAreaIds];
-        if (mentorData.hasOtherMentoringArea || 
-            (mentorData.customMentoringAreas && mentorData.customMentoringAreas.length > 0)) {
-          areas.push('other');
-        }
-        
-        setMentorProfile({
-          fullName: mentorData.fullName || user?.name || '',
-          email: mentorData.email || user?.email || '',
-          phoneNumber: mentorData.phoneNumber || user?.phone || '',
-          socialLinks: {
-            linkedin: mentorData.socialLinks?.linkedin || user?.socialLinks?.linkedin || '',
-            twitter: mentorData.socialLinks?.twitter || user?.socialLinks?.twitter || '',
-            github: mentorData.socialLinks?.github || user?.socialLinks?.github || '',
-            facebook: mentorData.socialLinks?.facebook || user?.socialLinks?.facebook || '',
-            instagram: mentorData.socialLinks?.instagram || user?.socialLinks?.instagram || ''
-          },
-          currentOccupation: mentorData.currentOccupation || user?.currentOccupation || '',
-          company: mentorData.company || '',
-          yearsOfExperience: mentorData.yearsOfExperience || '',
-          mentoringAreas: areas,
-          customMentoringAreas: mentorData.customMentoringAreas || [],
-          bio: mentorData.bio || ''
-        });
-        
-        // If we have new subjects from custom fields, let's refresh the available subjects
-        if (mentorData.customMentoringAreas && mentorData.customMentoringAreas.length > 0) {
-          fetchAvailableSubjects();
-        }
-      } else {
-        setHasMentorProfile(false); // No mentor profile found
-      }
-    } catch (error) {
-      console.error('Error fetching mentor profile:', error);
-      setHasMentorProfile(false); // Assume no profile on error
-    }
-  };    // Handle toggle changes
+    // Backend removed
+    setHasMentorProfile(false);
+  };
+  
+  // Handle toggle changes
   const handleToggle = (key, value) => {
     // If toggling on "Open to Mentoring"
     if (key === 'openToMentoring' && value) {
@@ -254,18 +165,8 @@ const NetworkingSection = () => {
     setLoading(true);
     
     try {
-      // Import the settings service for saving mentor profile
-      const { saveMentorProfile } = await import('@/services/settingsService');
-      
-      // Prepare the mentor profile data
-      // Remove any empty custom mentoring areas
-      const profileToSave = {
-        ...mentorProfile,
-        customMentoringAreas: mentorProfile.customMentoringAreas.filter(area => area.trim() !== '')
-      };
-      
-      // Save mentor profile data
-      const response = await saveMentorProfile(profileToSave);
+      // Backend removed
+      const response = { success: false };
       
       if (response.success) {
         // Update local state first
@@ -385,18 +286,8 @@ const NetworkingSection = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      // Import settings service
-      const { updateNetworkingPreferences } = await import('@/services/settingsService');
-      
-      // We also need to update the isMentor status, but for now we'll include it in networkingPreferences
-      // A more robust solution would be to add a separate API endpoint for updating mentor status
-      const preferencesWithMentor = {
-        ...networkingPreferences,
-        isMentor // Include the mentor status
-      };
-      
-      // Call the API service to update networking preferences
-      const response = await updateNetworkingPreferences(preferencesWithMentor);
+      // Backend removed
+      const response = { success: false };
       
       if (response.success) {
         // Update the user context with the new networking preferences and mentor status
@@ -406,16 +297,13 @@ const NetworkingSection = () => {
         };
         updateUser(updatedUserData);
         
-        // Also sync from server to ensure we have the latest data
-        await syncUserFromServer();
-        
         setMessage({ 
           type: 'success', 
           text: 'Networking preferences saved successfully!' 
         });
         setHasChanges(false);
       } else {
-        throw new Error(response.error || 'Failed to save networking preferences');
+        throw new Error('Backend removed - preferences not saved');
       }
     } catch (error) {
       console.error('Error saving networking preferences:', error);

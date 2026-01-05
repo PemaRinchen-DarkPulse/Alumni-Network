@@ -79,23 +79,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(newUserData));
   };
 
-  // Function to sync user data from server
+  // Function to sync user data from server (stub - backend removed)
   const syncUserFromServer = async () => {
-    try {
-      const { refreshUserData } = await import('../../services/settingsService');
-      const response = await refreshUserData();
-      
-      if (response.success && response.data.user) {
-        const serverUser = response.data.user;
-        setUser(serverUser);
-        localStorage.setItem('user', JSON.stringify(serverUser));
-        return { success: true };
-      }
-      return { success: false, error: response.error };
-    } catch (error) {
-      console.error('Error syncing user from server:', error);
-      return { success: false, error: error.message };
-    }
+    return { success: false, error: 'Backend removed' };
   };
   // Values to provide to components
   const contextValue = {

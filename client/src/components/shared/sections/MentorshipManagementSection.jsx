@@ -2,18 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/auth';
 import { Button } from '../../ui/button';
 import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { 
-  getSubjects, 
-  getMentorsBySubject, 
-  createMentorshipRequest,
-  getMentorshipRequestsForMentor,
-  getAcceptedMentorshipsForStudent,
-  getMentorshipRequestsForStudent,
-  getAcceptedMentorshipsForMentor,
-  getAcceptedMentorshipsBySubjectForMentor,
-  updateMentorshipRequestStatus
-} from '../../../services/mentorshipService';
 import SectionHero from '@/components/shared/layout/SectionHero';
+
+// Stub mentorshipService (backend removed)
+const getSubjects = async () => ({ success: true, data: [] });
+const getMentorsBySubject = async () => ({ success: true, data: [] });
+const createMentorshipRequest = async () => ({ success: false });
+const getMentorshipRequestsForMentor = async () => ({ success: true, data: [] });
+const getAcceptedMentorshipsForStudent = async () => ({ success: true, data: [] });
+const getMentorshipRequestsForStudent = async () => ({ success: true, data: [] });
+const getAcceptedMentorshipsForMentor = async () => ({ success: true, data: [] });
+const getAcceptedMentorshipsBySubjectForMentor = async () => ({ success: true, data: [] });
+const updateMentorshipRequestStatus = async () => ({ success: false });
 
 // Separate Modal Component to avoid re-renders
 const MentorshipRequestModal = ({ 

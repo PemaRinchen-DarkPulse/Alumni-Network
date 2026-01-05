@@ -10,7 +10,6 @@ import { compressImageToBase64, validateImageFile, createImagePreview, cleanupIm
 
 const ProfileSection = () => {
   const { user, updateUser } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL;
   
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -36,71 +35,12 @@ const ProfileSection = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-    // Fetch user profile data
+  
+  // Fetch user profile data (local only - backend removed)
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // Import the settings service
-        const { getUserProfile } = await import('@/services/settingsService');
-        
-        // Call the API to get user profile
-        const response = await getUserProfile();
-        
-        if (response.success) {
-          const userData = response.data.user;
-          
-          setProfileData({
-            name: userData.name || '',
-            email: userData.email || '',
-            phone: userData.phone || '',
-            address: userData.address || '',
-            bio: userData.bio || '',
-            profilePicture: userData.profilePicture || '',
-            socialLinks: userData.socialLinks || {
-              linkedin: '',
-              instagram: '',
-              twitter: '',
-              facebook: '',
-              github: '',
-            },
-            batch: userData.batch || '',
-            parentGuardianContact: userData.parentGuardianContact || '',
-            currentOccupation: userData.currentOccupation || '',
-            subjectsTaught: userData.subjectsTaught || []
-          });
-          
-          if (userData.profilePicture) {
-            setImagePreview(userData.profilePicture);
-          }
-        } else {
-          // If API call fails, fall back to user context
-          setProfileData({
-            name: user.name || '',
-            email: user.email || '',
-            phone: user.phone || '',
-            address: user.address || '',
-            bio: user.bio || '',
-            profilePicture: user.profilePicture || '',
-            socialLinks: user.socialLinks || {
-              linkedin: '',
-              instagram: '',
-              twitter: '',
-              facebook: '',
-              github: '',
-            },
-            batch: user.batch || '',
-            parentGuardianContact: user.parentGuardianContact || '',
-            currentOccupation: user.currentOccupation || '',
-            subjectsTaught: user.subjectsTaught || []
-          });
-          
-          if (user.profilePicture) {
-            setImagePreview(user.profilePicture);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-        // Fall back to user context
+        // Use user context data directly (backend removed)
         setProfileData({
           name: user.name || '',
           email: user.email || '',
@@ -124,6 +64,8 @@ const ProfileSection = () => {
         if (user.profilePicture) {
           setImagePreview(user.profilePicture);
         }
+      } catch (error) {
+        console.error('Error loading profile data:', error);
       }
     };
     
@@ -213,41 +155,10 @@ const ProfileSection = () => {
     } finally {
       setLoading(false);
     }
-  };  // Auto-save functionality using debounce
+  };  // Auto-save functionality (stub - backend removed)
   const debouncedSave = useDebouncedCallback(async (data) => {
-    try {
-      // Check if user is still authenticated
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.log('No token found, skipping auto-save');
-        return;
-      }
-      
-      // Import the settings service
-      const { updateUserProfile } = await import('@/services/settingsService');
-      
-      // Prepare data for API call (remove any file objects)
-      const dataToSend = { ...data };
-      delete dataToSend.profilePictureFile;
-      
-      // Call the API to update user profile
-      const response = await updateUserProfile(dataToSend);
-      if (response.success) {
-        console.log('Auto-saved profile data');
-      } else {
-        console.error('Auto-save failed:', response.error);
-      }
-    } catch (error) {
-      console.error('Error auto-saving profile data:', error);
-      
-      // If authentication error, show message to user
-      if (error.message.includes('Authentication failed') || error.message.includes('Token is not valid')) {
-        setMessage({
-          type: 'error',
-          text: 'Session expired. Please refresh the page and login again.'
-        });
-      }
-    }
+    // Backend removed - no auto-save
+    console.log('Auto-save disabled - backend removed');
   }, 2000);
   
   // Effect to trigger auto-save when profileData changes and in edit mode
@@ -255,54 +166,32 @@ const ProfileSection = () => {
     if (isEditing) {
       debouncedSave(profileData);
     }
-  }, [profileData, isEditing, debouncedSave]);  // Save profile changes
+  }, [profileData, isEditing, debouncedSave]);  // Save profile changes (local only - backend removed)
   const saveProfile = async () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
     
     try {
-      // Import the settingsService
-      const { updateUserProfile } = await import('@/services/settingsService');
+      // Update local user context only (backend removed)
+      updateUser({
+        name: profileData.name,
+        profilePicture: profileData.profilePicture,
+        phone: profileData.phone,
+        address: profileData.address,
+        bio: profileData.bio,
+        socialLinks: profileData.socialLinks,
+        batch: profileData.batch,
+        parentGuardianContact: profileData.parentGuardianContact,
+        currentOccupation: profileData.currentOccupation,
+        subjectsTaught: profileData.subjectsTaught
+      });
       
-      // Prepare data for API call
-      const dataToSend = { ...profileData };
-      
-      // Remove any temporary file object if it exists
-      delete dataToSend.profilePictureFile;
-      
-      const response = await updateUserProfile(dataToSend);
-        if (response.success) {
-        // Refresh user data from server to ensure navbar gets updated
-        const { refreshUserData } = await import('@/services/settingsService');
-        const refreshResponse = await refreshUserData();
-        
-        if (refreshResponse.success) {
-          // Update the user context with fresh data from server
-          updateUser(refreshResponse.data.user);
-        } else {
-          // Fallback to manual update if refresh fails
-          updateUser({
-            name: profileData.name,
-            profilePicture: profileData.profilePicture,
-            phone: profileData.phone,
-            address: profileData.address,
-            bio: profileData.bio,
-            socialLinks: profileData.socialLinks,
-            batch: profileData.batch,
-            parentGuardianContact: profileData.parentGuardianContact,
-            currentOccupation: profileData.currentOccupation,
-            subjectsTaught: profileData.subjectsTaught
-          });
-        }
-        
-        setMessage({ 
-          type: 'success', 
-          text: 'Profile updated successfully!' 
-        });
-        setIsEditing(false);
-      } else {
-        throw new Error(response.error || 'Failed to update profile');
-      }    } catch (error) {
+      setMessage({ 
+        type: 'success', 
+        text: 'Profile updated locally (backend removed)!' 
+      });
+      setIsEditing(false);
+    } catch (error) {
       console.error('Error updating profile:', error);
       
       let errorMessage = 'Failed to update profile';

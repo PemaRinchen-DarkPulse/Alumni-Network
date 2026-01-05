@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { useAuth } from '../contexts/auth';
-import blogService from '../services/blogService';
 import { getImageUrl } from '../utils/imageUtils';
+
+// Stub blogService (backend removed)
+const blogService = {
+  getPostById: async () => ({ post: null }),
+  updatePostWithImage: async () => ({}),
+};
 
 const EditBlogPage = () => {
   const { id } = useParams();

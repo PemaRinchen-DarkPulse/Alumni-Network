@@ -1,10 +1,4 @@
 import { useState } from 'react';
-import { 
-  resendVerificationEmail, 
-  requestPasswordReset, 
-  validateResetToken, 
-  resetUserPassword 
-} from '../services/authService';
 
 /**
  * Hook for handling password reset and verification email functionality
@@ -15,7 +9,7 @@ export const useAuthHelpers = () => {
   const [error, setError] = useState('');
   
   /**
-   * Resend verification email
+   * Resend verification email (mock - no backend)
    * @param {string} email - User's email
    * @returns {Promise<Object>} Result of the verification email request
    */
@@ -23,7 +17,8 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    const result = await resendVerificationEmail(email);
+    // Mock - no backend connection
+    const result = { success: false, error: 'Backend removed - no verification available' };
     
     if (!result.success) {
       setError(result.error || 'Failed to resend verification email');
@@ -34,7 +29,7 @@ export const useAuthHelpers = () => {
   };
 
   /**
-   * Request password reset
+   * Request password reset (mock - no backend)
    * @param {string} email - User's email
    * @returns {Promise<Object>} Result of the password reset request
    */
@@ -42,7 +37,8 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    const result = await requestPasswordReset(email);
+    // Mock - no backend connection
+    const result = { success: false, error: 'Backend removed - no password reset available' };
     
     if (!result.success) {
       setError(result.error || 'Failed to process password reset request');
@@ -53,7 +49,7 @@ export const useAuthHelpers = () => {
   };
 
   /**
-   * Validate a password reset token
+   * Validate a password reset token (mock - no backend)
    * @param {string} token - The reset token to validate
    * @returns {Promise<Object>} Result of the token validation
    */
@@ -61,7 +57,8 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    const result = await validateResetToken(token);
+    // Mock - no backend connection
+    const result = { success: false, error: 'Backend removed - no token validation available' };
     
     if (!result.success) {
       setError(result.error || 'Failed to validate reset token');
@@ -72,7 +69,7 @@ export const useAuthHelpers = () => {
   };
 
   /**
-   * Reset user password with token
+   * Reset user password with token (mock - no backend)
    * @param {string} token - Reset token
    * @param {string} password - New password
    * @returns {Promise<Object>} Result of the password reset
@@ -81,7 +78,8 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    const result = await resetUserPassword(token, password);
+    // Mock - no backend connection
+    const result = { success: false, error: 'Backend removed - no password reset available' };
     
     if (!result.success) {
       setError(result.error || 'Failed to reset password');

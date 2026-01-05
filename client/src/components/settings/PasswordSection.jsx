@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 const PasswordSection = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
   
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -126,14 +125,8 @@ const PasswordSection = () => {
     setLoading(true);
     
     try {
-      // Import settings service
-      const { changePassword } = await import('@/services/settingsService');
-      
-      // Call the API service to change password
-      const response = await changePassword(
-        passwordData.currentPassword,
-        passwordData.newPassword
-      );
+      // Backend removed - no password change available
+      const response = { success: false, error: 'Backend removed - password change unavailable' };
       
       if (response.success) {
         setMessage({ 

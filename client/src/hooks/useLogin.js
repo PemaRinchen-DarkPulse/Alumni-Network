@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { loginUser } from '../services/authService';
 
 /**
  * Hook for handling user login functionality
@@ -12,7 +11,7 @@ export const useLogin = (setUser, setToken) => {
   const [error, setError] = useState('');
   
   /**
-   * Login a user
+   * Login a user (mock - no backend)
    * @param {string} email - User's email
    * @param {string} password - User's password
    * @returns {Promise<Object>} Result of the login attempt
@@ -21,10 +20,10 @@ export const useLogin = (setUser, setToken) => {
     setLoading(true);
     setError('');
     
-    const result = await loginUser(email, password);
+    // Mock login - no backend connection
+    const result = { success: false, error: 'Backend removed - no authentication available' };
     
     if (result.success) {
-      // Update context state with the logged-in user and token
       setUser(result.user);
       setToken(result.token);
     } else {

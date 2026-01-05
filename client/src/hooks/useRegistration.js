@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { registerUser } from '../services/authService';
 
 /**
  * Hook for handling user registration functionality
@@ -10,7 +9,7 @@ export const useRegistration = () => {
   const [error, setError] = useState('');
   
   /**
-   * Register a new user
+   * Register a new user (mock - no backend)
    * @param {Object} userData - User registration data
    * @returns {Promise<Object>} Result of the registration attempt
    */
@@ -18,7 +17,8 @@ export const useRegistration = () => {
     setLoading(true);
     setError('');
     
-    const result = await registerUser(userData);
+    // Mock registration - no backend connection
+    const result = { success: false, error: 'Backend removed - no registration available' };
     
     if (!result.success) {
       setError(result.error || 'Registration failed');

@@ -4,7 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/contexts/auth';
 import { useNavigate } from 'react-router-dom';
-import { getPrivacySettings, updatePrivacySettings, resetPrivacySettings, updateVisibilityPreference } from '@/services/settingsService';
+
+// Stub settingsService (backend removed)
+const getPrivacySettings = async () => ({ success: false });
+const updatePrivacySettings = async () => ({ success: false });
+const resetPrivacySettings = async () => ({ success: false });
+const updateVisibilityPreference = async () => ({ success: false });
 
 // Dialog component for confirmation modal
 const Dialog = ({
@@ -46,7 +51,6 @@ const Dialog = ({
 const PrivacySection = () => {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL;
   const [privacySettings, setPrivacySettings] = useState({
     // Contact information
     showEmail: false,
@@ -156,56 +160,24 @@ const PrivacySection = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      console.log('Saving privacy settings to server:', privacySettings);
+      console.log('Saving privacy settings locally:', privacySettings);
       const response = await updatePrivacySettings(privacySettings);
       
       if (response.success) {
-        console.log('Privacy settings saved successfully on server. Response:', response.data);
-        
-        // Get the saved settings from response data (ensures we use what was actually saved)
-        const savedSettings = response.data;
-        
-        // Refresh user data from server to ensure settings are synced
-        const { refreshUserData } = await import('@/services/settingsService');
-        const refreshResponse = await refreshUserData();
-        
-        if (refreshResponse.success) {
-          // Get the updated user data from the response
-          const updatedUser = refreshResponse.data.user;
-          
-          // Make sure the user has the latest privacy settings from server
-          if (updatedUser.privacySettings) {
-            console.log('Server returned privacy settings:', updatedUser.privacySettings);
-          } else {
-            console.log('Server did not return privacy settings, using saved settings');
-            updatedUser.privacySettings = savedSettings;
-          }
-                // Add debug logging to verify the update
-          console.log('Updated user with new privacy settings:', {
-            userId: updatedUser.id,
-            hasPrivacySettings: !!updatedUser.privacySettings
-          });
-        
-          // Update the user context and localStorage
-          updateUser(updatedUser);
-        } else {
-          // If refresh failed, update just the privacy settings in the existing user object
-          const updatedUser = { ...user, privacySettings: savedSettings };
-          console.log('Using fallback to update privacy settings in user object:', {
-            userId: user.id,
-            privacySettings: JSON.stringify(savedSettings)
-          });
-          updateUser(updatedUser);
-        }
+        // Backend removed - update local only
+        const savedSettings = privacySettings;
+        const updatedUser = { ...user, privacySettings: savedSettings };
+        updateUser(updatedUser);
         
         setMessage({ 
           type: 'success', 
-          text: 'Privacy settings saved successfully!' 
+          text: 'Privacy settings updated locally (backend removed)' 
         });
         setHasChanges(false);
       } else {
-        throw new Error(response.error || 'Failed to save privacy settings');
-      }    } catch (error) {
+        throw new Error('Backend removed - settings not saved');
+      }
+    } catch (error) {
       console.error('Error saving privacy settings:', error);
       setMessage({ 
         type: 'error', 
@@ -225,37 +197,27 @@ const PrivacySection = () => {
       const response = await resetPrivacySettings();
       
       if (response.success) {
-        console.log('Privacy settings reset successfully. New settings:', response.data);
+        // Backend removed - use local defaults
+        const defaultSettings = {
+          showEmail: false,
+          showPhone: false,
+          showSocialLinks: true,
+          showWorkHistory: true,
+          showEducationHistory: true,
+          allowDirectMessages: true,
+          allowConnections: true,
+          allowTagging: true,
+          allowMentioning: true,
+          allowProfileViewing: true,
+          searchableByEmail: false,
+          searchableByPhone: false,
+          appearsInSuggestions: true,
+          showInDirectory: true
+        };
         
-        // Get default settings from the response
-        const defaultSettings = response.data;
-        
-        // Update local state with the default settings
         setPrivacySettings(defaultSettings);
-        
-        // Refresh user data from server after reset
-        const { refreshUserData } = await import('@/services/settingsService');
-        const refreshResponse = await refreshUserData();
-        
-        if (refreshResponse.success) {
-          // Get the updated user data from the response
-          const updatedUser = refreshResponse.data.user;
-          
-          // Make sure the user has the latest privacy settings
-          // If server didn't return privacy settings, use the ones from the reset response
-          if (!updatedUser.privacySettings) {
-            console.log('Server refresh did not return privacy settings, using reset settings');
-            updatedUser.privacySettings = defaultSettings;
-          }
-          
-          // Update the user context and localStorage
-          updateUser(updatedUser);
-        } else {
-          // If refresh failed, update just the privacy settings in the existing user object
-          const updatedUser = { ...user, privacySettings: defaultSettings };
-          console.log('Using fallback to update privacy settings after reset');
-          updateUser(updatedUser);
-        }
+        const updatedUser = { ...user, privacySettings: defaultSettings };
+        updateUser(updatedUser);
         
         setMessage({ 
           type: 'success', 
@@ -276,15 +238,12 @@ const PrivacySection = () => {
     }
   };
   
-  // Handle account deactivation
+  // Handle account deactivation (backend removed)
   const handleDeactivateAccount = async () => {
     setLoading(true);
     try {
-      // Import settings service
-      const { toggleAccountStatus } = await import('@/services/settingsService');
-      
-      // Call the API service to deactivate account
-      const response = await toggleAccountStatus('deactivated');
+      // Backend removed
+      const response = { success: false, error: 'Backend removed - account deactivation unavailable' };
       
       if (response.success) {
         setShowDeactivateDialog(false);

@@ -10,8 +10,14 @@ import {
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { SectionLoadingSpinner, InlineSpinner } from '@/components/ui/LoadingSpinner'
-import eventService from '@/services/eventService'
 import SectionHero from '@/components/shared/layout/SectionHero'
+
+// Stub eventService (backend removed)
+const eventService = {
+  registerForEvent: async () => ({}),
+  getAllEvents: async () => ({ data: { events: [] } }),
+  createEvent: async () => ({}),
+};
 
 // Mock data for events - would normally come from an API
 const mockEvents = [
@@ -64,12 +70,10 @@ const EventCard = ({ event }) => {
     alert(`View details for: ${event.title}`)
   }
   
-  // Handle image path based on whether it's from API or mock data
+  // Handle image path (backend removed)
   const imageSrc = event.image?.startsWith('http') 
     ? event.image 
-    : event.image
-      ? `${import.meta.env.VITE_API_URL || ''}${event.image}`
-      : 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80'
+    : 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80'
   
   return (
     <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-lg transition-shadow duration-300 p-0">

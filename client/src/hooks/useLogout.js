@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { logoutUser } from '../services/authService';
 
 /**
  * Hook for handling user logout functionality
@@ -11,13 +10,13 @@ export const useLogout = (setUser, setToken) => {
   /**
    * Logout a user
    * @param {Function} navigate - React Router's navigate function (optional)
-   */  const logout = (navigate = null) => {
-    // First clear all auth data
-    logoutUser();
+   */
+  const logout = (navigate = null) => {
+    // Clear all auth data
     setUser(null);
     setToken('');
     
-    // Clear any auth-related local storage that might have been missed
+    // Clear any auth-related local storage
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     sessionStorage.removeItem('user');

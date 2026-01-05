@@ -6,7 +6,6 @@ import { Icon } from '../shared/icons/Icon';
 
 const ActivitySection = () => {
   const { user } = useAuth();
-  const API_URL = import.meta.env.VITE_API_URL;
   
   const [activityHistory, setActivityHistory] = useState([]);
   const [loading, setLoading] = useState(true);

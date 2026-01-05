@@ -7,8 +7,13 @@ import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { formatDate } from '../../../lib/utils';
 import { getImageUrl } from '../../../utils/imageUtils';
 import { useAuth } from '../../../contexts/auth';
-import blogService from '../../../services/blogService';
 import SectionHero from '@/components/shared/layout/SectionHero';
+
+// Stub blogService (backend removed)
+const blogService = {
+  getAllPosts: async () => ({ posts: [] }),
+  createPostWithImage: async () => ({}),
+};
 
 const BlogCard = ({ post }) => {
   // Extract necessary data from post

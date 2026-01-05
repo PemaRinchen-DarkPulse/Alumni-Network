@@ -5,7 +5,13 @@ import { Button } from '../components/ui/button';
 import { formatDate } from '../lib/utils';
 import { getImageUrl } from '../utils/imageUtils';
 import { useAuth } from '../contexts/auth';
-import blogService from '../services/blogService';
+
+// Stub blogService (backend removed)
+const blogService = {
+  getPostById: async () => ({ post: null }),
+  addComment: async () => ({}),
+  deletePost: async () => ({}),
+};
 
 const BlogDetailPage = () => {
   const { id } = useParams();

@@ -36,7 +36,6 @@ const Accordion = ({ items }) => {
 };
 
 const HelpSupportSection = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
   
   const [contactForm, setContactForm] = useState({
     subject: '',
@@ -94,14 +93,8 @@ const HelpSupportSection = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      // Import settings service
-      const { contactSupport } = await import('@/services/settingsService');
-      
-      // Call the API service to submit support request
-      const response = await contactSupport(
-        contactForm.subject,
-        contactForm.message
-      );
+      // Backend removed
+      const response = { success: false, error: 'Backend removed - support contact unavailable' };
       
       if (response.success) {
         setMessage({ 

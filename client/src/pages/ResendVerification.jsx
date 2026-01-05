@@ -9,7 +9,6 @@ const ResendVerification = () => {
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL;
   const { resendVerification } = useAuth();
 
   const handleSubmit = async (e) => {

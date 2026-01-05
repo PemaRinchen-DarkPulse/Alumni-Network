@@ -15,13 +15,7 @@ export const getImageUrl = (imageData) => {
     return imageData;
   }
   
-  // If it's a blog post ID, create a URL to the image endpoint with timestamp to prevent caching
-  if (typeof imageData === 'string') {
-    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
-    return `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/blog/image/${imageData}?t=${timestamp}`;
-  }
-  
-  // Fallback to placeholder
+  // Return placeholder for any other case (backend removed)
   return 'https://via.placeholder.com/400x250?text=No+Image';
 };
 

@@ -43,22 +43,26 @@ const NotificationsSection = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
 
-  // Fetch notification settings
+  // Fetch notification settings (backend removed)
   useEffect(() => {
     const fetchNotificationSettings = async () => {
       try {
-        const { getNotificationSettings } = await import('@/services/settingsService');
-        const response = await getNotificationSettings();
-        
-        if (response.success && response.data) {
-          setNotificationSettings(response.data.data || response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching notification settings:', error);
-        setMessage({ 
-          type: 'error', 
-          text: 'Failed to load notification settings' 
+        // Backend removed - use default settings
+        setNotificationSettings({
+          emailNotifications: true,
+          pushNotifications: false,
+          smsNotifications: false,
+          weeklyDigest: false,
+          mentorshipUpdates: true,
+          eventReminders: true,
+          blogUpdates: false,
+          networkingOpportunities: true,
+          quietHoursEnabled: false,
+          quietHoursStart: '22:00',
+          quietHoursEnd: '08:00'
         });
+      } catch (error) {
+        console.error('Error loading notification settings:', error);
       } finally {
         setInitialLoad(false);
       }
@@ -77,54 +81,50 @@ const NotificationsSection = () => {
     setHasChanges(true);
   };
   
-  // Save notification settings
+  // Save notification settings (backend removed)
   const saveSettings = async () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
     
     try {
-      const { updateNotificationSettings } = await import('@/services/settingsService');
-      const response = await updateNotificationSettings(notificationSettings);
-      
-      if (response.success) {
-        setMessage({ 
-          type: 'success', 
-          text: 'Notification settings saved successfully!' 
-        });
-        setHasChanges(false);
-      } else {
-        throw new Error(response.error || 'Failed to save notification settings');
-      }
+      // Backend removed
+      setMessage({ 
+        type: 'info', 
+        text: 'Backend removed - settings not saved to server' 
+      });
+      setHasChanges(false);
     } catch (error) {
       console.error('Error saving notification settings:', error);
-      setMessage({ 
-        type: 'error', 
-        text: error.message || 'Failed to save notification settings' 
-      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Reset to defaults
+  // Reset to defaults (backend removed)
   const resetToDefaults = async () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
     
     try {
-      const { resetNotificationSettings } = await import('@/services/settingsService');
-      const response = await resetNotificationSettings();
-      
-      if (response.success) {
-        setNotificationSettings(response.data.data || response.data);
-        setMessage({ 
-          type: 'success', 
-          text: 'Notification settings reset to default!' 
-        });
-        setHasChanges(false);
-      } else {
-        throw new Error(response.error || 'Failed to reset notification settings');
-      }
+      // Reset to default values
+      setNotificationSettings({
+        emailNotifications: true,
+        pushNotifications: false,
+        smsNotifications: false,
+        weeklyDigest: false,
+        mentorshipUpdates: true,
+        eventReminders: true,
+        blogUpdates: false,
+        networkingOpportunities: true,
+        quietHoursEnabled: false,
+        quietHoursStart: '22:00',
+        quietHoursEnd: '08:00'
+      });
+      setMessage({ 
+        type: 'success', 
+        text: 'Notification settings reset to default!' 
+      });
+      setHasChanges(false);
     } catch (error) {
       console.error('Error resetting notification settings:', error);
       setMessage({ 

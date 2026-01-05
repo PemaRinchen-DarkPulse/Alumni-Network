@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/shared/icons/Icon';
 import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/contexts/auth';
-import { getAllAlumni } from '@/services/directoryService';
 import SectionHero from '@/components/shared/layout/SectionHero';
+
+// Stub getAllAlumni (backend removed)
+const getAllAlumni = async () => ({ success: true, data: [] });
 
 const AlumniCard = ({ alumni, onConnect, onViewDetails }) => {
   const { name, profilePicture, batch, email, socialLinks = {} } = alumni;

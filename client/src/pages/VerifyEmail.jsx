@@ -11,7 +11,6 @@ const VerifyEmail = () => {
   const { token } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const API_URL = import.meta.env.VITE_API_URL;
   const { resendVerification } = useAuth();
   
   useEffect(() => {
