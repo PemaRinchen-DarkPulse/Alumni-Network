@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_ENDPOINTS } from '../utils/constants';
 
 /**
  * Hook for handling password reset and verification email functionality
@@ -9,7 +10,7 @@ export const useAuthHelpers = () => {
   const [error, setError] = useState('');
   
   /**
-   * Resend verification email (mock - no backend)
+   * Resend verification email
    * @param {string} email - User's email
    * @returns {Promise<Object>} Result of the verification email request
    */
@@ -17,19 +18,36 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    // Mock - no backend connection
-    const result = { success: false, error: 'Backend removed - no verification available' };
-    
-    if (!result.success) {
-      setError(result.error || 'Failed to resend verification email');
+    try {
+      const response = await fetch(API_ENDPOINTS.AUTH.RESEND_VERIFICATION, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setLoading(false);
+        return { success: true, message: data.message };
+      } else {
+        const errorMessage = data.message || 'Failed to resend verification email';
+        setError(errorMessage);
+        setLoading(false);
+        return { success: false, error: errorMessage };
+      }
+    } catch (err) {
+      const errorMessage = 'Network error. Please try again.';
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
     }
-    
-    setLoading(false);
-    return result;
   };
 
   /**
-   * Request password reset (mock - no backend)
+   * Request password reset
    * @param {string} email - User's email
    * @returns {Promise<Object>} Result of the password reset request
    */
@@ -37,19 +55,36 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    // Mock - no backend connection
-    const result = { success: false, error: 'Backend removed - no password reset available' };
-    
-    if (!result.success) {
-      setError(result.error || 'Failed to process password reset request');
+    try {
+      const response = await fetch(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setLoading(false);
+        return { success: true, message: data.message };
+      } else {
+        const errorMessage = data.message || 'Failed to process password reset request';
+        setError(errorMessage);
+        setLoading(false);
+        return { success: false, error: errorMessage };
+      }
+    } catch (err) {
+      const errorMessage = 'Network error. Please try again.';
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
     }
-    
-    setLoading(false);
-    return result;
   };
 
   /**
-   * Validate a password reset token (mock - no backend)
+   * Validate a password reset token
    * @param {string} token - The reset token to validate
    * @returns {Promise<Object>} Result of the token validation
    */
@@ -57,19 +92,29 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    // Mock - no backend connection
-    const result = { success: false, error: 'Backend removed - no token validation available' };
-    
-    if (!result.success) {
-      setError(result.error || 'Failed to validate reset token');
+    try {
+      const response = await fetch(`${API_ENDPOINTS.AUTH.VALIDATE_TOKEN}?token=${token}`);
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setLoading(false);
+        return { success: true };
+      } else {
+        const errorMessage = data.message || 'Failed to validate reset token';
+        setError(errorMessage);
+        setLoading(false);
+        return { success: false, error: errorMessage };
+      }
+    } catch (err) {
+      const errorMessage = 'Network error. Please try again.';
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
     }
-    
-    setLoading(false);
-    return result;
   };
 
   /**
-   * Reset user password with token (mock - no backend)
+   * Reset user password with token
    * @param {string} token - Reset token
    * @param {string} password - New password
    * @returns {Promise<Object>} Result of the password reset
@@ -78,15 +123,32 @@ export const useAuthHelpers = () => {
     setLoading(true);
     setError('');
     
-    // Mock - no backend connection
-    const result = { success: false, error: 'Backend removed - no password reset available' };
-    
-    if (!result.success) {
-      setError(result.error || 'Failed to reset password');
+    try {
+      const response = await fetch(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setLoading(false);
+        return { success: true, message: data.message };
+      } else {
+        const errorMessage = data.message || 'Failed to reset password';
+        setError(errorMessage);
+        setLoading(false);
+        return { success: false, error: errorMessage };
+      }
+    } catch (err) {
+      const errorMessage = 'Network error. Please try again.';
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
     }
-    
-    setLoading(false);
-    return result;
   };
   
   return {

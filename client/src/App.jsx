@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useNavigate } from "react-router-dom";
+import { Toaster } from "sonner";
 import { AuthProvider } from "./contexts/auth";
 import ProtectedRoute from "./components/shared/auth/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
@@ -30,6 +31,7 @@ function RedirectWithParams({ to }) {
 function App() {
   return (
     <AuthProvider>
+      <Toaster position="top-center" richColors />
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />

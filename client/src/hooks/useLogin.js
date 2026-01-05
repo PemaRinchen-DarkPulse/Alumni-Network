@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_ENDPOINTS } from '../utils/constants';
 
 /**
  * Hook for handling user login functionality
@@ -11,7 +12,7 @@ export const useLogin = (setUser, setToken) => {
   const [error, setError] = useState('');
   
   /**
-   * Login a user (mock - no backend)
+   * Login a user
    * @param {string} email - User's email
    * @param {string} password - User's password
    * @returns {Promise<Object>} Result of the login attempt
@@ -20,18 +21,39 @@ export const useLogin = (setUser, setToken) => {
     setLoading(true);
     setError('');
     
-    // Mock login - no backend connection
-    const result = { success: false, error: 'Backend removed - no authentication available' };
-    
-    if (result.success) {
-      setUser(result.user);
-      setToken(result.token);
-    } else {
-      setError(result.error || 'Login failed');
+    try {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Store token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        setUser(data.user);
+        setToken(data.token);
+        
+        setLoading(false);
+        return { success: true, user: data.user, token: data.token };
+      } else {
+        const errorMessage = data.message || 'Login failed';
+        setError(errorMessage);
+        setLoading(false);
+        return { success: false, error: errorMessage };
+      }
+    } catch (err) {
+      const errorMessage = 'Network error. Please check your connection and try again.';
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
     }
-    
-    setLoading(false);
-    return result;
   };
   
   return {
