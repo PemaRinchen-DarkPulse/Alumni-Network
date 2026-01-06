@@ -10,4 +10,8 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
     VALIDATE_TOKEN: `${API_BASE_URL}/auth/validate-reset-token`,
   },
+  USERS: {
+    GET_ALL: `${API_BASE_URL}/users`,
+    GET_BY_ID: (id) => `${API_BASE_URL}/users/${id}`,
+  },
 };

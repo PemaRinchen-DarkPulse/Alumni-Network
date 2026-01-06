@@ -1,10 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, Filter, Mail, Grid3x3, List, ChevronDown } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
+import { userAPI } from '../services/api'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
+import { useAuth } from '../contexts/auth'
 
 const Network = () => {
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
   const [sortBy, setSortBy] = useState('relevance')
@@ -14,6 +18,9 @@ const Network = () => {
     role: '',
     industry: ''
   })
+  const [alumniData, setAlumniData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   // Generate batch years from 2016 to current year
   const currentYear = new Date().getFullYear()
@@ -22,113 +29,73 @@ const Network = () => {
     batchYears.push(year)
   }
 
-  // Sample alumni data
-  const alumniData = [
-    {
-      id: 1,
-      name: 'Karma Wangchuk',
-      role: 'Alumni',
-      year: '2018',
-      title: 'Product Designer at',
-      company: 'Stripe',
-      location: 'San Francisco, CA',
-      skills: ['UX/UI', 'Figma'],
-      status: 'connect',
-      bgColor: 'from-blue-500 to-purple-600',
-      image: null
-    },
-    {
-      id: 2,
-      name: 'Tashi Dorji',
-      role: 'Student',
-      year: '2020',
-      title: 'Software Engineer at',
-      company: 'Google',
-      location: 'New York, NY',
-      skills: ['Python', 'AI/ML'],
-      status: 'pending',
-      bgColor: 'from-emerald-400 to-teal-600',
-      image: null
-    },
-    {
-      id: 3,
-      name: 'Pema Lhaden',
-      role: 'Alumni',
-      year: '2019',
-      title: 'Marketing Director at',
-      company: 'Spotify',
-      location: 'Los Angeles, CA',
-      skills: ['Mentor', 'Brand Strategy'],
-      status: 'connect',
-      bgColor: 'from-orange-400 to-rose-500',
-      image: null
-    },
-    {
-      id: 4,
-      name: 'Sonam Tenzin',
-      role: 'Teacher',
-      year: '2017',
-      title: 'Founder at DeepStart',
-      company: '',
-      location: 'Austin, TX',
-      skills: ['Mentor', 'Entrepreneurship'],
-      status: 'connect',
-      bgColor: 'from-slate-700 to-slate-900',
-      image: null
-    },
-    {
-      id: 5,
-      name: 'Dechen Wangmo',
-      role: 'Alumni',
-      year: '2016',
-      title: 'HR Manager at',
-      company: 'LinkedIn',
-      location: 'Chicago, IL',
-      skills: ['Recruiting', 'People Ops'],
-      status: 'connect',
-      bgColor: 'from-pink-400 to-purple-500',
-      image: null
-    },
-    {
-      id: 6,
-      name: 'Ugyen Dorji',
-      role: 'Student',
-      year: '2021',
-      title: 'Data Scientist at Netflix',
-      company: '',
-      location: 'Remote',
-      skills: ['Big Data', 'SQL'],
-      status: 'connect',
-      bgColor: 'from-amber-400 to-orange-600',
-      image: null
-    },
-    {
-      id: 7,
-      name: 'Sangay Choden',
-      role: 'Alumni',
-      year: '2022',
-      title: 'Financial Analyst at',
-      company: 'Chase',
-      location: 'New York, NY',
-      skills: ['Finance', 'Modeling'],
-      status: 'connect',
-      bgColor: 'from-cyan-400 to-blue-600',
-      image: null
-    },
-    {
-      id: 8,
-      name: 'Kinley Dorji',
-      role: 'Teacher',
-      year: '2020',
-      title: 'Architect at',
-      company: 'DesignGroup',
-      location: 'Seattle, WA',
-      skills: ['Design', 'CAD'],
-      status: 'connect',
-      bgColor: 'from-violet-500 to-purple-700',
-      image: null
+  // Fetch users from the backend
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const filterParams = {}
+      if (user?.email) {
+        filterParams.currentUserEmail = user.email
+      }
+      
+      const result = await userAPI.getAllUsers(filterParams)
+      
+      if (result.success) {
+        // Transform backend data to match the UI format
+        const transformedData = result.data.map(user => ({
+          id: user.id,
+          name: user.name,
+          role: formatRole(user.role),
+          year: user.batch || 'N/A',
+          title: '', // These fields would need to be added to the User model
+          company: '',
+          location: '',
+          skills: [],
+          status: 'connect',
+          bgColor: getRandomGradient(),
+          image: null
+        }))
+        setAlumniData(transformedData)
+      } else {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError('Failed to load users. Please try again later.')
+      console.error('Error fetching users:', err)
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
+
+  // Helper function to generate random gradient colors
+  const getRandomGradient = () => {
+    const gradients = [
+      'from-blue-500 to-purple-600',
+      'from-emerald-400 to-teal-600',
+      'from-orange-400 to-rose-500',
+      'from-slate-700 to-slate-900',
+      'from-pink-400 to-purple-500',
+      'from-amber-400 to-orange-600',
+      'from-cyan-400 to-blue-600',
+      'from-violet-500 to-purple-700'
+    ]
+    return gradients[Math.floor(Math.random() * gradients.length)]
+  }
+
+  // Helper function to format role for display
+  const formatRole = (role) => {
+    if (!role) return ''
+    // Convert STUDENT -> Student, ALUMNI -> Alumni, TEACHER -> Teacher
+    return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+  }
+
+
 
   const handleClearFilters = () => {
     setFilters({
@@ -137,6 +104,48 @@ const Network = () => {
       role: '',
       industry: ''
     })
+    fetchUsers()
+  }
+
+  const handleSearch = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const filterParams = {}
+      if (user?.email) {
+        filterParams.currentUserEmail = user.email
+      }
+      if (searchQuery) filterParams.search = searchQuery
+      if (filters.batchYear) filterParams.batch = filters.batchYear
+      if (filters.role) filterParams.role = filters.role
+      
+      const result = await userAPI.getAllUsers(filterParams)
+      
+      if (result.success) {
+        const transformedData = result.data.map(user => ({
+          id: user.id,
+          name: user.name,
+          role: formatRole(user.role),
+          year: user.batch || 'N/A',
+          title: '',
+          company: '',
+          location: '',
+          skills: [],
+          status: 'connect',
+          bgColor: getRandomGradient(),
+          image: null
+        }))
+        setAlumniData(transformedData)
+      } else {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError('Search failed. Please try again.')
+      console.error('Error searching users:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleConnect = (id) => {
@@ -191,13 +200,44 @@ const Network = () => {
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
             </select>
-            <Button className="h-12 px-8 bg-blue-600 hover:bg-blue-700">
+            <Button 
+              onClick={handleSearch}
+              className="h-12 px-8 bg-blue-600 hover:bg-blue-700"
+            >
               Search
             </Button>
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <LoadingSpinner />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-600">{error}</p>
+            <Button 
+              onClick={fetchUsers}
+              className="mt-2 bg-red-600 hover:bg-red-700"
+            >
+              Try Again
+            </Button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && !error && alumniData.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-gray-500 text-lg">No users found. Try adjusting your filters.</p>
+          </div>
+        )}
+
         {/* Alumni Grid */}
+        {!loading && !error && alumniData.length > 0 && (
         <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'} mb-8`}>
           {alumniData.map((alumni) => (
             <div key={alumni.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
@@ -220,7 +260,7 @@ const Network = () => {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">{alumni.name}</h3>
                   <p className="text-sm text-gray-600 mb-1">{alumni.role}</p>
-                  {(alumni.role === 'Alumni' || alumni.role === 'Student') && (
+                  {(alumni.role === 'Alumni' || alumni.role === 'Student') && alumni.year && alumni.year !== 'N/A' && (
                     <span className="text-xs text-blue-600 font-medium">Batch {alumni.year}</span>
                   )}
                 </div>
@@ -247,8 +287,10 @@ const Network = () => {
             </div>
           ))}
         </div>
+        )}
 
         {/* Load More Button */}
+        {!loading && !error && alumniData.length > 0 && (
         <div className="text-center">
           <button className="inline-flex items-center gap-2 px-6 py-3 text-blue-600 hover:text-blue-700 font-medium">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,6 +299,7 @@ const Network = () => {
             Load more alumni
           </button>
         </div>
+        )}
       </div>
     </div>
   )

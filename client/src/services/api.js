@@ -166,4 +166,46 @@ export const authAPI = {
   },
 };
 
+/**
+ * User API methods
+ */
+export const userAPI = {
+  /**
+   * Get all users with optional filters
+   * @param {Object} filters - Optional filters (role, batch, search, currentUserEmail)
+   */
+  getAllUsers: async (filters = {}) => {
+    const queryParams = new URLSearchParams();
+    
+    if (filters.role) queryParams.append('role', filters.role);
+    if (filters.batch) queryParams.append('batch', filters.batch);
+    if (filters.search) queryParams.append('search', filters.search);
+    if (filters.currentUserEmail) queryParams.append('currentUserEmail', filters.currentUserEmail);
+    
+    const url = `${API_ENDPOINTS.USERS.GET_ALL}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    
+    const { ok, data } = await apiFetch(url);
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch users' };
+    }
+  },
+  
+  /**
+   * Get user by ID
+   * @param {number} id - User ID
+   */
+  getUserById: async (id) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.USERS.GET_BY_ID(id));
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch user' };
+    }
+  },
+};
+
 export default authAPI;
