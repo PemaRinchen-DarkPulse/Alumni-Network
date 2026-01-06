@@ -45,6 +45,12 @@ public class User {
     @Column
     private LocalDateTime tokenExpiry;
     
+    @Column
+    private String resetToken;
+    
+    @Column
+    private LocalDateTime resetTokenExpiry;
+    
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

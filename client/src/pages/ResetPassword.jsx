@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/shared/icons/Icon';
 import { useAuth } from '../contexts/auth';
@@ -13,7 +13,8 @@ const ResetPassword = () => {
   const [status, setStatus] = useState('ready');
   const [message, setMessage] = useState('');
   const [tokenValid, setTokenValid] = useState(true);
-  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
   const navigate = useNavigate();
   const { validateResetToken, resetPassword } = useAuth();
 
@@ -27,23 +28,31 @@ const ResetPassword = () => {
         return;
       }
 
+      // Don't validate if we already have a final status (success or after form submission)
+      if (status === 'success' || status === 'loading') {
+        return;
+      }
+
       try {
         const response = await validateResetToken(token);
         
         if (response && response.success) {
-          // Already showing form, no need to update UI
           setTokenValid(true);
+          // Clear any previous error messages
+          if (status === 'error') {
+            setStatus('ready');
+            setMessage('');
+          }
         } else {
-          // Only update UI if token is invalid
-          setTokenValid(false);
-          setStatus('error');
-          setMessage(response?.error || 'This password reset link is invalid or has expired.');
+          // Only show validation error if it's a clear validation failure
+          // Don't block the form, let them try anyway
+          setTokenValid(true); // Still allow form submission
+          console.log('Token validation warning:', response?.error);
         }
       } catch (error) {
         console.error("Token validation error:", error);
-        setTokenValid(false);
-        setStatus('error');
-        setMessage('Unable to validate your reset link. The link may be invalid or expired.');
+        // Still allow form submission even if validation fails
+        setTokenValid(true);
       }
     };
 
@@ -106,6 +115,13 @@ const ResetPassword = () => {
 
   const renderForm = () => (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {status === 'success' && message && (
+        <div className="bg-green-50 border border-green-200 text-green-600 p-3 rounded-lg text-sm mb-3 flex items-start">
+          <Icon name="check-circle" size={18} className="mr-2 flex-shrink-0 mt-0.5" />
+          <span>{message}</span>
+        </div>
+      )}
+      
       {status === 'error' && message && (
         <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm mb-3 flex items-start">
           <Icon name="alert-circle" size={18} className="mr-2 flex-shrink-0 mt-0.5" />
@@ -256,11 +272,11 @@ const ResetPassword = () => {
           {/* Content Section */}
           <div className="flex-1 flex flex-col justify-center">
             {status === 'success' ? renderSuccess() : 
-             tokenValid ? renderForm() : renderInvalidToken()}
+             !token ? renderInvalidToken() : renderForm()}
           </div>
           
           {/* Bottom Section */}
-          {status !== 'success' && tokenValid && (
+          {status !== 'success' && token && (
             <div className="mt-5">
               <div className="text-center">
                 <p className="text-gray-600 text-sm">
