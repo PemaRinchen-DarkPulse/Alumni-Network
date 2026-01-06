@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from '../contexts/auth';
-import { cn } from '@/lib/utils';
 import Hello from '@/components/shared/sections/DashboardSection';
 // Import layout components directly
 import DashboardNavbar from '@/components/shared/layout/DashboardNavbar';
-import DashboardSidebar from '@/components/shared/layout/DashboardSidebar';
 import PageHeader from '@/components/shared/layout/PageHeader';
 
 // Import section components directly
@@ -21,39 +19,27 @@ import MentorshipManagementSection from '@/components/shared/sections/Mentorship
 import SettingsPage from '@/components/settings/SettingsPage';
 
 // Import page components
-import DirectoryPage from './DirectoryPage';
+import Network from './Network';
 import AlumniDetailPage from './AlumniDetailPage';
 import BlogListPage from './BlogListPage';
 
 const Home = () => {
-  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const { user, isAuthenticated } = useAuth();
   console.log("Dashboard loaded, auth status:", { isAuthenticated, user });
   const userRole = user?.role || 'teacher'; // Default to teacher
 
-  const toggleSidebar = () => {
-    setSidebarExpanded(!sidebarExpanded);
-  };
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
-      <DashboardNavbar toggleSidebar={toggleSidebar} />
+      <DashboardNavbar />
       
       <div className="flex flex-1">
-        <DashboardSidebar 
-          isExpanded={sidebarExpanded}
-          toggleSidebar={toggleSidebar}
-        />        <main 
-          className={cn(
-            "flex-1 p-6 transition-all duration-300",
-            sidebarExpanded ? "ml-64" : "ml-16"
-          )}
-        >
+        <main className="flex-1 p-6">
           <div className="mx-auto max-w-7xl">            <Routes>
               {/* Main Dashboard Route */}
               <Route path="/" element={<Hello />} />
               
               {/* Routes common to all user types using shared components */}
-              <Route path="/directory" element={<DirectoryPage />} />
+              <Route path="/directory" element={<Network />} />
               <Route path="/alumni/:id" element={<AlumniDetailPage />} />
           
               

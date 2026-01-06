@@ -6,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
+import AlumniDashboard from './AlumniDashboard';
 
 // Animations and variants
 const containerVariants = {
@@ -142,6 +143,11 @@ const DashboardSection = () => {
   
   if (isLoading) {
     return <SectionLoadingSpinner section="dashboard" />;
+  }
+  
+  // Use new AlumniDashboard for alumni role
+  if (role === 'alumni') {
+    return <AlumniDashboard />;
   }
   
   return (
