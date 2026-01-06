@@ -3,7 +3,7 @@ import { Search, Filter, Mail, Grid3x3, List, ChevronDown } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
-import { userAPI } from '../services/api'
+import { userAPI, connectionAPI } from '../services/api'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import { useAuth } from '../contexts/auth'
 
@@ -21,6 +21,7 @@ const Network = () => {
   const [alumniData, setAlumniData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [connectionStatuses, setConnectionStatuses] = useState({}) // Track connection states
 
   // Generate batch years from 2016 to current year
   const currentYear = new Date().getFullYear()
@@ -62,6 +63,11 @@ const Network = () => {
           image: null
         }))
         setAlumniData(transformedData)
+        
+        // Fetch connection statuses for all users
+        if (user?.id) {
+          await fetchConnectionStatuses(transformedData.map(u => u.id))
+        }
       } else {
         setError(result.error)
       }
@@ -71,6 +77,29 @@ const Network = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Fetch connection statuses for all displayed users
+  const fetchConnectionStatuses = async (userIds) => {
+    if (!user?.id) return
+
+    const statuses = {}
+    
+    // Fetch statuses for each user
+    for (const userId of userIds) {
+      if (userId !== user.id) {
+        try {
+          const result = await connectionAPI.getConnectionStatus(user.id, userId)
+          if (result.success) {
+            statuses[userId] = result.status
+          }
+        } catch (err) {
+          console.error(`Error fetching connection status for user ${userId}:`, err)
+        }
+      }
+    }
+    
+    setConnectionStatuses(statuses)
   }
 
   // Helper function to generate random gradient colors
@@ -137,6 +166,11 @@ const Network = () => {
           image: null
         }))
         setAlumniData(transformedData)
+        
+        // Fetch connection statuses for search results
+        if (user?.id) {
+          await fetchConnectionStatuses(transformedData.map(u => u.id))
+        }
       } else {
         setError(result.error)
       }
@@ -148,8 +182,51 @@ const Network = () => {
     }
   }
 
-  const handleConnect = (id) => {
-    console.log('Connect with alumni:', id)
+  const handleConnect = async (receiverId) => {
+    console.log('=== Connection Request Debug ===')
+    console.log('User object:', user)
+    console.log('User ID:', user?.id)
+    console.log('Receiver ID:', receiverId)
+    
+    if (!user || !user.id) {
+      const errorMsg = 'You must be logged in to send connection requests'
+      console.error(errorMsg)
+      setError(errorMsg)
+      return
+    }
+
+    try {
+      // Update UI immediately to show pending state
+      setConnectionStatuses(prev => ({
+        ...prev,
+        [receiverId]: 'PENDING'
+      }))
+
+      console.log('Sending connection request from:', user.id, 'to:', receiverId)
+      const result = await connectionAPI.sendConnectionRequest(user.id, receiverId)
+      console.log('Connection request result:', result)
+      
+      if (result.success) {
+        // Connection request sent successfully
+        console.log('✅ Connection request sent successfully:', result.message)
+      } else {
+        // Revert UI state on error
+        console.error('❌ Connection request failed:', result.error)
+        setConnectionStatuses(prev => ({
+          ...prev,
+          [receiverId]: 'NONE'
+        }))
+        setError(result.error || 'Failed to send connection request')
+      }
+    } catch (err) {
+      // Revert UI state on error
+      console.error('❌ Exception sending connection request:', err)
+      setConnectionStatuses(prev => ({
+        ...prev,
+        [receiverId]: 'NONE'
+      }))
+      setError('Failed to send connection request. Please try again.')
+    }
   }
 
   const handleMessage = (id) => {
@@ -236,10 +313,20 @@ const Network = () => {
           </div>
         )}
 
+        {/* All Connected State */}
+        {!loading && !error && alumniData.length > 0 && alumniData.filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING').length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-gray-500 text-lg">You're already connected with all available users!</p>
+            <p className="text-gray-400 text-sm mt-2">Try adjusting your search filters to find more users.</p>
+          </div>
+        )}
+
         {/* Alumni Grid */}
-        {!loading && !error && alumniData.length > 0 && (
+        {!loading && !error && alumniData.length > 0 && alumniData.filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING').length > 0 && (
         <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'} mb-8`}>
-          {alumniData.map((alumni) => (
+          {alumniData
+            .filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING')
+            .map((alumni) => (
             <div key={alumni.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
               {/* Colored Header */}
               <div className={`h-24 bg-gradient-to-br ${alumni.bgColor}`}></div>
@@ -267,19 +354,26 @@ const Network = () => {
 
                 {/* Actions */}
                 <div className="mt-auto">
-                  {alumni.status === 'connect' ? (
+                  {connectionStatuses[alumni.id] === 'PENDING' ? (
+                    <Button 
+                      disabled
+                      className="w-full bg-yellow-100 text-yellow-600 cursor-not-allowed"
+                    >
+                      Pending
+                    </Button>
+                  ) : connectionStatuses[alumni.id] === 'ACCEPTED' ? (
+                    <Button 
+                      disabled
+                      className="w-full bg-green-100 text-green-600 cursor-not-allowed"
+                    >
+                      Connected
+                    </Button>
+                  ) : (
                     <Button 
                       onClick={() => handleConnect(alumni.id)}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       Connect
-                    </Button>
-                  ) : (
-                    <Button 
-                      disabled
-                      className="w-full bg-blue-100 text-blue-600 cursor-not-allowed"
-                    >
-                      Pending
                     </Button>
                   )}
                 </div>
@@ -290,7 +384,7 @@ const Network = () => {
         )}
 
         {/* Load More Button */}
-        {!loading && !error && alumniData.length > 0 && (
+        {!loading && !error && alumniData.length > 0 && alumniData.filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING').length > 0 && (
         <div className="text-center">
           <button className="inline-flex items-center gap-2 px-6 py-3 text-blue-600 hover:text-blue-700 font-medium">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

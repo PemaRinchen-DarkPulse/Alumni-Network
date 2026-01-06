@@ -14,4 +14,14 @@ export const API_ENDPOINTS = {
     GET_ALL: `${API_BASE_URL}/users`,
     GET_BY_ID: (id) => `${API_BASE_URL}/users/${id}`,
   },
+  CONNECTIONS: {
+    SEND_REQUEST: `${API_BASE_URL}/connections/send`,
+    ACCEPT_REQUEST: (id) => `${API_BASE_URL}/connections/${id}/accept`,
+    REJECT_REQUEST: (id) => `${API_BASE_URL}/connections/${id}/reject`,
+    WITHDRAW_REQUEST: (id) => `${API_BASE_URL}/connections/${id}/withdraw`,
+    GET_PENDING_RECEIVED: `${API_BASE_URL}/connections/pending/received`,
+    GET_PENDING_SENT: `${API_BASE_URL}/connections/pending/sent`,
+    GET_ACCEPTED: `${API_BASE_URL}/connections/accepted`,
+    GET_STATUS: `${API_BASE_URL}/connections/status`,
+  },
 };

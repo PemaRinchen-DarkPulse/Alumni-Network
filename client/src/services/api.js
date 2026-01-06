@@ -208,4 +208,167 @@ export const userAPI = {
   },
 };
 
+/**
+ * Connection API methods
+ */
+export const connectionAPI = {
+  /**
+   * Send a connection request
+   * @param {number} senderId - ID of the user sending the request
+   * @param {number} receiverId - ID of the user receiving the request
+   */
+  sendConnectionRequest: async (senderId, receiverId) => {
+    console.log('API: Sending connection request')
+    console.log('API: senderId:', senderId, 'receiverId:', receiverId)
+    const url = `${API_ENDPOINTS.CONNECTIONS.SEND_REQUEST}?senderId=${senderId}`
+    console.log('API: Request URL:', url)
+    console.log('API: Request body:', { receiverId })
+    
+    try {
+      const { ok, data, status } = await apiFetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ receiverId }),
+      });
+      
+      console.log('API: Response status:', status)
+      console.log('API: Response ok:', ok)
+      console.log('API: Response data:', data)
+      
+      if (ok && data.success) {
+        return { success: true, data: data.data, message: data.message };
+      } else {
+        return { success: false, error: data.message || 'Failed to send connection request' };
+      }
+    } catch (error) {
+      console.error('API: Exception in sendConnectionRequest:', error)
+      throw error
+    }
+  },
+  
+  /**
+   * Accept a connection request
+   * @param {number} connectionId - ID of the connection request
+   * @param {number} userId - ID of the user accepting the request
+   */
+  acceptConnectionRequest: async (connectionId, userId) => {
+    const { ok, data } = await apiFetch(
+      `${API_ENDPOINTS.CONNECTIONS.ACCEPT_REQUEST(connectionId)}?userId=${userId}`,
+      {
+        method: 'POST',
+      }
+    );
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to accept connection request' };
+    }
+  },
+  
+  /**
+   * Reject a connection request
+   * @param {number} connectionId - ID of the connection request
+   * @param {number} userId - ID of the user rejecting the request
+   */
+  rejectConnectionRequest: async (connectionId, userId) => {
+    const { ok, data } = await apiFetch(
+      `${API_ENDPOINTS.CONNECTIONS.REJECT_REQUEST(connectionId)}?userId=${userId}`,
+      {
+        method: 'POST',
+      }
+    );
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to reject connection request' };
+    }
+  },
+  
+  /**
+   * Withdraw a sent connection request
+   * @param {number} connectionId - ID of the connection request
+   * @param {number} userId - ID of the user withdrawing the request
+   */
+  withdrawConnectionRequest: async (connectionId, userId) => {
+    const { ok, data } = await apiFetch(
+      `${API_ENDPOINTS.CONNECTIONS.WITHDRAW_REQUEST(connectionId)}?userId=${userId}`,
+      {
+        method: 'POST',
+      }
+    );
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to withdraw connection request' };
+    }
+  },
+  
+  /**
+   * Get pending connection requests received by a user
+   * @param {number} userId - User ID
+   */
+  getPendingRequestsReceived: async (userId) => {
+    const { ok, data } = await apiFetch(
+      `${API_ENDPOINTS.CONNECTIONS.GET_PENDING_RECEIVED}?userId=${userId}`
+    );
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch pending requests' };
+    }
+  },
+  
+  /**
+   * Get pending connection requests sent by a user
+   * @param {number} userId - User ID
+   */
+  getPendingRequestsSent: async (userId) => {
+    const { ok, data } = await apiFetch(
+      `${API_ENDPOINTS.CONNECTIONS.GET_PENDING_SENT}?userId=${userId}`
+    );
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch sent requests' };
+    }
+  },
+  
+  /**
+   * Get accepted connections for a user
+   * @param {number} userId - User ID
+   */
+  getAcceptedConnections: async (userId) => {
+    const { ok, data } = await apiFetch(
+      `${API_ENDPOINTS.CONNECTIONS.GET_ACCEPTED}?userId=${userId}`
+    );
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch connections' };
+    }
+  },
+  
+  /**
+   * Get connection status between two users
+   * @param {number} userId1 - First user ID
+   * @param {number} userId2 - Second user ID
+   */
+  getConnectionStatus: async (userId1, userId2) => {
+    const { ok, data } = await apiFetch(
+      `${API_ENDPOINTS.CONNECTIONS.GET_STATUS}?userId1=${userId1}&userId2=${userId2}`
+    );
+    
+    if (ok && data.success) {
+      return { success: true, status: data.status };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch connection status' };
+    }
+  },
+};
+
 export default authAPI;

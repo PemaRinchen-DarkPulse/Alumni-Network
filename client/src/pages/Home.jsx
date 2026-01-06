@@ -22,6 +22,7 @@ import SettingsPage from '@/components/settings/SettingsPage';
 import Network from './Network';
 import AlumniDetailPage from './AlumniDetailPage';
 import BlogListPage from './BlogListPage';
+import MyNetwork from '@/components/shared/sections/MyNetwork';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -40,6 +41,7 @@ const Home = () => {
               
               {/* Routes common to all user types using shared components */}
               <Route path="/directory" element={<Network />} />
+              <Route path="/my-network" element={<MyNetwork />} />
               <Route path="/alumni/:id" element={<AlumniDetailPage />} />
           
               

@@ -54,7 +54,7 @@ const DashboardNavbar = () => {
       <div className="container mx-auto flex h-20 items-center justify-between px-8">
         {/* Logo - Left */}
         <div className="flex items-center text-xl font-bold text-primary ml-4">
-          DGI Alumni Connect
+          Alumni Network
         </div>
 
         {/* Navigation - Center */}
@@ -108,7 +108,7 @@ const DashboardNavbar = () => {
                 </Link>
 
                 <Link
-                  to="/dashboard/directory"
+                  to="/dashboard/my-network"
                   className="block px-4 py-3 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
                   onClick={() => setIsDropdownOpen(false)}
                 >
