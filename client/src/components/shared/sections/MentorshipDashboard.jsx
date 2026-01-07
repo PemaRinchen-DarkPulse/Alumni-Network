@@ -30,6 +30,7 @@ const MentorshipDashboard = () => {
     rating: 4.9,
     totalReviews: 5,
     incomingRequests: [],
+    acceptedMentees: [],
     upcomingSessions: []
   });
 
@@ -54,67 +55,45 @@ const MentorshipDashboard = () => {
   }, [location]);
 
   useEffect(() => {
-    // TODO: Fetch mentorship dashboard data from API
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-          setDashboardData({
-            activeMentees: 4,
-            hoursDonated: 12.5,
-            rating: 4.9,
-            totalReviews: 5,
-            incomingRequests: [
-              {
-                id: 1,
-                name: 'Maya Lin',
-                role: 'Computer Science Senior',
-                topic: 'Career Guidance',
-                message: '"Hi James, I saw your profile and I\'m very interested in your transition from engineering to product management. I\'d love to chat for 15 mins..."',
-                avatar: null
-              },
-              {
-                id: 2,
-                name: 'Liam Scott',
-                role: 'Design Major',
-                topic: 'Portfolio Review',
-                message: '"Hello! I am preparing my portfolio for summer internships and would greatly appreciate your feedback on my UX case studies."',
-                avatar: null
-              },
-              {
-                id: 3,
-                name: 'Emma Wilson',
-                role: 'Business Administration Junior',
-                topic: 'Networking Strategies',
-                message: '"Hi! I\'m looking to build my professional network and would love to learn from your experience about effective networking in the tech industry."',
-                avatar: null
-              },
-              {
-                id: 4,
-                name: 'Alex Chen',
-                role: 'MBA Candidate',
-                topic: 'Career Transition',
-                message: '"Good afternoon! I\'m transitioning from finance to tech and would appreciate your insights on making this career change successfully."',
-                avatar: null
-              },
-              {
-                id: 5,
-                name: 'Sophie Martinez',
-                role: 'Marketing Senior',
-                topic: 'Industry Insights',
-                message: '"Hello! I\'m exploring different career paths in tech marketing and would love to hear about your experiences in the industry."',
-                avatar: null
-              },
-              {
-                id: 6,
-                name: 'James Thompson',
-                role: 'Engineering Junior',
-                topic: 'Technical Skills',
-                message: '"Hi there! I\'m working on improving my coding skills and would appreciate guidance on what technologies to focus on for career growth."',
-                avatar: null
-              }
-            ],
+        
+        if (!user?.id) {
+          setLoading(false);
+          return;
+        }
+        
+        // Fetch incoming mentorship requests from database
+        const { mentorshipAPI } = await import('../../../services/api');
+        const pendingResponse = await mentorshipAPI.getMentorRequests(user.id, 'PENDING');
+        const acceptedResponse = await mentorshipAPI.getMentorRequests(user.id, 'ACCEPTED');
+        
+        if (pendingResponse.success) {
+          // Transform API data to match UI format
+          const transformedRequests = pendingResponse.data.map(request => ({
+            id: request.id,
+            name: request.menteeName,
+            batch: request.menteeBatch ? `Batch ${request.menteeBatch}` : 'Alumni',
+            topic: request.topic,
+            message: `"${request.message}"`,
+            avatar: null
+          }));
+          
+          // Transform accepted mentees data
+          const transformedMentees = acceptedResponse.success ? acceptedResponse.data.map(request => ({
+            id: request.id,
+            name: request.menteeName,
+            avatar: null,
+            topic: request.topic,
+            updatedAt: request.updatedAt
+          })) : [];
+          
+          setDashboardData(prevData => ({
+            ...prevData,
+            incomingRequests: transformedRequests,
+            acceptedMentees: transformedMentees,
+            // Keep mock data for upcoming sessions for now
             upcomingSessions: [
               {
                 id: 1,
@@ -176,9 +155,10 @@ const MentorshipDashboard = () => {
                 canReschedule: true
               }
             ]
-          });
-          setLoading(false);
-        }, 1000);
+          }));
+        }
+        
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         setLoading(false);
@@ -186,16 +166,64 @@ const MentorshipDashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [user]);
 
-  const handleDecline = (requestId) => {
-    console.log('Declining request:', requestId);
-    // TODO: API call to decline request
+  const handleDecline = async (requestId) => {
+    try {
+      const { mentorshipAPI } = await import('../../../services/api');
+      const response = await mentorshipAPI.updateRequestStatus(requestId, 'REJECTED');
+      
+      if (response.success) {
+        // Remove the declined request from the UI
+        setDashboardData(prevData => ({
+          ...prevData,
+          incomingRequests: prevData.incomingRequests.filter(req => req.id !== requestId)
+        }));
+        
+        setNotification({
+          message: 'Request declined successfully',
+          type: 'success'
+        });
+        
+        setTimeout(() => setNotification(null), 4000);
+      }
+    } catch (error) {
+      console.error('Error declining request:', error);
+      setNotification({
+        message: 'Failed to decline request',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 4000);
+    }
   };
 
-  const handleReview = (requestId) => {
-    console.log('Reviewing request:', requestId);
-    // TODO: Navigate to request detail or open modal
+  const handleReview = async (requestId) => {
+    try {
+      const { mentorshipAPI } = await import('../../../services/api');
+      const response = await mentorshipAPI.updateRequestStatus(requestId, 'ACCEPTED');
+      
+      if (response.success) {
+        // Remove the accepted request from the UI
+        setDashboardData(prevData => ({
+          ...prevData,
+          incomingRequests: prevData.incomingRequests.filter(req => req.id !== requestId)
+        }));
+        
+        setNotification({
+          message: 'Mentorship request accepted successfully',
+          type: 'success'
+        });
+        
+        setTimeout(() => setNotification(null), 4000);
+      }
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      setNotification({
+        message: 'Failed to accept request',
+        type: 'error'
+      });
+      setTimeout(() => setNotification(null), 4000);
+    }
   };
 
   const handleUpdateAvailability = () => {
@@ -265,17 +293,32 @@ const MentorshipDashboard = () => {
             {/* Incoming Requests Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-gray-900">Incoming Requests</h2>
-              <button 
-                onClick={() => setShowAllRequests(!showAllRequests)}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                {showAllRequests ? 'Show Less' : 'View All'}
-              </button>
+              {dashboardData.incomingRequests.length > 0 && (
+                <button 
+                  onClick={() => setShowAllRequests(!showAllRequests)}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  {showAllRequests ? 'Show Less' : 'View All'}
+                </button>
+              )}
             </div>
 
             {/* Incoming Request Cards in 2 columns */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-              {(showAllRequests ? dashboardData.incomingRequests : dashboardData.incomingRequests.slice(0, 4)).map((request) => (
+            {dashboardData.incomingRequests.length === 0 ? (
+              <Card className="p-12">
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Incoming Requests</h3>
+                  <p className="text-gray-600 text-sm">
+                    You don't have any pending mentorship requests at the moment.
+                  </p>
+                </div>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {(showAllRequests ? dashboardData.incomingRequests : dashboardData.incomingRequests.slice(0, 4)).map((request) => (
                 <Card key={request.id} className="p-6">
                   <div className="flex flex-col h-full">
                     {/* Avatar and Header */}
@@ -285,12 +328,13 @@ const MentorshipDashboard = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-gray-900">{request.name}</h3>
-                        <p className="text-sm text-gray-600">{request.role} • Asking for {request.topic}</p>
+                        <p className="text-sm text-gray-600">{request.batch}</p>
+                        <p className="text-sm text-gray-600">Asking for {request.topic}</p>
                       </div>
                     </div>
 
                     {/* Message */}
-                    <p className="text-gray-700 text-sm italic flex-1 mb-4">
+                    <p className="text-gray-700 text-sm italic flex-1 mb-4 line-clamp-3">
                       {request.message}
                     </p>
 
@@ -307,13 +351,14 @@ const MentorshipDashboard = () => {
                         onClick={() => handleReview(request.id)}
                         className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                       >
-                        Review
+                        Accept
                       </Button>
                     </div>
                   </div>
                 </Card>
               ))}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Right Section - Your Schedule (1 column) */}
@@ -389,71 +434,44 @@ const MentorshipDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* Maya Lin */}
-                    <tr className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors">
-                      <td className="py-4 px-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
-                            M
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">Maya Lin</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-2">
-                        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                          Career Transition
-                        </span>
-                      </td>
-                      <td className="py-4 px-2">
-                        <span className="text-sm text-gray-600">2 days ago</span>
-                      </td>
-                    </tr>
-
-                    {/* Liam Scott */}
-                    <tr className="border-b border-gray-100 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors">
-                      <td className="py-4 px-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
-                            L
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">Liam Scott</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-2">
-                        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                          Portfolio Build
-                        </span>
-                      </td>
-                      <td className="py-4 px-2">
-                        <span className="text-sm text-gray-600">5 days ago</span>
-                      </td>
-                    </tr>
-
-                    {/* David Chen */}
-                    <tr className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors">
-                      <td className="py-4 px-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold text-sm">
-                            DC
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">David Chen</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-4 px-2">
-                        <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">
-                          Networking
-                        </span>
-                      </td>
-                      <td className="py-4 px-2">
-                        <span className="text-sm text-gray-600">1 week ago</span>
-                      </td>
-                    </tr>
+                    {dashboardData.acceptedMentees.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" className="py-8 text-center text-gray-500">
+                          No accepted mentees yet
+                        </td>
+                      </tr>
+                    ) : (
+                      dashboardData.acceptedMentees.map((mentee, index) => {
+                        // Calculate time ago
+                        const lastActivity = mentee.updatedAt ? new Date(mentee.updatedAt) : new Date();
+                        const now = new Date();
+                        const diffDays = Math.floor((now - lastActivity) / (1000 * 60 * 60 * 24));
+                        const timeAgo = diffDays === 0 ? 'today' : diffDays === 1 ? '1 day ago' : diffDays < 7 ? `${diffDays} days ago` : `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`;
+                        
+                        return (
+                          <tr key={mentee.id} className={`border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${index % 2 === 1 ? 'bg-gray-50' : ''}`}>
+                            <td className="py-4 px-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                                  {mentee.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-gray-900">{mentee.name}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-2">
+                              <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                                {mentee.topic}
+                              </span>
+                            </td>
+                            <td className="py-4 px-2">
+                              <span className="text-sm text-gray-600">{timeAgo}</span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>

@@ -29,5 +29,10 @@ export const API_ENDPOINTS = {
     PUBLISH: `${API_BASE_URL}/mentorship/publish`,
     GET_PROFILE: (userId) => `${API_BASE_URL}/mentorship/profile/${userId}`,
     UPDATE: (userId) => `${API_BASE_URL}/mentorship/profile/${userId}`,
+    GET_ALL_MENTORS: `${API_BASE_URL}/mentorship/mentors`,
+    CREATE_REQUEST: `${API_BASE_URL}/mentorship/request`,
+    GET_MENTEE_REQUESTS: (menteeId) => `${API_BASE_URL}/mentorship/requests/mentee/${menteeId}`,
+    GET_MENTOR_REQUESTS: (mentorId) => `${API_BASE_URL}/mentorship/requests/mentor/${mentorId}`,
+    UPDATE_REQUEST_STATUS: (requestId) => `${API_BASE_URL}/mentorship/requests/${requestId}/status`,
   },
 };

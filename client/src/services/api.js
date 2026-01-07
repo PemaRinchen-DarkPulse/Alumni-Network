@@ -440,6 +440,97 @@ export const mentorshipAPI = {
       return { success: false, error: data.message || 'Failed to update profile' };
     }
   },
+
+  /**
+   * Get all published mentors with optional filters
+   * @param {Object} filters - Optional filters (expertise, topic, search, currentUserId)
+   */
+  getAllMentors: async (filters = {}) => {
+    const queryParams = new URLSearchParams();
+    
+    if (filters.expertise) queryParams.append('expertise', filters.expertise);
+    if (filters.topic) queryParams.append('topic', filters.topic);
+    if (filters.search) queryParams.append('search', filters.search);
+    if (filters.currentUserId) queryParams.append('currentUserId', filters.currentUserId);
+    
+    const url = `${API_ENDPOINTS.MENTORSHIP.GET_ALL_MENTORS}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    
+    const { ok, data } = await apiFetch(url);
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch mentors' };
+    }
+  },
+
+  /**
+   * Create a mentorship request
+   * @param {Object} requestData - Request data (menteeId, mentorId, message)
+   */
+  createRequest: async (requestData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.MENTORSHIP.CREATE_REQUEST, {
+      method: 'POST',
+      body: JSON.stringify(requestData),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to send mentorship request' };
+    }
+  },
+
+  /**
+   * Get mentorship requests for a mentee
+   * @param {number} menteeId - Mentee user ID
+   */
+  getMenteeRequests: async (menteeId) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.MENTORSHIP.GET_MENTEE_REQUESTS(menteeId));
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch requests' };
+    }
+  },
+
+  /**
+   * Get mentorship requests for a mentor
+   * @param {number} mentorId - Mentor user ID
+   * @param {string} status - Optional status filter
+   */
+  getMentorRequests: async (mentorId, status = null) => {
+    const url = status 
+      ? `${API_ENDPOINTS.MENTORSHIP.GET_MENTOR_REQUESTS(mentorId)}?status=${status}`
+      : API_ENDPOINTS.MENTORSHIP.GET_MENTOR_REQUESTS(mentorId);
+    
+    const { ok, data } = await apiFetch(url);
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch requests' };
+    }
+  },
+
+  /**
+   * Update mentorship request status
+   * @param {number} requestId - Request ID
+   * @param {string} status - New status (ACCEPTED, REJECTED, CANCELLED)
+   */
+  updateRequestStatus: async (requestId, status) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.MENTORSHIP.UPDATE_REQUEST_STATUS(requestId), {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to update request status' };
+    }
+  },
 };
 
 export default authAPI;

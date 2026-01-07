@@ -4,10 +4,12 @@ import com.server.server.model.MentorshipProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface MentorshipProfileRepository extends JpaRepository<MentorshipProfile, Long> {
     Optional<MentorshipProfile> findByUserId(Long userId);
     boolean existsByUserId(Long userId);
+    List<MentorshipProfile> findByStatus(MentorshipProfile.ProfileStatus status);
 }

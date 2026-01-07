@@ -1,63 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Select } from '../../ui/select';
 import { Search, Calendar, Video, Clock, CheckCircle, XCircle, MessageSquare, FileText, Upload, Lightbulb } from 'lucide-react';
+import { mentorshipAPI } from '../../../services/api';
+import { useAuth } from '../../../contexts/auth';
+import LoadingSpinner from '../../ui/LoadingSpinner';
 
 const FindMentorSection = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('find');
+  const [mentors, setMentors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [expertiseFilter, setExpertiseFilter] = useState('');
+  const [topicFilter, setTopicFilter] = useState('');
+  const [requestingMentorId, setRequestingMentorId] = useState(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [selectedMentor, setSelectedMentor] = useState(null);
+  const [requestMessage, setRequestMessage] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState('');
   
-  // Mock mentor data
-  const mentors = [
-    {
-      id: 1,
-      name: 'Karma Tshering',
-      title: 'Senior PM at TechCorp',
-      expertise: ['Product Mgmt', 'Leadership'],
-      available: true,
-      avatar: null
-    },
-    {
-      id: 2,
-      name: 'Sonam Dorji',
-      title: 'VP of Engineering at StartUp.io',
-      expertise: ['Software Eng', 'Scalability', 'React'],
-      available: false,
-      avatar: null
-    },
-    {
-      id: 3,
-      name: 'Pema Choden',
-      title: 'Marketing Director at Global Brand',
-      expertise: ['Marketing', 'Brand Strategy'],
-      available: false,
-      avatar: null
-    },
-    {
-      id: 4,
-      name: 'Tashi Wangmo',
-      title: 'Founder & CEO at Innovate',
-      expertise: ['Entrepreneurship', 'Fundraising'],
-      available: true,
-      avatar: null
-    },
-    {
-      id: 5,
-      name: 'Ugyen Tenzin',
-      title: 'Data Scientist at DataFlow',
-      expertise: ['Python', 'Machine Learning'],
-      available: false,
-      avatar: null
-    },
-    {
-      id: 6,
-      name: 'Kinley Wangchuk',
-      title: 'UX Researcher at DesignCo',
-      expertise: ['User Research', 'Figma'],
-      available: false,
-      avatar: null
+  // Fetch mentors on component mount and when user changes
+  useEffect(() => {
+    fetchMentors();
+  }, [user]);
+  
+  const fetchMentors = async (filters = {}) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Add current user ID to filters to exclude mentors with existing requests
+      const filtersWithUser = {
+        ...filters,
+        currentUserId: user?.id
+      };
+      
+      const result = await mentorshipAPI.getAllMentors(filtersWithUser);
+      
+      if (result.success) {
+        setMentors(result.data);
+      } else {
+        setError(result.error || 'Failed to fetch mentors');
+        setMentors([]);
+      }
+    } catch (err) {
+      console.error('Error fetching mentors:', err);
+      setError('An error occurred while fetching mentors');
+      setMentors([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+  
+  // Handle search and filter
+  const handleSearch = () => {
+    const filters = {};
+    if (searchQuery) filters.search = searchQuery;
+    if (expertiseFilter) filters.expertise = expertiseFilter;
+    if (topicFilter) filters.topic = topicFilter;
+    
+    fetchMentors(filters);
+  };
+  
+  const handleRequestMentorship = async (mentorId, mentorName) => {
+    if (!user || !user.id) {
+      alert('Please log in to request mentorship');
+      return;
+    }
+    
+    // Find the mentor from the mentors array to get their topics
+    const mentor = mentors.find(m => m.userId === mentorId);
+    setSelectedMentor({ 
+      id: mentorId, 
+      name: mentorName,
+      topics: mentor ? [...(mentor.selectedTopics || []), ...(mentor.otherTopics || [])] : []
+    });
+    setShowMessageModal(true);
+  };
+  
+  const submitMentorshipRequest = async () => {
+    if (!selectedTopic) {
+      alert('Please select a topic for mentorship');
+      return;
+    }
+    
+    if (!requestMessage.trim()) {
+      alert('Please enter a message to the mentor');
+      return;
+    }
+    
+    try {
+      setRequestingMentorId(selectedMentor.id);
+      
+      const requestData = {
+        menteeId: user.id,
+        mentorId: selectedMentor.id,
+        topic: selectedTopic,
+        message: requestMessage
+      };
+      
+      const result = await mentorshipAPI.createRequest(requestData);
+      
+      if (result.success) {
+        alert(`Mentorship request sent successfully to ${selectedMentor.name}!`);
+        setShowMessageModal(false);
+        setRequestMessage('');
+        setSelectedTopic('');
+        setSelectedMentor(null);
+      } else {
+        alert(result.error || 'Failed to send mentorship request');
+      }
+    } catch (err) {
+      console.error('Error sending mentorship request:', err);
+      alert('An error occurred while sending your request');
+    } finally {
+      setRequestingMentorId(null);
+    }
+  };
 
   // Mock mentors data for mentee view
   const myMentors = [
@@ -172,37 +234,119 @@ const FindMentorSection = () => {
           <div className="flex gap-8">
             {/* Main Content */}
             <div className="flex-1">
-              {/* Mentor Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {mentors.map((mentor) => (
-                  <Card key={mentor.id} className="p-6 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xl font-semibold flex-shrink-0">
-                        {mentor.name.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">{mentor.name}</h3>
-                        <p className="text-sm text-gray-600">{mentor.title}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {mentor.expertise.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                      Request Mentorship
-                    </Button>
-                  </Card>
-                ))}
+              {/* Search and Filters */}
+              <div className="mb-6 flex gap-4">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    placeholder="Search by name, headline, or bio..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <Button 
+                  onClick={handleSearch}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Search
+                </Button>
               </div>
+              
+              {/* Loading State */}
+              {loading && (
+                <div className="flex items-center justify-center py-12">
+                  <LoadingSpinner />
+                </div>
+              )}
+              
+              {/* Error State */}
+              {error && !loading && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <p className="text-red-600">{error}</p>
+                </div>
+              )}
+              
+              {/* Empty State */}
+              {!loading && !error && mentors.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-600">No mentors found. Try adjusting your search or filters.</p>
+                </div>
+              )}
+
+              {/* Mentor Grid */}
+              {!loading && !error && mentors.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {mentors.map((mentor) => (
+                    <Card key={mentor.userId} className="p-6 hover:shadow-lg transition-shadow flex flex-col">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xl font-semibold flex-shrink-0">
+                          {mentor.name.charAt(0)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">{mentor.name}</h3>
+                          <p className="text-sm text-gray-600 line-clamp-2">{mentor.professionalHeadline}</p>
+                        </div>
+                      </div>
+
+                      {/* Expertise Section */}
+                      {mentor.expertise && mentor.expertise.length > 0 && (
+                        <div className="mb-1.5">
+                          <p className="text-xs font-semibold text-gray-700 mb-1">Expertise</p>
+                          <div className="flex flex-wrap gap-2">
+                            {mentor.expertise.slice(0, 3).map((skill, idx) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded font-medium"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {mentor.expertise.length > 3 && (
+                              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                +{mentor.expertise.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Topics Section */}
+                      {mentor.selectedTopics && mentor.selectedTopics.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-xs font-semibold text-gray-700 mb-1">Topics</p>
+                          <div className="flex flex-wrap gap-2">
+                            {mentor.selectedTopics.slice(0, 3).map((topic, idx) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded font-medium"
+                              >
+                                {topic}
+                              </span>
+                            ))}
+                            {mentor.selectedTopics.length > 3 && (
+                              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                +{mentor.selectedTopics.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <Button 
+                        onClick={() => handleRequestMentorship(mentor.userId, mentor.name)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-auto"
+                        disabled={!mentor.openForBookings || requestingMentorId === mentor.userId}
+                      >
+                        {requestingMentorId === mentor.userId ? 'Sending...' : 
+                         mentor.openForBookings ? 'Request Mentorship' : 'Not Available'}
+                      </Button>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -295,6 +439,71 @@ const FindMentorSection = () => {
           </div>
         )}
       </div>
+      
+      {/* Message Modal */}
+      {showMessageModal && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Request Mentorship from {selectedMentor?.name}
+            </h3>
+            
+            {/* Topic Selection */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Select Topic <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedTopic}
+                onChange={(e) => setSelectedTopic(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Choose a topic...</option>
+                {selectedMentor?.topics && selectedMentor.topics.length > 0 ? (
+                  selectedMentor.topics.map((topic, index) => (
+                    <option key={index} value={topic}>
+                      {topic}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No topics available</option>
+                )}
+              </select>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-4">
+              Introduce yourself and explain what you'd like to learn or discuss with this mentor.
+            </p>
+            <textarea
+              value={requestMessage}
+              onChange={(e) => setRequestMessage(e.target.value)}
+              placeholder="Hi! I'm interested in learning about..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              rows="5"
+            />
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={() => {
+                  setShowMessageModal(false);
+                  setRequestMessage('');
+                  setSelectedTopic('');
+                  setSelectedMentor(null);
+                }}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={submitMentorshipRequest}
+                disabled={!selectedTopic || !requestMessage.trim() || requestingMentorId}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {requestingMentorId ? 'Sending...' : 'Send Request'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

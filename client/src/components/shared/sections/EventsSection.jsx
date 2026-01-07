@@ -235,7 +235,9 @@ const EventsSection = () => {
       try {
         setLoading(true)
         const response = await eventService.getAllEvents()
-        setEvents(response.data)
+        // Handle different response structures
+        const eventData = response.data?.events || response.data || []
+        setEvents(Array.isArray(eventData) ? eventData : [])
         setError(null)
       } catch (error) {
         console.error('Failed to fetch events:', error)
