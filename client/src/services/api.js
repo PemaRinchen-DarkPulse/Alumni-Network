@@ -371,4 +371,75 @@ export const connectionAPI = {
   },
 };
 
+/**
+ * Mentorship API methods
+ */
+export const mentorshipAPI = {
+  /**
+   * Save mentorship profile as draft
+   * @param {Object} profileData - Mentorship profile data
+   */
+  saveDraft: async (profileData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.MENTORSHIP.SAVE_DRAFT, {
+      method: 'POST',
+      body: JSON.stringify(profileData),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to save draft' };
+    }
+  },
+
+  /**
+   * Publish mentorship profile
+   * @param {Object} profileData - Mentorship profile data
+   */
+  publish: async (profileData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.MENTORSHIP.PUBLISH, {
+      method: 'POST',
+      body: JSON.stringify(profileData),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to publish profile' };
+    }
+  },
+
+  /**
+   * Get mentorship profile by user ID
+   * @param {number} userId - User ID
+   */
+  getProfile: async (userId) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.MENTORSHIP.GET_PROFILE(userId));
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch profile' };
+    }
+  },
+
+  /**
+   * Update mentorship profile
+   * @param {number} userId - User ID
+   * @param {Object} profileData - Updated profile data
+   */
+  updateProfile: async (userId, profileData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.MENTORSHIP.UPDATE(userId), {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to update profile' };
+    }
+  },
+};
+
 export default authAPI;

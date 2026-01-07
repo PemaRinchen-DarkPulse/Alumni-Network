@@ -22,6 +22,7 @@ const Network = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [connectionStatuses, setConnectionStatuses] = useState({}) // Track connection states
+  const [displayCount, setDisplayCount] = useState(15) // Number of cards to display
 
   // Generate batch years from 2016 to current year
   const currentYear = new Date().getFullYear()
@@ -133,7 +134,12 @@ const Network = () => {
       role: '',
       industry: ''
     })
+    setDisplayCount(15) // Reset display count when clearing filters
     fetchUsers()
+  }
+
+  const handleLoadMore = () => {
+    setDisplayCount(prevCount => prevCount + 15)
   }
 
   const handleSearch = async () => {
@@ -166,6 +172,7 @@ const Network = () => {
           image: null
         }))
         setAlumniData(transformedData)
+        setDisplayCount(15) // Reset display count on new search
         
         // Fetch connection statuses for search results
         if (user?.id) {
@@ -326,6 +333,7 @@ const Network = () => {
         <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'} mb-8`}>
           {alumniData
             .filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING')
+            .slice(0, displayCount)
             .map((alumni) => (
             <div key={alumni.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
               {/* Colored Header */}
@@ -384,9 +392,12 @@ const Network = () => {
         )}
 
         {/* Load More Button */}
-        {!loading && !error && alumniData.length > 0 && alumniData.filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING').length > 0 && (
+        {!loading && !error && alumniData.length > 0 && alumniData.filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING').length > displayCount && (
         <div className="text-center">
-          <button className="inline-flex items-center gap-2 px-6 py-3 text-blue-600 hover:text-blue-700 font-medium">
+          <button 
+            onClick={handleLoadMore}
+            className="inline-flex items-center gap-2 px-6 py-3 text-blue-600 hover:text-blue-700 font-medium hover:bg-blue-50 rounded-lg transition-colors"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>

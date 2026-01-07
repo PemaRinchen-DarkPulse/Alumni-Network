@@ -23,6 +23,11 @@ const MyNetwork = () => {
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState({});
 
+  // Pagination state
+  const [displayCountConnections, setDisplayCountConnections] = useState(15);
+  const [displayCountIncoming, setDisplayCountIncoming] = useState(15);
+  const [displayCountSent, setDisplayCountSent] = useState(15);
+
   // Helper function to generate random gradient
   const getRandomGradient = () => {
     const gradients = [
@@ -267,6 +272,19 @@ const MyNetwork = () => {
     }
   };
 
+  // Handle load more for each tab
+  const handleLoadMoreConnections = () => {
+    setDisplayCountConnections(prevCount => prevCount + 15);
+  };
+
+  const handleLoadMoreIncoming = () => {
+    setDisplayCountIncoming(prevCount => prevCount + 15);
+  };
+
+  const handleLoadMoreSent = () => {
+    setDisplayCountSent(prevCount => prevCount + 15);
+  };
+
   // Stats calculation
   const stats = {
     totalConnections: connections.length,
@@ -420,7 +438,7 @@ const MyNetwork = () => {
                     {/* Grid View */}
                     {viewMode === 'grid' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {connections.map((connection) => (
+                    {connections.slice(0, displayCountConnections).map((connection) => (
                       <div
                         key={connection.id}
                         className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
@@ -465,7 +483,7 @@ const MyNetwork = () => {
                 {/* List View */}
                 {viewMode === 'list' && (
                   <div className="space-y-4">
-                    {connections.map((connection) => (
+                    {connections.slice(0, displayCountConnections).map((connection) => (
                       <div
                         key={connection.id}
                         className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg hover:shadow-sm transition-shadow"
@@ -511,12 +529,17 @@ const MyNetwork = () => {
                 )}
 
                     {/* Load More Button */}
+                    {connections.length > displayCountConnections && (
                     <div className="flex justify-center mt-8">
-                      <button className="flex items-center space-x-2 px-6 py-3 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors">
+                      <button 
+                        onClick={handleLoadMoreConnections}
+                        className="flex items-center space-x-2 px-6 py-3 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
+                      >
                         <span>Load more connections</span>
                         <ChevronDown className="w-4 h-4" />
                       </button>
                     </div>
+                    )}
                   </>
                 )}
               </div>
@@ -550,7 +573,7 @@ const MyNetwork = () => {
                     {/* Grid View */}
                     {viewMode === 'grid' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {invitations.map((invitation) => (
+                    {invitations.slice(0, displayCountIncoming).map((invitation) => (
                       <div
                         key={invitation.id}
                         className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
@@ -605,7 +628,7 @@ const MyNetwork = () => {
                 {/* List View */}
                 {viewMode === 'list' && (
                   <div className="space-y-4">
-                    {invitations.map((invitation) => (
+                    {invitations.slice(0, displayCountIncoming).map((invitation) => (
                       <div
                         key={invitation.id}
                         className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg hover:shadow-sm transition-shadow"
@@ -646,7 +669,18 @@ const MyNetwork = () => {
                     ))}
                   </div>
                 )}
-                  </>
+                    {/* Load More Button for Incoming */}
+                    {invitations.length > displayCountIncoming && (
+                    <div className="flex justify-center mt-8">
+                      <button 
+                        onClick={handleLoadMoreIncoming}
+                        className="flex items-center space-x-2 px-6 py-3 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
+                      >
+                        <span>Load more requests</span>
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                    )}                  </>
                 )}
               </div>
             )}
@@ -678,7 +712,7 @@ const MyNetwork = () => {
                     {/* Grid View */}
                     {viewMode === 'grid' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sentRequests.map((request) => (
+                    {sentRequests.slice(0, displayCountSent).map((request) => (
                       <div
                         key={request.id}
                         className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
@@ -726,7 +760,7 @@ const MyNetwork = () => {
                 {/* List View */}
                 {viewMode === 'list' && (
                   <div className="space-y-4">
-                    {sentRequests.map((request) => (
+                    {sentRequests.slice(0, displayCountSent).map((request) => (
                       <div
                         key={request.id}
                         className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg hover:shadow-sm transition-shadow"
@@ -761,7 +795,18 @@ const MyNetwork = () => {
                     ))}
                   </div>
                 )}
-                  </>
+                    {/* Load More Button for Sent Requests */}
+                    {sentRequests.length > displayCountSent && (
+                    <div className="flex justify-center mt-8">
+                      <button 
+                        onClick={handleLoadMoreSent}
+                        className="flex items-center space-x-2 px-6 py-3 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
+                      >
+                        <span>Load more requests</span>
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                    )}                  </>
                 )}
               </div>
             )}

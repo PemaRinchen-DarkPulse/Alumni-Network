@@ -24,4 +24,10 @@ export const API_ENDPOINTS = {
     GET_ACCEPTED: `${API_BASE_URL}/connections/accepted`,
     GET_STATUS: `${API_BASE_URL}/connections/status`,
   },
+  MENTORSHIP: {
+    SAVE_DRAFT: `${API_BASE_URL}/mentorship/draft`,
+    PUBLISH: `${API_BASE_URL}/mentorship/publish`,
+    GET_PROFILE: (userId) => `${API_BASE_URL}/mentorship/profile/${userId}`,
+    UPDATE: (userId) => `${API_BASE_URL}/mentorship/profile/${userId}`,
+  },
 };

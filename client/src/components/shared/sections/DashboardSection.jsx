@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/auth';
+import { useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SectionLoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { CheckCircle2 } from 'lucide-react';
 import AlumniDashboard from './AlumniDashboard';
+import StudentDashboard from './StudentDashboard';
 
 // Animations and variants
 const containerVariants = {
@@ -71,9 +74,31 @@ const quotes = {
 
 const DashboardSection = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const role = user?.role || 'student';
   const theme = themeColors[role];
   const [isLoading, setIsLoading] = useState(true);
+  const [notification, setNotification] = useState(null);
+  
+  // Check for success message from navigation state
+  useEffect(() => {
+    if (location.state?.message) {
+      setNotification({
+        message: location.state.message,
+        type: location.state.type || 'success'
+      });
+      
+      // Clear the notification after 4 seconds
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 4000);
+      
+      // Clear the location state
+      window.history.replaceState({}, document.title);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [location]);
   
   // Mock data - would be fetched from API in a real implementation
   const mockData = {
@@ -149,6 +174,11 @@ const DashboardSection = () => {
   if (role === 'alumni') {
     return <AlumniDashboard />;
   }
+
+  // Use new StudentDashboard for student role
+  if (role === 'student') {
+    return <StudentDashboard />;
+  }
   
   return (
     <motion.div 
@@ -157,6 +187,23 @@ const DashboardSection = () => {
       initial="hidden"
       animate="visible"
     >
+      {/* Success/Error Notification */}
+      {notification && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+            notification.type === 'success' 
+              ? 'bg-green-50 border border-green-200 text-green-700' 
+              : 'bg-red-50 border border-red-200 text-red-700'
+          }`}
+        >
+          {notification.type === 'success' && <CheckCircle2 className="w-5 h-5" />}
+          <span>{notification.message}</span>
+        </motion.div>
+      )}
+      
       {/* Welcome Header with role-based styling */}
       <motion.div 
         variants={itemVariants} 

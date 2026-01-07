@@ -19,7 +19,6 @@ const DashboardNavbar = () => {
   const navLinks = {
     teacher: [
       { name: 'Network', path: '/dashboard/directory' },
-      { name: 'Mentorship', path: '/dashboard/mentorship' },
       { name: 'Tribute', path: '/dashboard/tribute' },
       { name: 'Blog', path: '/dashboard/blog' },
       { name: 'Nexus', path: '/dashboard/media' },
@@ -91,7 +90,7 @@ const DashboardNavbar = () => {
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              aria-label="User menu"            >              <UserAvatar user={user} size="md" />
+              aria-label="User menu"            >              <UserAvatar user={user} size="md" className="[&_[data-slot=avatar-fallback]]:bg-gray-200 [&_[data-slot=avatar-fallback]]:text-gray-700" />
             </button>
               {isDropdownOpen && (              <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-slate-800">
                 <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">

@@ -15,7 +15,7 @@ import ForumSection from '@/components/shared/sections/ForumSection';
 import BlogSection from '@/components/shared/sections/BlogSection';
 
 // Import mentorship components directly
-import MentorshipManagementSection from '@/components/shared/sections/MentorshipManagementSection';
+import MentorshipRouter from '@/components/shared/sections/MentorshipRouter';
 import SettingsPage from '@/components/settings/SettingsPage';
 
 // Import page components
@@ -63,7 +63,7 @@ const Home = () => {
               {userRole === 'alumni' && (
                 <>
                   <Route path="/mentorship" element={
-                    <MentorshipManagementSection/>
+                    <MentorshipRouter/>
                   } />
                     <Route path="/forum" element={
                     <ForumSection/>
@@ -85,7 +85,7 @@ const Home = () => {
                   {/* Student specific routes */}
               {userRole === 'student' && (
                 <Route path="/mentorship" element={
-                  <MentorshipManagementSection/>
+                  <MentorshipRouter/>
                 } />
               )}
                 {/* Settings route available for all roles */}
