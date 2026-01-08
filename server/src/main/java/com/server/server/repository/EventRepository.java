@@ -1,6 +1,7 @@
 package com.server.server.repository;
 
 import com.server.server.model.Event;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +12,9 @@ import java.util.List;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
+
+    @EntityGraph(attributePaths = "attendees")
+    List<Event> findAllWithAttendeesByStatus(Event.EventStatus status);
     
     // Find all published events
     List<Event> findByStatus(Event.EventStatus status);

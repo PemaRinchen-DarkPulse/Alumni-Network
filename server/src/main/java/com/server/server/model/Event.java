@@ -1,19 +1,26 @@
 package com.server.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"attendees"})
+@ToString(exclude = {"attendees"})
 public class Event {
     
     @Id
@@ -38,8 +45,25 @@ public class Event {
     @Column
     private String meetingLink;
     
+    @Column
+    private Integer capacity;
+
+    @Column(nullable = false)
+    private int attendeeCount = 0;
+
+    @ManyToMany
+    @JoinTable(
+            name = "event_attendees",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> attendees = new HashSet<>();
+    
     @Column(nullable = false)
     private Boolean isVirtual = false;
+    
+    @Column(nullable = false)
+    private Boolean isFeatured = false;
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

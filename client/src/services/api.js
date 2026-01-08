@@ -672,6 +672,46 @@ export const eventAPI = {
       return { success: false, error: data.message || 'Failed to delete event' };
     }
   },
+
+  /**
+   * RSVP to an event
+   * @param {number} id - Event ID
+   * @param {string} token - Auth token
+   */
+  rsvpToEvent: async (id, token) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.RSVP(id), {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (ok && data.success) {
+      return { success: true, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to RSVP to event' };
+    }
+  },
+
+  /**
+   * Cancel RSVP to an event
+   * @param {number} id - Event ID
+   * @param {string} token - Auth token
+   */
+  cancelRsvp: async (id, token) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.RSVP(id), {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (ok && data.success) {
+      return { success: true, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to cancel RSVP' };
+    }
+  },
 };
 
 export default authAPI;

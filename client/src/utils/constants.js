@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
     PUBLISH: `${API_BASE_URL}/events/publish`,
     GET_ALL: `${API_BASE_URL}/events`,
     GET_BY_ID: (id) => `${API_BASE_URL}/events/${id}`,
+    RSVP: (id) => `${API_BASE_URL}/events/${id}/rsvp`,
     GET_UPCOMING: `${API_BASE_URL}/events/upcoming`,
     GET_BY_CREATOR: (userId) => `${API_BASE_URL}/events/creator/${userId}`,
     UPDATE: (id) => `${API_BASE_URL}/events/${id}`,

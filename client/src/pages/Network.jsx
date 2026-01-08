@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Search, Filter, Mail, Grid3x3, List, ChevronDown } from 'lucide-react'
+import { Search, Filter, Mail, Grid3x3, List, ChevronDown, Users } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
@@ -315,16 +315,27 @@ const Network = () => {
 
         {/* Empty State */}
         {!loading && !error && alumniData.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">No users found. Try adjusting your filters.</p>
+          <div className="text-center py-16">
+            <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No users found
+            </h3>
+            <p className="text-gray-600">
+              Try adjusting your search filters to find more users.
+            </p>
           </div>
         )}
 
         {/* All Connected State */}
         {!loading && !error && alumniData.length > 0 && alumniData.filter(alumni => connectionStatuses[alumni.id] !== 'ACCEPTED' && connectionStatuses[alumni.id] !== 'PENDING').length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">You're already connected with all available users!</p>
-            <p className="text-gray-400 text-sm mt-2">Try adjusting your search filters to find more users.</p>
+          <div className="text-center py-16">
+            <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              You're already connected with all available users!
+            </h3>
+            <p className="text-gray-600">
+              Try adjusting your search filters to find more users.
+            </p>
           </div>
         )}
 

@@ -6,6 +6,7 @@ import com.server.server.service.EventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,46 @@ import java.util.Map;
 public class EventController {
     
     private final EventService eventService;
+
+    @PostMapping("/{eventId}/rsvp")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, Object>> rsvpToEvent(@PathVariable Long eventId) {
+        try {
+            eventService.rsvpToEvent(eventId);
+            Map<String, Object> response = Map.of(
+                    "success", true,
+                    "message", "RSVP successful"
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error RSVPing to event: ", e);
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Failed to RSVP to event: " + e.getMessage()
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @DeleteMapping("/{eventId}/rsvp")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Map<String, Object>> cancelRsvp(@PathVariable Long eventId) {
+        try {
+            eventService.cancelRsvp(eventId);
+            Map<String, Object> response = Map.of(
+                    "success", true,
+                    "message", "RSVP cancelled successfully"
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error cancelling RSVP: ", e);
+            Map<String, Object> response = Map.of(
+                    "success", false,
+                    "message", "Failed to cancel RSVP: " + e.getMessage()
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
     
     @PostMapping("/draft")
     public ResponseEntity<Map<String, Object>> saveDraft(@RequestBody EventRequest request) {

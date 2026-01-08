@@ -306,12 +306,12 @@ const MentorshipDashboard = () => {
             {/* Incoming Request Cards in 2 columns */}
             {dashboardData.incomingRequests.length === 0 ? (
               <Card className="p-12">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Incoming Requests</h3>
-                  <p className="text-gray-600 text-sm">
+                <div className="text-center py-8">
+                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No Incoming Requests
+                  </h3>
+                  <p className="text-gray-600">
                     You don't have any pending mentorship requests at the moment.
                   </p>
                 </div>
@@ -436,8 +436,16 @@ const MentorshipDashboard = () => {
                   <tbody>
                     {dashboardData.acceptedMentees.length === 0 ? (
                       <tr>
-                        <td colSpan="3" className="py-8 text-center text-gray-500">
-                          No accepted mentees yet
+                        <td colSpan="3" className="py-12">
+                          <div className="text-center">
+                            <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                              No accepted mentees yet
+                            </h3>
+                            <p className="text-gray-600">
+                              Start accepting mentorship requests to see mentees here.
+                            </p>
+                          </div>
                         </td>
                       </tr>
                     ) : (

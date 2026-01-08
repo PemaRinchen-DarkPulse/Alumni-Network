@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Select } from '../../ui/select';
-import { Search, Calendar, Video, Clock, CheckCircle, XCircle, MessageSquare, FileText, Upload, Lightbulb } from 'lucide-react';
+import { Search, Calendar, Video, Clock, CheckCircle, XCircle, MessageSquare, FileText, Upload, Lightbulb, Users } from 'lucide-react';
 import { mentorshipAPI } from '../../../services/api';
 import { useAuth } from '../../../contexts/auth';
 import LoadingSpinner from '../../ui/LoadingSpinner';
@@ -271,8 +271,14 @@ const FindMentorSection = () => {
               
               {/* Empty State */}
               {!loading && !error && mentors.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-gray-600">No mentors found. Try adjusting your search or filters.</p>
+                <div className="text-center py-16">
+                  <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No mentors found
+                  </h3>
+                  <p className="text-gray-600">
+                    Try adjusting your search or filters to find mentors.
+                  </p>
                 </div>
               )}
 

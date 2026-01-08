@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +23,7 @@ public class EventDTO {
     private String location;
     private String meetingLink;
     private Boolean isVirtual;
+    private Boolean isFeatured;
     private String visibility;
     private Integer maxAttendees;
     private String bannerImageUrl;
@@ -27,6 +31,8 @@ public class EventDTO {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private int attendeeCount;
+    private Set<UserDTO> attendees = new HashSet<>();
     
     public static EventDTO fromEntity(Event event) {
         EventDTO dto = new EventDTO();
@@ -38,6 +44,7 @@ public class EventDTO {
         dto.setLocation(event.getLocation());
         dto.setMeetingLink(event.getMeetingLink());
         dto.setIsVirtual(event.getIsVirtual());
+        dto.setIsFeatured(event.getIsFeatured());
         dto.setVisibility(event.getVisibility().name().toLowerCase());
         dto.setMaxAttendees(event.getMaxAttendees());
         
@@ -51,6 +58,10 @@ public class EventDTO {
         dto.setStatus(event.getStatus().name().toLowerCase());
         dto.setCreatedAt(event.getCreatedAt());
         dto.setUpdatedAt(event.getUpdatedAt());
+        dto.setAttendeeCount(event.getAttendeeCount());
+        if (event.getAttendees() != null) {
+            dto.setAttendees(event.getAttendees().stream().map(UserDTO::fromUser).collect(Collectors.toSet()));
+        }
         return dto;
     }
 }

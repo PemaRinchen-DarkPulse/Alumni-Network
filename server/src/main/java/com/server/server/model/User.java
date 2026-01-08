@@ -1,19 +1,26 @@
 package com.server.server.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"rsvpedEvents"})
+@ToString(exclude = {"rsvpedEvents"})
 public class User {
     
     @Id
@@ -58,6 +65,10 @@ public class User {
     @UpdateTimestamp
     @Column
     private LocalDateTime updatedAt;
+
+    @ManyToMany(mappedBy = "attendees")
+    @JsonIgnore
+    private Set<Event> rsvpedEvents = new HashSet<>();
     
     public enum Role {
         STUDENT,

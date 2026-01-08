@@ -3,9 +3,13 @@ package com.server.server.service;
 import com.server.server.dto.EventDTO;
 import com.server.server.dto.EventRequest;
 import com.server.server.model.Event;
+import com.server.server.model.User;
 import com.server.server.repository.EventRepository;
+import com.server.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,7 @@ import java.util.stream.Collectors;
 public class EventService {
     
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
     
     @Transactional
     public EventDTO saveDraft(EventRequest request) {
@@ -33,6 +38,70 @@ public class EventService {
         log.info("Draft saved successfully with ID: {}", savedEvent.getId());
         
         return EventDTO.fromEntity(savedEvent);
+    }
+
+    @Transactional
+    public void rsvpToEvent(Long eventId) {
+        // Get the username from the authentication principal
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + username));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found with ID: " + eventId));
+
+        if (event.getAttendees().contains(user)) {
+            throw new RuntimeException("User has already RSVP'd to this event.");
+        }
+
+        if (event.getCapacity() != null && event.getAttendeeCount() >= event.getCapacity()) {
+            throw new RuntimeException("Event is full.");
+        }
+
+        event.getAttendees().add(user);
+        event.setAttendeeCount(event.getAttendeeCount() + 1);
+        user.getRsvpedEvents().add(event);
+
+        eventRepository.save(event);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void cancelRsvp(Long eventId) {
+        // Get the username from the authentication principal
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + username));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found with ID: " + eventId));
+
+        if (!event.getAttendees().contains(user)) {
+            throw new RuntimeException("User has not RSVP'd to this event.");
+        }
+
+        event.getAttendees().remove(user);
+        event.setAttendeeCount(event.getAttendeeCount() - 1);
+        user.getRsvpedEvents().remove(event);
+
+        eventRepository.save(event);
+        userRepository.save(user);
     }
     
     @Transactional
@@ -61,7 +130,7 @@ public class EventService {
     public List<EventDTO> getAllPublishedEvents() {
         log.info("Fetching all published events");
         
-        List<Event> events = eventRepository.findByStatus(Event.EventStatus.PUBLISHED);
+        List<Event> events = eventRepository.findAllWithAttendeesByStatus(Event.EventStatus.PUBLISHED);
         
         return events.stream()
                 .map(EventDTO::fromEntity)

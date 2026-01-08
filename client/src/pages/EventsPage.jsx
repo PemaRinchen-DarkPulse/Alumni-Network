@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,191 +22,160 @@ import {
   Clock,
   Users
 } from 'lucide-react';
-
-// Mock data for events
-const mockEvents = [
-  {
-    id: 1,
-    title: 'Annual Alumni Gala 2024',
-    description: 'Join us for an evening of networking, celebration, and giving back. Connect with fellow graduates and celebrate our collective achievements',
-    date: new Date('2024-10-24'),
-    time: '5:00 PM',
-    location: 'Grand Hall, Main Campus',
-    image: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80',
-    category: 'Featured',
-    badge: 'FEATURED',
-    organizer: {
-      name: 'Priya Sharma',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=priya'
-    },
-    attendeeCount: 156,
-    capacity: 200,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=2' },
-      { id: 3, name: 'User 3', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=3' },
-    ],
-    isFeatured: true
-  },
-  {
-    id: 2,
-    title: 'Intro to Data Science',
-    description: 'A comprehensive workshop for beginners to learn the fundamentals of Data Science and Data Analytics',
-    date: new Date('2024-11-05'),
-    time: '7:30 PM - 9:30 PM',
-    location: 'Coffee Ground',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
-    category: 'Workshop',
-    badge: 'Workshop',
-    organizer: {
-      name: 'Dr. James Wilson',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=james'
-    },
-    attendeeCount: 89,
-    capacity: 120,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=4' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=5' },
-    ]
-  },
-  {
-    id: 3,
-    title: 'Class of 2014 Reunion',
-    description: 'It\'s been 10 years since our class graduated! Let\'s come together to reconnect, reminisce, and mingle',
-    date: new Date('2024-12-12'),
-    time: '7:00 PM - 11:00 PM',
-    location: 'Alumni Center',
-    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80',
-    category: 'Date',
-    badge: 'Date',
-    organizer: {
-      name: 'Sarah Johnson',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah'
-    },
-    attendeeCount: 142,
-    capacity: 150,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=6' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=7' },
-      { id: 3, name: 'User 3', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=8' },
-    ]
-  },
-  {
-    id: 4,
-    title: 'Tech Trends 2025',
-    description: 'Join industry experts as they share insights into the future of technology, AI, and digital transformation',
-    date: new Date('2024-11-18'),
-    time: '10:00 AM - 3:30 PM',
-    location: 'Online (Webinar)',
-    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80',
-    category: 'Career',
-    badge: 'Career',
-    organizer: {
-      name: 'Michael Chen',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=michael'
-    },
-    attendeeCount: 325,
-    capacity: 500,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=9' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=10' },
-    ]
-  },
-  {
-    id: 5,
-    title: 'Autumn Music Fest',
-    description: 'A delightful autumn evening filled with our student body and alumni network',
-    date: new Date('2024-12-01'),
-    time: '5:00 PM - 10:00 PM',
-    location: 'Amphitheater',
-    image: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80',
-    category: 'Cultural',
-    badge: 'Cultural',
-    organizer: {
-      name: 'Emily Rodriguez',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=emily'
-    },
-    attendeeCount: 98,
-    capacity: 200,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=11' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=12' },
-      { id: 3, name: 'User 3', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=13' },
-    ]
-  },
-  {
-    id: 6,
-    title: 'Start-up Pitch Night',
-    description: 'Watch innovative startups pitch their ideas to investors. Great networking opportunity.',
-    date: new Date('2024-12-01'),
-    time: '6:30 PM - 9:00 PM',
-    location: 'Innovation Hub',
-    image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&q=80',
-    category: 'Networking',
-    badge: 'Networking',
-    organizer: {
-      name: 'David Kim',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=david'
-    },
-    attendeeCount: 67,
-    capacity: 80,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=14' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=15' },
-    ]
-  }
-  ,
-  {
-    id: 7,
-    title: 'AI in Healthcare Summit',
-    description: 'Explore the impact of artificial intelligence on modern healthcare with leading experts and practitioners.',
-    date: new Date('2024-12-15'),
-    time: '9:00 AM - 4:00 PM',
-    location: 'City Conference Center',
-    image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=800&q=80',
-    category: 'Career',
-    badge: 'Career',
-    organizer: {
-      name: 'Dr. Aisha Patel',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=aisha'
-    },
-    attendeeCount: 210,
-    capacity: 300,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=16' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=17' },
-    ]
-  },
-  {
-    id: 8,
-    title: 'Winter Coding Bootcamp',
-    description: 'An intensive bootcamp for aspiring developers to learn full-stack web development in 2 weeks.',
-    date: new Date('2024-12-20'),
-    time: '10:00 AM - 6:00 PM',
-    location: 'Tech Park',
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
-    category: 'Workshop',
-    badge: 'Workshop',
-    organizer: {
-      name: 'Carlos Rivera',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=carlos'
-    },
-    attendeeCount: 45,
-    capacity: 60,
-    attendees: [
-      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=18' },
-      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=19' },
-    ]
-  }
-];
+import { eventAPI } from '@/services/api';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { useAuth } from '@/contexts/auth/useAuth';
 
 const EventsPage = () => {
   const navigate = useNavigate();
+  const { token, user } = useAuth();
   const [activeTab, setActiveTab] = useState('upcoming');
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [visibleEvents, setVisibleEvents] = useState(6);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const handleRsvp = async (eventId) => {
+    if (!token || !user) {
+      alert('Please login to RSVP for events');
+      return;
+    }
+
+    try {
+      const response = await eventAPI.rsvpToEvent(eventId, token);
+      if (response.success) {
+        // Update local state immediately
+        setEvents(prevEvents =>
+          prevEvents.map(event =>
+            event.id === eventId
+              ? { ...event, isRsvped: true, attendeeCount: event.attendeeCount + 1 }
+              : event
+          )
+        );
+        alert('Successfully registered for the event!');
+      } else {
+        alert('Failed to RSVP: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error RSVPing:', error);
+      alert('Failed to RSVP. Please try again.');
+    }
+  };
+
+  const handleCancelRsvp = async (eventId) => {
+    if (!token || !user) {
+      alert('Please login to cancel RSVP');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to cancel your RSVP for this event?')) {
+      return;
+    }
+
+    try {
+      const response = await eventAPI.cancelRsvp(eventId, token);
+      if (response.success) {
+        // Update local state immediately
+        setEvents(prevEvents =>
+          prevEvents.map(event =>
+            event.id === eventId
+              ? { ...event, isRsvped: false, attendeeCount: Math.max(0, event.attendeeCount - 1) }
+              : event
+          )
+        );
+        alert('RSVP cancelled successfully!');
+      } else {
+        alert('Failed to cancel RSVP: ' + (response.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error cancelling RSVP:', error);
+      alert('Failed to cancel RSVP. Please try again.');
+    }
+  };
+
+  // Fetch events from the database
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await eventAPI.getAllEvents();
+        
+        if (response.success) {
+          // Transform backend data to match frontend structure
+          const transformedEvents = response.data.map(event => ({
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            date: new Date(event.startDateTime),
+            time: formatEventTime(event.startDateTime, event.endDateTime),
+            location: event.isVirtual ? (event.meetingLink || 'Online (Virtual)') : (event.location || 'TBD'),
+            image: event.bannerImageUrl 
+              ? `data:image/jpeg;base64,${event.bannerImageUrl}` 
+              : 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=800&q=80',
+            category: 'Featured', // Can be derived from event type if added to backend
+            badge: event.isFeatured ? 'FEATURED' : 'EVENT',
+            organizer: {
+              name: 'Alumni Association', // Will need to join with user table for actual organizer
+              avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${event.createdBy || 'default'}`
+            },
+            attendeeCount: event.attendees.length,
+            capacity: event.maxAttendees || 100,
+            attendees: event.attendees,
+            isFeatured: event.isFeatured || false,
+            isVirtual: event.isVirtual,
+            virtualLink: event.meetingLink,
+            isRsvped: user ? event.attendees.some(attendee => attendee.id === user.id) : false,
+          }));
+          
+          setEvents(transformedEvents);
+        } else {
+          setError(response.error || 'Failed to fetch events');
+        }
+      } catch (err) {
+        console.error('Error fetching events:', err);
+        setError('Failed to load events. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // Helper function to format event time
+  const formatEventTime = (startDateTime, endDateTime) => {
+    const start = new Date(startDateTime);
+    const end = new Date(endDateTime);
+    
+    const formatTime = (date) => {
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
+    
+    return `${formatTime(start)} - ${formatTime(end)}`;
+  };
+
+  // Filter events based on active tab
+  const currentDate = new Date();
+  const filteredByTab = events.filter(event => {
+    const isUpcoming = event.date >= currentDate;
+    if (activeTab === 'upcoming') {
+      return isUpcoming && !event.isRsvped;
+    } else if (activeTab === 'past') {
+      return !isUpcoming;
+    } else if (activeTab === 'registered') {
+      return event.isRsvped;
+    }
+    return true;
+  });
 
   const formatDate = (date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -254,19 +223,34 @@ const EventsPage = () => {
           {/* Top Right Tabs */}
           <div className="flex gap-1 border-b">
             <button 
-              className="px-6 py-2 text-blue-600 border-b-2 border-blue-600 font-medium"
+              onClick={() => setActiveTab('upcoming')}
+              className={`px-6 py-2 font-medium transition-colors ${
+                activeTab === 'upcoming' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               Upcoming Events
             </button>
             <button 
-              className="px-6 py-2 text-gray-500 hover:text-gray-700 font-medium"
+              onClick={() => setActiveTab('past')}
+              className={`px-6 py-2 font-medium transition-colors ${
+                activeTab === 'past' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               Past Events
             </button>
             <button 
-              className="px-6 py-2 text-gray-500 hover:text-gray-700 font-medium"
+              onClick={() => setActiveTab('registered')}
+              className={`px-6 py-2 font-medium transition-colors ${
+                activeTab === 'registered' 
+                  ? 'text-blue-600 border-b-2 border-blue-600' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
-              My Events
+              Registered Events
             </button>
           </div>
         </div>
@@ -309,133 +293,201 @@ const EventsPage = () => {
           </div>
         </div>
 
-        {/* Events Content */}
-        {/* Featured Event */}
-        {mockEvents[0].isFeatured && (
-          <Card className="mb-8 overflow-hidden p-0 border-0 shadow-lg rounded-2xl">
-            <div className="relative h-[32rem]">
-              <img 
-                src={mockEvents[0].image} 
-                alt={mockEvents[0].title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
-                <span className={`${getBadgeColor(mockEvents[0].badge)} text-white text-xs font-semibold px-3 py-1 rounded-full w-fit mb-4`}>
-                  {mockEvents[0].badge}
-                </span>
-                <h2 className="text-4xl font-bold mb-3">{mockEvents[0].title}</h2>
-                <p className="text-lg text-gray-200 mb-4 max-w-3xl">
-                  {mockEvents[0].description}
-                </p>
-                <div className="flex items-center gap-6 text-sm mb-4">
-                  <div className="flex items-center gap-2">
-                    <CalendarDays className="w-5 h-5" />
-                    <span>{formatDate(mockEvents[0].date)} • {mockEvents[0].time}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-5 h-5" />
-                    <span>{mockEvents[0].location}</span>
-                  </div>
-                </div>
-                <Button className="bg-white text-blue-600 hover:bg-gray-100 w-fit">
-                  RSVP Now
-                </Button>
-              </div>
-            </div>
-          </Card>
-        )}
-
-        {/* Event Grid */}
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'flex flex-col gap-4'}>
-          {mockEvents.slice(1, visibleEvents + 1).map((event) => (
-            <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow p-0">
-              <div className="relative">
-                {/* Date Badge */}
-                <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md p-3 text-center z-10">
-                  <div className="text-xs font-semibold text-gray-600">
-                    {formatMonth(event.date)}
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
-                    {formatDay(event.date)}
-                  </div>
-                </div>
-                
-                {/* Badge */}
-                {event.badge && (
-                  <div className="absolute top-4 right-4 z-10">
-                    <span className={`${getBadgeColor(event.badge)} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
-                      {event.badge}
-                    </span>
-                  </div>
-                )}
-
-                {/* Event Image */}
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={event.image} 
-                    alt={event.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              </div>
-
-              <CardContent className="p-6 pb-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
-                  {event.title}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {event.description}
-                </p>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Clock className="w-4 h-4 mr-2" />
-                    <span>{event.time}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    <span>{event.location}</span>
-                  </div>
-                </div>
-
-                {/* Organizer and Attendee Count */}
-                <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                  <div className="flex items-center gap-2">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage src={event.organizer?.avatar} alt={event.organizer?.name} />
-                      <AvatarFallback>{event.organizer?.name?.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-gray-600">{event.organizer?.name}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <Users className="w-4 h-4" />
-                    <span>{event.attendeeCount}/{event.capacity}</span>
-                  </div>
-                </div>
-
-                {/* RSVP Button */}
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold">
-                  RSVP
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Load More Button */}
-        {visibleEvents < mockEvents.length - 1 && (
-          <div className="mt-8 text-center">
-            <Button 
-              variant="outline" 
-              className="px-8"
-              onClick={() => setVisibleEvents(prev => prev + 6)}
-            >
-              Load More Events →
-            </Button>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-16">
+            <LoadingSpinner size="large" />
           </div>
         )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="text-center py-16">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+              <CalendarDays className="w-16 h-16 mx-auto mb-4 text-red-300" />
+              <h3 className="text-xl font-semibold text-red-900 mb-2">
+                Error Loading Events
+              </h3>
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Retry
+              </Button>
+            </div>
+          </div>
+        )}
+
+            {/* Events Content */}
+            {!loading && !error && (
+                <>
+                    {filteredByTab.length === 0 ? (
+                        <div className="text-center py-16">
+                            <CalendarDays className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                No {activeTab} events found
+                            </h3>
+                            <p className="text-gray-600">
+                                {activeTab === 'past'
+                                    ? 'There are no past events yet.'
+                                    : 'Check back later for upcoming events.'}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="space-y-8">
+                            {/* Featured Events */}
+                            {filteredByTab.slice(0, visibleEvents).map((event) => (
+                                event.isFeatured && activeTab === 'upcoming' ? (
+                                    <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow p-0 border-0 shadow-lg rounded-2xl">
+                                        <div className="relative h-[28rem]">
+                                            <img
+                                                src={event.image}
+                                                alt={event.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                                            <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
+                                                <span className={`${getBadgeColor(event.badge)} text-white text-xs font-semibold px-3 py-1 rounded-full w-fit mb-4`}>
+                                                    {event.badge}
+                                                </span>
+                                                <h2 className="text-4xl font-bold mb-3">{event.title}</h2>
+                                                <p className="text-lg text-gray-200 mb-4 max-w-3xl">
+                                                    {event.description}
+                                                </p>
+                                                <div className="flex items-center gap-6 text-sm mb-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <CalendarDays className="w-5 h-5" />
+                                                        <span>{formatDate(event.date)} • {event.time}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <MapPin className="w-5 h-5" />
+                                                        <span>{event.location}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Users className="w-5 h-5" />
+                                                        <span>{event.attendeeCount}/{event.capacity} attending</span>
+                                                    </div>
+                                                </div>
+                                                <Button 
+                                                    className="bg-white text-blue-600 hover:bg-gray-100 w-fit"
+                                                    onClick={() => activeTab === 'registered' ? handleCancelRsvp(event.id) : handleRsvp(event.id)}
+                                                    disabled={activeTab === 'upcoming' && event.isRsvped}
+                                                >
+                                                    {activeTab === 'registered' ? 'Cancel RSVP' : (event.isRsvped ? 'Registered' : 'RSVP Now')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                ) : null
+                            ))}
+
+                            {/* Non-Featured Events Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {filteredByTab.slice(0, visibleEvents).map((event) => (
+                                    !event.isFeatured || activeTab !== 'upcoming' ? (
+                                        <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow p-0">
+                                            <div className="relative">
+                                                {/* Date Badge */}
+                                                <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md p-3 text-center z-10">
+                                                    <div className="text-xs font-semibold text-gray-600">
+                                                        {formatMonth(event.date)}
+                                                    </div>
+                                                    <div className="text-2xl font-bold text-gray-900">
+                                                        {formatDay(event.date)}
+                                                    </div>
+                                                </div>
+
+                                                {/* Badge */}
+                                                {event.badge && (
+                                                    <div className="absolute top-4 right-4 z-10">
+                                                        <span className={`${getBadgeColor(event.badge)} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
+                                                            {event.badge}
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Event Image */}
+                                                <div className="h-48 overflow-hidden">
+                                                    <img
+                                                        src={event.image}
+                                                        alt={event.title}
+                                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <CardContent className="p-6 pb-4">
+                                                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                                    {event.title}
+                                                </h3>
+                                                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                                                    {event.description}
+                                                </p>
+
+                                                <div className="space-y-2 mb-4">
+                                                    <div className="flex items-center text-sm text-gray-600">
+                                                        <Clock className="w-4 h-4 mr-2" />
+                                                        <span>{event.time}</span>
+                                                    </div>
+                                                    <div className="flex items-center text-sm text-gray-600 mb-2">
+                                                        <MapPin className="w-4 h-4 mr-2" />
+                                                        <span>{event.location}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Organizer and Attendee Count */}
+                                                <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar className="w-8 h-8">
+                                                            <AvatarImage src={event.organizer?.avatar} alt={event.organizer?.name} />
+                                                            <AvatarFallback>{event.organizer?.name?.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <span className="text-sm text-gray-600">{event.organizer?.name}</span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                                                        <Users className="w-4 h-4" />
+                                                        <span>{event.attendeeCount}/{event.capacity}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* RSVP Button */}
+                                                <Button
+                                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                                                    disabled={activeTab === 'past'}
+                                                    onClick={() => activeTab === 'registered' ? handleCancelRsvp(event.id) : handleRsvp(event.id)}
+                                                >
+                                                    {activeTab === 'past' 
+                                                        ? 'Event Ended' 
+                                                        : activeTab === 'registered'
+                                                            ? 'Cancel RSVP'
+                                                            : event.isRsvped 
+                                                                ? 'Registered' 
+                                                                : 'RSVP now'}
+                                                </Button>
+                                            </CardContent>
+                                        </Card>
+                                    ) : null
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Load More Button */}
+                    {filteredByTab.length > 0 && visibleEvents < filteredByTab.length && (
+                        <div className="mt-8 text-center">
+                            <Button
+                                variant="outline"
+                                className="px-8"
+                                onClick={() => setVisibleEvents(prev => prev + 6)}
+                            >
+                                Load More Events →
+                            </Button>
+                        </div>
+                    )}
+                </>
+            )}
       </div>
     </div>
   );
