@@ -7,7 +7,7 @@ import DashboardNavbar from '@/components/shared/layout/DashboardNavbar';
 import PageHeader from '@/components/shared/layout/PageHeader';
 
 // Import section components directly
-import EventsSection from '@/components/shared/sections/EventsSection';
+import EventsPage from './EventsPage';
 import MediaGallerySection from '@/components/shared/sections/Collaboration';
 import FeedbackSection from '@/components/shared/sections/FeedbackSection';
 import TributeSection from '@/components/shared/sections/TributeSection';
@@ -48,9 +48,7 @@ const Home = () => {
               {/* Legacy blog section route */}
               <Route path="/blog" element={<BlogListPage />} />
               
-              <Route path="/events" element={
-                <EventsSection/>
-              } />
+              <Route path="/events" element={<EventsPage />} />
               
               <Route path="/media" element={
                 <MediaGallerySection/>
