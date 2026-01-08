@@ -23,6 +23,7 @@ import Network from './Network';
 import AlumniDetailPage from './AlumniDetailPage';
 import BlogListPage from './BlogListPage';
 import MyNetwork from '@/components/shared/sections/MyNetwork';
+import CreateEventPage from './CreateEventPage';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -49,6 +50,7 @@ const Home = () => {
               <Route path="/blog" element={<BlogListPage />} />
               
               <Route path="/events" element={<EventsPage />} />
+              <Route path="/events/create" element={<CreateEventPage />} />
               
               <Route path="/media" element={
                 <MediaGallerySection/>

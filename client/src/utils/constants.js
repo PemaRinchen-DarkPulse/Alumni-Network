@@ -35,4 +35,14 @@ export const API_ENDPOINTS = {
     GET_MENTOR_REQUESTS: (mentorId) => `${API_BASE_URL}/mentorship/requests/mentor/${mentorId}`,
     UPDATE_REQUEST_STATUS: (requestId) => `${API_BASE_URL}/mentorship/requests/${requestId}/status`,
   },
+  EVENTS: {
+    SAVE_DRAFT: `${API_BASE_URL}/events/draft`,
+    PUBLISH: `${API_BASE_URL}/events/publish`,
+    GET_ALL: `${API_BASE_URL}/events`,
+    GET_BY_ID: (id) => `${API_BASE_URL}/events/${id}`,
+    GET_UPCOMING: `${API_BASE_URL}/events/upcoming`,
+    GET_BY_CREATOR: (userId) => `${API_BASE_URL}/events/creator/${userId}`,
+    UPDATE: (id) => `${API_BASE_URL}/events/${id}`,
+    DELETE: (id) => `${API_BASE_URL}/events/${id}`,
+  },
 };

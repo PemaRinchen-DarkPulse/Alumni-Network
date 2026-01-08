@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -154,13 +155,58 @@ const mockEvents = [
       { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=15' },
     ]
   }
+  ,
+  {
+    id: 7,
+    title: 'AI in Healthcare Summit',
+    description: 'Explore the impact of artificial intelligence on modern healthcare with leading experts and practitioners.',
+    date: new Date('2024-12-15'),
+    time: '9:00 AM - 4:00 PM',
+    location: 'City Conference Center',
+    image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=800&q=80',
+    category: 'Career',
+    badge: 'Career',
+    organizer: {
+      name: 'Dr. Aisha Patel',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=aisha'
+    },
+    attendeeCount: 210,
+    capacity: 300,
+    attendees: [
+      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=16' },
+      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=17' },
+    ]
+  },
+  {
+    id: 8,
+    title: 'Winter Coding Bootcamp',
+    description: 'An intensive bootcamp for aspiring developers to learn full-stack web development in 2 weeks.',
+    date: new Date('2024-12-20'),
+    time: '10:00 AM - 6:00 PM',
+    location: 'Tech Park',
+    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
+    category: 'Workshop',
+    badge: 'Workshop',
+    organizer: {
+      name: 'Carlos Rivera',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=carlos'
+    },
+    attendeeCount: 45,
+    capacity: 60,
+    attendees: [
+      { id: 1, name: 'User 1', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=18' },
+      { id: 2, name: 'User 2', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=19' },
+    ]
+  }
 ];
 
 const EventsPage = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('upcoming');
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [visibleEvents, setVisibleEvents] = useState(6);
 
   const formatDate = (date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -255,6 +301,7 @@ const EventsPage = () => {
             </Select>
             <Button 
               className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-6"
+              onClick={() => navigate('/dashboard/events/create')}
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Event
@@ -301,8 +348,8 @@ const EventsPage = () => {
 
         {/* Event Grid */}
         <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'flex flex-col gap-4'}>
-          {mockEvents.slice(1).map((event) => (
-            <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+          {mockEvents.slice(1, visibleEvents + 1).map((event) => (
+            <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow p-0">
               <div className="relative">
                 {/* Date Badge */}
                 <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md p-3 text-center z-10">
@@ -333,7 +380,7 @@ const EventsPage = () => {
                 </div>
               </div>
 
-              <CardContent className="p-6">
+              <CardContent className="p-6 pb-4">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {event.title}
                 </h3>
@@ -359,7 +406,7 @@ const EventsPage = () => {
                       <AvatarImage src={event.organizer?.avatar} alt={event.organizer?.name} />
                       <AvatarFallback>{event.organizer?.name?.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    <span className="text-sm text-gray-600">by {event.organizer?.name}</span>
+                    <span className="text-sm text-gray-600">{event.organizer?.name}</span>
                   </div>
                   
                   <div className="flex items-center gap-1 text-sm text-gray-600">
@@ -375,32 +422,20 @@ const EventsPage = () => {
               </CardContent>
             </Card>
           ))}
-
-          {/* Suggest an Event Card */}
-          <Card className="overflow-hidden hover:shadow-lg transition-shadow border-2 border-dashed border-gray-300 bg-gray-50">
-            <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[400px]">
-              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mb-4">
-                <Plus className="w-8 h-8 text-gray-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Suggest an Event
-              </h3>
-              <p className="text-gray-600 text-sm text-center mb-4">
-                Submit your proposal to the board
-              </p>
-              <Button variant="outline" className="mt-auto">
-                Suggest Event
-              </Button>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Load More Button */}
-        <div className="mt-8 text-center">
-          <Button variant="outline" className="px-8">
-            Load More Events →
-          </Button>
-        </div>
+        {visibleEvents < mockEvents.length - 1 && (
+          <div className="mt-8 text-center">
+            <Button 
+              variant="outline" 
+              className="px-8"
+              onClick={() => setVisibleEvents(prev => prev + 6)}
+            >
+              Load More Events →
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

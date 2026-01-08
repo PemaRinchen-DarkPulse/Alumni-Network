@@ -533,4 +533,145 @@ export const mentorshipAPI = {
   },
 };
 
+/**
+ * Event API methods
+ */
+export const eventAPI = {
+  /**
+   * Save event as draft
+   * @param {Object} eventData - Event data
+   */
+  saveDraft: async (eventData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.SAVE_DRAFT, {
+      method: 'POST',
+      body: JSON.stringify(eventData),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to save event draft' };
+    }
+  },
+
+  /**
+   * Publish event
+   * @param {Object} eventData - Event data
+   */
+  publishEvent: async (eventData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.PUBLISH, {
+      method: 'POST',
+      body: JSON.stringify(eventData),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to publish event' };
+    }
+  },
+
+  /**
+   * Get all published events
+   */
+  getAllEvents: async () => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.GET_ALL);
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch events' };
+    }
+  },
+
+  /**
+   * Get upcoming events
+   */
+  getUpcomingEvents: async () => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.GET_UPCOMING);
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch upcoming events' };
+    }
+  },
+
+  /**
+   * Get event by ID
+   * @param {number} id - Event ID
+   */
+  getEventById: async (id) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.GET_BY_ID(id));
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch event' };
+    }
+  },
+
+  /**
+   * Get events by creator
+   * @param {number} userId - User ID
+   */
+  getEventsByCreator: async (userId) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.GET_BY_CREATOR(userId));
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, count: data.count };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch events' };
+    }
+  },
+
+  /**
+   * Get latest draft for user
+   * @param {number} userId - User ID
+   */
+  getLatestDraft: async (userId) => {
+    const { ok, data } = await apiFetch(`${API_ENDPOINTS.EVENTS.GET_BY_CREATOR(userId).replace('/creator/', '/draft/latest/')}`);
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch draft' };
+    }
+  },
+
+  /**
+   * Update event
+   * @param {number} id - Event ID
+   * @param {Object} eventData - Updated event data
+   */
+  updateEvent: async (id, eventData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.UPDATE(id), {
+      method: 'PUT',
+      body: JSON.stringify(eventData),
+    });
+    
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to update event' };
+    }
+  },
+
+  /**
+   * Delete event
+   * @param {number} id - Event ID
+   */
+  deleteEvent: async (id) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.EVENTS.DELETE(id), {
+      method: 'DELETE',
+    });
+    
+    if (ok && data.success) {
+      return { success: true, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to delete event' };
+    }
+  },
+};
+
 export default authAPI;
