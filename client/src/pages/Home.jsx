@@ -24,6 +24,7 @@ import AlumniDetailPage from './AlumniDetailPage';
 import BlogListPage from './BlogListPage';
 import MyNetwork from '@/components/shared/sections/MyNetwork';
 import CreateEventPage from './CreateEventPage';
+import FindProjects from './FindProjects';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -55,6 +56,7 @@ const Home = () => {
               <Route path="/media" element={
                 <MediaGallerySection/>
               } />
+              <Route path="/find-projects" element={<FindProjects />} />
                 <Route path="/tribute" element={
                 <TributeSection />
               } />

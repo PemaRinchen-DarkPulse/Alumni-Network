@@ -1,806 +1,746 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Icon } from '@/components/shared/icons/Icon';
-import { InlineSpinner } from '@/components/ui/LoadingSpinner';
-import { useAuth } from '@/contexts/auth';
-import { format } from 'date-fns';
-import SectionHero from '@/components/shared/layout/SectionHero';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  ArrowRight,
+  MessageSquare,
+  Calendar,
+  Clock,
+  Bookmark,
+  X,
+  Users,
+} from "lucide-react";
 
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100
-    }
-  }
-};
-
-// Mock data - replace with API calls
-const mockProjects = [
+// Mock data for incoming requests
+const incomingRequests = [
   {
     id: 1,
-    title: "Smart Campus Navigation App",
-    description: "Developing an AR-powered mobile app to help students navigate campus buildings and find facilities.",
-    leader: {
-      name: "Alex Thompson",
-      role: "Computer Science Student",
-      avatar: null
+    mentee: {
+      name: "Sarah Johnson",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+      program: "Computer Science",
     },
-    members: [
-      { name: "Jessica Park", role: "UI/UX Designer" },
-      { name: "David Kim", role: "Mobile Developer" },
-      { name: "Prof. Maria Santos", role: "Faculty Advisor" }
-    ],
-    mentor: {
-      name: "James Wilson",
-      role: "Senior Mobile Developer",
-      company: "Uber"
-    },
-    status: "active",
-    progress: 65,
-    domain: "Mobile Development",
-    teamSize: "4/5",
-    deadline: new Date('2025-09-15'),
-    tags: ["React Native", "AR", "Firebase"]
+    requestType: "Career Guidance",
+    message: "Looking for advice on transitioning into software engineering. I have been working in data analysis for the past three years and would love to understand the best path forward for making this career switch successfully.",
+    timeAgo: "2h ago",
   },
   {
     id: 2,
-    title: "Sustainable Energy Analytics Platform",
-    description: "Building a data analytics platform to track and optimize renewable energy consumption across campus.",
-    leader: {
-      name: "Priya Sharma",
-      role: "Environmental Engineering Student",
-      avatar: null
+    mentee: {
+      name: "Michael Chen",
+      avatar:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+      program: "Business Administration",
     },
-    members: [
-      { name: "Carlos Rodriguez", role: "Data Scientist" },
-      { name: "Dr. Lisa Chang", role: "Faculty Supervisor" }
-    ],
-    mentor: {
-      name: "Robert Chen",
-      role: "Data Analytics Lead",
-      company: "Tesla"
-    },
-    status: "recruiting",
-    progress: 25,
-    domain: "Data Science",
-    teamSize: "3/6",
-    deadline: new Date('2025-10-30'),
-    tags: ["Python", "Machine Learning", "IoT"]
-  }
-];
-
-// Mock user projects
-const mockUserProjects = [
+    requestType: "Resume Review",
+    message: "Would appreciate feedback on my resume for internship applications. I am targeting product management roles at tech companies and want to make sure my experience in business operations translates well on paper.",
+    timeAgo: "5h ago",
+  },
   {
     id: 3,
-    title: "E-commerce Mobile App",
-    description: "Building a complete e-commerce solution with React Native and Node.js backend.",
-    leader: {
-      name: "Current User", // This would be the logged-in user
-      role: "Computer Science Student",
-      avatar: null
+    mentee: {
+      name: "Emily Davis",
+      avatar:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+      program: "Data Science",
     },
-    members: [
-      { name: "Sarah Wilson", role: "Frontend Developer" },
-      { name: "Mike Chen", role: "Backend Developer" }
-    ],
-    mentor: {
-      name: "Lisa Anderson",
-      role: "Senior Full Stack Developer",
-      company: "Amazon"
-    },
-    status: "active",
-    progress: 80,
-    domain: "Web Development",
-    teamSize: "3/4",
-    deadline: new Date('2025-08-30'),
-    tags: ["React Native", "Node.js", "MongoDB"]
+    requestType: "Interview Prep",
+    message: "Need help preparing for upcoming tech interviews. I have final rounds scheduled with several major companies and would greatly appreciate guidance on system design questions and behavioral interview strategies.",
+    timeAgo: "1d ago",
+  },
+];
+
+// Mock data for schedule
+const scheduleItems = [
+  {
+    id: 1,
+    month: "TODAY",
+    day: "24",
+    title: "Career Sync w/ Sarah J.",
+    time: "2:00 PM - 2:30 PM",
+    color: "border-yellow-400",
+  },
+  {
+    id: 2,
+    month: "NOV",
+    day: "02",
+    title: "Resume Review",
+    time: "10:00 AM - 10:30 AM",
+    color: "border-yellow-400",
+  },
+  {
+    id: 3,
+    month: "NOV",
+    day: "05",
+    title: "Interview Prep",
+    time: "3:00 PM - 3:45 PM",
+    color: "border-yellow-400",
   },
   {
     id: 4,
-    title: "Machine Learning Study Assistant",
-    description: "AI-powered study assistant that helps students with personalized learning recommendations.",
-    leader: {
-      name: "Current User",
-      role: "Data Science Student",
-      avatar: null
-    },
-    members: [
-      { name: "Tom Rodriguez", role: "ML Engineer" }
-    ],
-    mentor: null,
-    status: "recruiting",
-    progress: 30,
-    domain: "AI/ML",
-    teamSize: "2/5",
-    deadline: new Date('2025-12-15'),
-    tags: ["Python", "TensorFlow", "NLP"]
-  }
+    month: "NOV",
+    day: "08",
+    title: "Career Planning",
+    time: "1:00 PM - 1:30 PM",
+    color: "border-yellow-400",
+  },
+  {
+    id: 5,
+    month: "NOV",
+    day: "10",
+    title: "Project Discussion",
+    time: "4:00 PM - 4:30 PM",
+    color: "border-yellow-400",
+  },
 ];
 
-// Mock collaboration invitations
-const mockInvitations = [
+// Mock data for active projects
+const activeProjects = [
   {
     id: 1,
-    type: "project_invitation",
-    project: {
-      title: "Smart Campus Navigation App",
-      leader: "Alex Thompson",
-      domain: "Mobile Development"
-    },
-    role: "UI/UX Designer",
-    message: "We'd love to have you join our team as a UI/UX Designer. Your portfolio shows great mobile design skills!",
-    invitedBy: {
-      name: "Alex Thompson",
-      role: "Project Leader",
-      avatar: null
-    },
-    invitedAt: new Date('2025-07-30'),
-    status: "pending" // pending, accepted, declined
+    title: "Sustainable Energy Research",
+    description:
+      "Collaborative study on renewable energy implementation in urban environments. This project focuses on solar and wind power integration for residential areas, analyzing cost-effectiveness and environmental impact across multiple city districts.",
+    image:
+      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=300&fit=crop",
+    status: "Active",
+    statusColor: "bg-green-100 text-green-700",
+    progress: 75,
+    progressColor: "bg-blue-500",
+    team: [
+      {
+        avatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop",
+      },
+      {
+        avatar:
+          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop",
+      },
+    ],
+    moreMembers: 2,
   },
   {
     id: 2,
-    type: "mentorship_request",
-    project: {
-      title: "Blockchain Voting System",
-      leader: "Emma Davis",
-      domain: "Blockchain"
-    },
-    message: "Hi! We're working on a blockchain-based voting system and would greatly appreciate your guidance on smart contract security.",
-    requestedBy: {
-      name: "Emma Davis",
-      role: "Computer Science Student",
-      avatar: null
-    },
-    requestedAt: new Date('2025-07-28'),
-    status: "pending"
+    title: "Architecture Mentorship",
+    description:
+      "Reviewing final thesis submissions for the graduating class of 2025. Providing detailed feedback on structural design, sustainability practices, and innovative building materials for student projects.",
+    image:
+      "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=300&fit=crop",
+    status: "Pending Review",
+    statusColor: "bg-blue-100 text-blue-700",
+    progress: 90,
+    progressColor: "bg-orange-500",
+    team: [
+      {
+        avatar:
+          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=50&h=50&fit=crop",
+      },
+    ],
+    moreMembers: 5,
   },
   {
     id: 3,
-    type: "collaboration_request",
-    project: {
-      title: "Mental Health Support App",
-      leader: "Jordan Kim",
-      domain: "Healthcare Tech"
-    },
-    role: "Backend Developer",
-    message: "Your experience with healthcare APIs would be perfect for our mental health support platform.",
-    requestedBy: {
-      name: "Jordan Kim",
-      role: "Psychology Student",
-      avatar: null
-    },
-    requestedAt: new Date('2025-07-25'),
-    status: "pending"
-  }
+    title: "AI Ethics Committee",
+    description:
+      "Working group focused on developing ethical guidelines for artificial intelligence research and implementation. Collaborating with industry experts and academic researchers to establish best practices.",
+    image:
+      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=300&fit=crop",
+    status: "Active",
+    statusColor: "bg-green-100 text-green-700",
+    progress: 45,
+    progressColor: "bg-blue-500",
+    team: [
+      {
+        avatar:
+          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop",
+      },
+      {
+        avatar:
+          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop",
+      },
+    ],
+    moreMembers: 3,
+  },
+  {
+    id: 4,
+    title: "Community Outreach Program",
+    description:
+      "Organizing educational workshops and mentorship sessions for underprivileged students in local communities. Building partnerships with schools and community centers.",
+    image:
+      "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop",
+    status: "In Progress",
+    statusColor: "bg-yellow-100 text-yellow-700",
+    progress: 60,
+    progressColor: "bg-yellow-500",
+    team: [
+      {
+        avatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop",
+      },
+    ],
+    moreMembers: 4,
+  },
 ];
 
-// Invitation Card Component
-const InvitationCard = ({ invitation }) => {
-  const [isResponding, setIsResponding] = useState(false);
+// Mock data for discoverable projects
+const discoverableProjects = [
+  {
+    id: 1,
+    title: "Robotics Club Mentorship",
+    description: "Join the student-led robotics team as an alumni advisor. Help prepare for regional competitions and guide students through engineering challenges.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
+    category: "SCIENCE",
+    categoryColor: "bg-blue-600",
+    members: 12,
+    date: "Starts Oct 15",
+  },
+  {
+    id: 2,
+    title: "Local History Archive",
+    description: "We are digitizing city archives from the 1900s. Looking for history buffs and tech-savvy volunteers to help preserve local heritage.",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=300&fit=crop",
+    category: "COMMUNITY",
+    categoryColor: "bg-yellow-500",
+    members: 5,
+    date: "Ongoing",
+  },
+  {
+    id: 3,
+    title: "Winter Art Showcase",
+    description: "Open call for student and alumni artists to collaborate on the upcoming winter exhibition. Seeking painters, sculptors, and digital artists.",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=300&fit=crop",
+    category: "ARTS",
+    categoryColor: "bg-purple-600",
+    members: 28,
+    date: "Dec 01",
+  },
+  {
+    id: 4,
+    title: "AI Research Initiative",
+    description: "Collaborative research project exploring ethical AI applications in education. Looking for researchers, developers, and ethicists to contribute.",
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=300&fit=crop",
+    category: "SCIENCE",
+    categoryColor: "bg-blue-600",
+    members: 15,
+    date: "Starts Nov 20",
+  },
+  {
+    id: 5,
+    title: "Community Garden Project",
+    description: "Help us build and maintain a community garden on campus. Perfect for those interested in sustainability and environmental education.",
+    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop",
+    category: "COMMUNITY",
+    categoryColor: "bg-yellow-500",
+    members: 8,
+    date: "Ongoing",
+  },
+  {
+    id: 6,
+    title: "Music Production Workshop",
+    description: "Learn music production from industry professionals. This workshop series covers everything from beat-making to mixing and mastering.",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=300&fit=crop",
+    category: "ARTS",
+    categoryColor: "bg-purple-600",
+    members: 20,
+    date: "Jan 10",
+  },
+];
 
-  const getInvitationType = (type) => {
-    const types = {
-      project_invitation: { icon: "users", color: "bg-blue-500", label: "Project Invitation" },
-      mentorship_request: { icon: "handshake", color: "bg-purple-500", label: "Mentorship Request" },
-      collaboration_request: { icon: "user-plus", color: "bg-green-500", label: "Collaboration Request" }
-    };
-    return types[type] || types.project_invitation;
-  };
+// Category filters
+const categoryFilters = [
+  { id: "all", label: "All Projects" },
+  { id: "science", label: "Science & Tech" },
+  { id: "arts", label: "Arts & Humanities" },
+  { id: "community", label: "Community" },
+];
 
-  const handleAccept = async () => {
-    setIsResponding(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log(`Accepted invitation: ${invitation.id}`);
-      setIsResponding(false);
-    }, 1000);
-  };
-
-  const handleDecline = async () => {
-    setIsResponding(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log(`Declined invitation: ${invitation.id}`);
-      setIsResponding(false);
-    }, 1000);
-  };
-
-  const typeInfo = getInvitationType(invitation.type);
-
-  return (
-    <Card className="h-full hover:shadow-lg transition-all duration-300">
-      <CardHeader>
-        <div className="flex justify-between items-start mb-2">
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white ${typeInfo.color}`}>
-            <Icon name={typeInfo.icon} size={12} className="mr-1" />
-            {typeInfo.label}
-          </span>
-          <span className="text-xs text-gray-500">
-            {format(invitation.invitedAt || invitation.requestedAt, 'MMM d')}
-          </span>
-        </div>
-        <CardTitle className="text-lg font-bold line-clamp-1">{invitation.project.title}</CardTitle>
-        <CardDescription className="text-sm text-gray-600">
-          {invitation.project.domain} {invitation.role && `• ${invitation.role}`}
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="flex-grow">
-        <div className="flex items-center mb-3">
-          <Avatar className="h-8 w-8 mr-3">
-            <AvatarFallback>
-              {(invitation.invitedBy?.name || invitation.requestedBy?.name).charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-medium">
-              {invitation.invitedBy?.name || invitation.requestedBy?.name}
-            </p>
-            <p className="text-xs text-gray-500">
-              {invitation.invitedBy?.role || invitation.requestedBy?.role}
-            </p>
-          </div>
-        </div>
-        
-        <p className="text-sm text-gray-700 line-clamp-3 mb-3">{invitation.message}</p>
-      </CardContent>
-      
-      <CardFooter className="flex gap-2">
-        <Button 
-          onClick={handleAccept} 
-          disabled={isResponding}
-          className="flex-1 bg-green-500 hover:bg-green-600"
-        >
-          {isResponding ? (
-            <>
-              <InlineSpinner variant="white" className="mr-2" />
-              Accepting...
-            </>
-          ) : (
-            <>
-              <Icon name="check" size={16} className="mr-2" />
-              Accept
-            </>
-          )}
-        </Button>
-        
-        <Button 
-          onClick={handleDecline} 
-          disabled={isResponding}
-          variant="outline"
-          className="flex-1"
-        >
-          {isResponding ? (
-            <>
-              <InlineSpinner variant="current" className="mr-2" />
-              Declining...
-            </>
-          ) : (
-            <>
-              <Icon name="x" size={16} className="mr-2" />
-              Decline
-            </>
-          )}
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-};
-
-// Project Card Component
-const ProjectCard = ({ project, isOwner = false }) => {
-  const [showRequestDialog, setShowRequestDialog] = useState(false);
-
-  const getStatusBadge = (status) => {
-    const badges = {
-      active: { color: "bg-green-500", text: "🚀 Active" },
-      recruiting: { color: "bg-orange-500", text: "👥 Recruiting" },
-      completed: { color: "bg-blue-500", text: "✅ Completed" }
-    };
+// Discover Project Card Component
+const DiscoverProjectCard = ({ project }) => (
+  <div className="bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition-all">
+    {/* Image with category badge and bookmark */}
+    <div className="relative h-44 bg-gradient-to-br from-amber-100 to-amber-200 flex items-end justify-center">
+      <img 
+        src={project.image} 
+        alt={project.title}
+        className="w-full h-full object-cover"
+      />
+      {/* Category Badge */}
+      <span className={`absolute bottom-3 left-3 ${project.categoryColor} text-white text-xs font-semibold px-2.5 py-1 rounded`}>
+        {project.category}
+      </span>
+      {/* Bookmark Icon */}
+      <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors shadow-sm">
+        <Bookmark className="w-4 h-4 text-blue-600" />
+      </button>
+    </div>
     
-    return badges[status] || badges.active;
-  };
-
-  const handleRequestGuidance = () => {
-    setShowRequestDialog(true);
-  };
-
-  const handleJoinProject = () => {
-    // Handle joining project
-    console.log(`Joining project: ${project.title}`);
-  };
-
-  const handleEditProject = () => {
-    // Handle editing project
-    console.log(`Editing project: ${project.title}`);
-  };
-
-  const handleManageTeam = () => {
-    // Handle team management
-    console.log(`Managing team for project: ${project.title}`);
-  };
-
-  return (
-    <Card className="h-full hover:shadow-lg transition-all duration-300">
-      <CardHeader>
-        <div className="flex justify-between items-start mb-2">
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium text-white ${getStatusBadge(project.status).color}`}>
-            {getStatusBadge(project.status).text}
-          </span>
-          <span className="text-sm text-gray-500">{project.teamSize}</span>
-        </div>
-        <CardTitle className="text-lg font-bold line-clamp-2">{project.title}</CardTitle>
-        <CardDescription className="text-sm text-gray-600">
-          {project.domain} • Due {format(project.deadline, 'MMM d')}
-        </CardDescription>
-      </CardHeader>
+    {/* Content */}
+    <div className="p-4">
+      <h3 className="font-bold text-gray-900 text-base mb-2">{project.title}</h3>
+      <p className="text-sm text-gray-500 mb-4 line-clamp-3">{project.description}</p>
       
-      <CardContent className="flex-grow">
-        <p className="text-sm text-gray-700 line-clamp-3 mb-4">{project.description}</p>
-        
-        {/* Progress Bar */}
-        <div className="mb-4">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-xs font-medium text-gray-700">Progress</span>
-            <span className="text-xs text-gray-500">{project.progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${project.progress}%` }}
-            ></div>
-          </div>
+      {/* Members and Date */}
+      <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+        <div className="flex items-center gap-1">
+          <Users className="w-4 h-4" />
+          <span>{project.members} Members</span>
         </div>
-        
-        {/* Team Members */}
-        <div className="mb-4">
-          <p className="text-xs font-medium text-gray-700 mb-2">Team</p>
-          <div className="space-y-1">
-            <div className="flex items-center">
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarFallback className="text-xs">{project.leader.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-xs font-medium">{project.leader.name}</p>
-                <p className="text-xs text-gray-500">Project Leader</p>
-              </div>
-            </div>
-            {project.members.slice(0, 2).map((member, index) => (
-              <div key={index} className="flex items-center">
-                <Avatar className="h-6 w-6 mr-2">
-                  <AvatarFallback className="text-xs">{member.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-xs">{member.name}</p>
-                  <p className="text-xs text-gray-500">{member.role}</p>
-                </div>
-              </div>
-            ))}
-            {project.members.length > 2 && (
-              <p className="text-xs text-gray-500 ml-8">+{project.members.length - 2} more</p>
-            )}
-          </div>
+        <div className="flex items-center gap-1">
+          <Calendar className="w-4 h-4" />
+          <span>{project.date}</span>
         </div>
-        
-        {/* Mentor */}
-        {project.mentor && (
-          <div className="bg-purple-50 p-2 rounded-lg">
-            <p className="text-xs font-medium text-purple-700 mb-1">Mentor</p>
-            <div className="flex items-center">
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarFallback className="text-xs bg-purple-200">{project.mentor.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-xs font-medium">{project.mentor.name}</p>
-                <p className="text-xs text-gray-500">{project.mentor.role}</p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1 mt-3">
-          {project.tags.map((tag, index) => (
-            <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-              {tag}
-            </span>
-          ))}
-        </div>
-      </CardContent>
+      </div>
       
-      <CardFooter className="flex gap-2">
-        {isOwner ? (
-          // Owner actions
-          <>
-            <Button onClick={handleEditProject} variant="outline" className="flex-1">
-              <Icon name="edit" size={16} className="mr-2" />
-              Edit Project
-            </Button>
-            <Button onClick={handleManageTeam} className="flex-1">
-              <Icon name="users" size={16} className="mr-2" />
-              Manage Team
-            </Button>
-          </>
-        ) : (
-          // Non-owner actions
-          <>
-            {project.status === 'recruiting' ? (
-              <Button onClick={handleJoinProject} className="flex-1">
-                <Icon name="users" size={16} className="mr-2" />
-                Join Project
-              </Button>
-            ) : (
-              <Button variant="outline" className="flex-1">
-                <Icon name="eye" size={16} className="mr-2" />
-                View Details
-              </Button>
-            )}
-            
-            <Button 
-              variant="outline" 
-              onClick={handleRequestGuidance}
-              className="flex-1"
-            >
-              <Icon name="handshake" size={16} className="mr-2" />
-              Request Guidance
-            </Button>
-          </>
-        )}
-      </CardFooter>
-    </Card>
-  );
-};
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <Button className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg">
+          Join Project
+        </Button>
+        <Button 
+          variant="outline" 
+          className="border-gray-300 text-gray-700 hover:bg-gray-100 text-sm font-medium px-4 py-2 rounded-lg"
+        >
+          View Details
+        </Button>
+      </div>
+    </div>
+  </div>
+);
 
-// Create Project Modal Component
-const CreateProjectModal = ({ isOpen, onClose }) => {
-  const [projectData, setProjectData] = useState({
-    title: '',
-    description: '',
-    domain: '',
-    teamSize: '',
-    deadline: '',
-    skills: ''
-  });
-
+// Find Projects Modal Component
+const FindProjectsModal = ({ isOpen, onClose, searchQuery, setSearchQuery, activeFilter, setActiveFilter }) => {
   if (!isOpen) return null;
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle project creation
-    console.log('Creating project:', projectData);
-    onClose();
-  };
-
+  
+  const filteredProjects = discoverableProjects.filter(project => {
+    const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          project.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = activeFilter === "all" || 
+                          project.category.toLowerCase() === activeFilter ||
+                          (activeFilter === "science" && project.category === "SCIENCE") ||
+                          (activeFilter === "arts" && project.category === "ARTS") ||
+                          (activeFilter === "community" && project.category === "COMMUNITY");
+    return matchesSearch && matchesFilter;
+  });
+  
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Create New Project</h2>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <Icon name="x" size={20} />
-            </Button>
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 pb-10 overflow-y-auto">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal Content */}
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl mx-4 z-10">
+        {/* Close Button */}
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <X className="w-5 h-5 text-gray-500" />
+        </button>
+        
+        {/* Search and Filters */}
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            {/* Search Input */}
+            <div className="relative flex-1 w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search projects by name, topic, or keywords..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
+            
+            {/* Filter Pills */}
+            <div className="flex gap-2 flex-wrap">
+              {categoryFilters.map((filter) => (
+                <button
+                  key={filter.id}
+                  onClick={() => setActiveFilter(filter.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    activeFilter === filter.id
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Projects Grid */}
+        <div className="p-6 max-h-[60vh] overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProjects.map((project) => (
+              <DiscoverProjectCard key={project.id} project={project} />
+            ))}
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Project Title</label>
-              <input
-                type="text"
-                value={projectData.title}
-                onChange={(e) => setProjectData({...projectData, title: e.target.value})}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+          {filteredProjects.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No projects found matching your criteria.</p>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <textarea
-                value={projectData.description}
-                onChange={(e) => setProjectData({...projectData, description: e.target.value})}
-                rows="3"
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">Domain</label>
-                <select
-                  value={projectData.domain}
-                  onChange={(e) => setProjectData({...projectData, domain: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select Domain</option>
-                  <option value="Web Development">Web Development</option>
-                  <option value="Mobile Development">Mobile Development</option>
-                  <option value="Data Science">Data Science</option>
-                  <option value="AI/ML">AI/ML</option>
-                  <option value="Cybersecurity">Cybersecurity</option>
-                  <option value="Design">Design</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Team Size</label>
-                <input
-                  type="number"
-                  min="2"
-                  max="10"
-                  value={projectData.teamSize}
-                  onChange={(e) => setProjectData({...projectData, teamSize: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Deadline</label>
-              <input
-                type="date"
-                value={projectData.deadline}
-                onChange={(e) => setProjectData({...projectData, deadline: e.target.value})}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">Required Skills</label>
-              <input
-                type="text"
-                placeholder="e.g., React, Node.js, Python"
-                value={projectData.skills}
-                onChange={(e) => setProjectData({...projectData, skills: e.target.value})}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" className="flex-1">Create Project</Button>
-              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            </div>
-          </form>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-const Collaboration = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('invitations');
-  const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+// Request Card Component
+const RequestCard = ({ request, onAccept, onDecline }) => (
+  <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+    {/* Invited by header */}
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-3">
+        <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
+          <AvatarImage src={request.mentee.avatar} />
+          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm">
+            {request.mentee.name.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <p className="text-xs text-gray-500">Invited by</p>
+          <p className="text-sm font-semibold text-blue-600">
+            {request.mentee.name}
+          </p>
+        </div>
+      </div>
+      <span className="text-xs text-gray-400">{request.timeAgo}</span>
+    </div>
 
-  // Filter function for projects
-  const filteredProjects = mockProjects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || project.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+    {/* Project/Board Title */}
+    <h3 className="text-base font-bold text-gray-900 mb-2">
+      {request.requestType}
+    </h3>
 
-  // Filter function for user projects
-  const filteredUserProjects = mockUserProjects.filter(project => {
-    const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || project.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+    {/* Description */}
+    <p className="text-sm text-gray-500 mb-5 line-clamp-3">{request.message}</p>
 
-  // Filter function for invitations
-  const filteredInvitations = mockInvitations.filter(invitation => {
-    const matchesSearch = invitation.project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         invitation.message.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
+    {/* Action Buttons */}
+    <div className="flex gap-3">
+      <Button
+        onClick={onAccept}
+        className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-6 py-2 rounded-lg"
+      >
+        Accept
+      </Button>
+      <Button
+        onClick={onDecline}
+        variant="ghost"
+        className="text-gray-600 hover:text-gray-800 hover:bg-transparent text-sm font-medium px-4 py-2"
+      >
+        Decline
+      </Button>
+    </div>
+  </div>
+);
 
-  return (
-    <motion.div 
-      className="min-h-screen bg-gray-50 p-6"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <SectionHero 
-            title="Collaboration Hub"
-            description="Connect, learn, and grow together through events, projects, and shared experiences"
-            icon="handshake"
-            actionButton={{
-              label: "Create Project",
-              icon: "plus",
-              onClick: () => setShowCreateProjectModal(true)
-            }}
+// Schedule Item Component
+const ScheduleItem = ({ item }) => (
+  <div className={`flex items-start gap-3 py-3 border-l-2 ${item.color} pl-3`}>
+    <div className="text-center min-w-[40px]">
+      <p className="text-xs text-gray-400 font-medium">{item.month}</p>
+      <p className="text-xl font-bold text-white">{item.day}</p>
+    </div>
+    <div className="flex-1">
+      <h4 className="text-white font-medium text-sm">{item.title}</h4>
+      <div className="flex items-center gap-1 text-gray-400 text-xs mt-0.5">
+        <Clock className="w-3 h-3" />
+        <span>{item.time}</span>
+      </div>
+    </div>
+  </div>
+);
+
+// Schedule Panel Component
+const SchedulePanel = () => (
+  <div className="bg-slate-800 rounded-xl p-5 min-h-[300px]">
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <Calendar className="w-5 h-5 text-white" />
+        <h3 className="text-white font-semibold">Your Schedule</h3>
+      </div>
+      <button className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
+        View All
+      </button>
+    </div>
+
+    <div className="space-y-1">
+      {scheduleItems.map((item) => (
+        <ScheduleItem key={item.id} item={item} />
+      ))}
+    </div>
+
+    <Button className="w-full mt-4 bg-transparent border border-slate-600 text-blue-400 hover:bg-slate-700 hover:text-blue-300 font-medium rounded-lg">
+      + Schedule New
+    </Button>
+  </div>
+);
+
+// Project Card Component
+const ProjectCard = ({ project }) => (
+  <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all">
+    {/* Project Details */}
+    <div className="p-4">
+      <div className="flex items-start justify-between mb-2">
+        <span
+          className={`text-xs font-medium px-2.5 py-1 rounded-md ${project.statusColor}`}
+        >
+          {project.status}
+        </span>
+        <button className="text-gray-400 hover:text-gray-600 p-1">
+          <MoreHorizontal className="w-5 h-5" />
+        </button>
+      </div>
+
+      <h3 className="font-semibold text-gray-900 text-base mb-1">
+        {project.title}
+      </h3>
+      <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+        {project.description}
+      </p>
+
+      {/* Progress Bar */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-gray-500">Progress</span>
+          <span className="text-xs font-medium text-gray-700">
+            {project.progress}%
+          </span>
+        </div>
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full ${project.progressColor} rounded-full`}
+            style={{ width: `${project.progress}%` }}
           />
-          
-          {/* Search and Filter Bar */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex-1 relative">
-              <Icon name="search" size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder={activeTab === 'invitations' ? "Search invitations..." : "Search projects..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            
-            {activeTab !== 'invitations' && (
-              <div className="flex gap-2">
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="recruiting">Recruiting</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-            )}
-          </div>
-          
-          {/* Tab Navigation */}
-          <div className="flex space-x-1 bg-white p-1 rounded-lg shadow-sm mb-6">
-            {[
-              { id: 'invitations', label: 'Collaboration Invitations', icon: 'mail' },
-              { id: 'my-projects', label: 'My Projects', icon: 'user' },
-              { id: 'discover', label: 'Discover Projects', icon: 'search' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                <Icon name={tab.icon} size={20} />
-                <span className="font-medium">{tab.label}</span>
-                {tab.id === 'invitations' && filteredInvitations.length > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
-                    {filteredInvitations.length}
-                  </span>
-                )}
-              </button>
+        </div>
+      </div>
+
+      {/* Team & Actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="flex -space-x-2">
+            {project.team.map((member, index) => (
+              <Avatar key={index} className="w-8 h-8 border-2 border-white">
+                <AvatarImage src={member.avatar} />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs">
+                  T
+                </AvatarFallback>
+              </Avatar>
             ))}
           </div>
-        </motion.div>
+          {project.moreMembers > 0 && (
+            <span className="text-xs text-gray-500 ml-2">
+              +{project.moreMembers}
+            </span>
+          )}
+        </div>
 
-        {/* Collaboration Invitations Tab */}
-        {activeTab === 'invitations' && (
-          <motion.div variants={itemVariants}>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">📧 Collaboration Invitations</h2>
-                <p className="text-gray-600">Review and respond to collaboration requests and project invitations</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredInvitations.map((invitation) => (
-                <motion.div key={invitation.id} variants={itemVariants}>
-                  <InvitationCard invitation={invitation} />
-                </motion.div>
-              ))}
-            </div>
-            
-            {filteredInvitations.length === 0 && (
-              <div className="text-center py-12">
-                <Icon name="mail" size={48} className="mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No invitations found</h3>
-                <p className="text-gray-500">You're all caught up! New collaboration requests will appear here.</p>
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* My Projects Tab */}
-        {activeTab === 'my-projects' && (
-          <motion.div variants={itemVariants}>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">📁 My Projects</h2>
-                <p className="text-gray-600">Manage and track your ongoing projects</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredUserProjects.map((project) => (
-                <motion.div key={project.id} variants={itemVariants}>
-                  <ProjectCard project={project} isOwner={true} />
-                </motion.div>
-              ))}
-            </div>
-            
-            {filteredUserProjects.length === 0 && (
-              <div className="text-center py-12">
-                <Icon name="user" size={48} className="mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-                <p className="text-gray-500">
-                  {searchQuery || filterStatus !== 'all' 
-                    ? "Try adjusting your search or filter criteria" 
-                    : "Start your first project and begin collaborating with others!"}
-                </p>
-                {!searchQuery && filterStatus === 'all' && (
-                  <Button 
-                    onClick={() => setShowCreateProjectModal(true)}
-                    className="mt-4"
-                  >
-                    <Icon name="plus" size={16} className="mr-2" />
-                    Create Your First Project
-                  </Button>
-                )}
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* Discover Projects Tab */}
-        {activeTab === 'discover' && (
-          <motion.div variants={itemVariants}>
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">🔍 Discover Projects</h2>
-                <p className="text-gray-600">Find and join exciting projects from other students</p>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
-                <motion.div key={project.id} variants={itemVariants}>
-                  <ProjectCard project={project} isOwner={false} />
-                </motion.div>
-              ))}
-            </div>
-            
-            {filteredProjects.length === 0 && (
-              <div className="text-center py-12">
-                <Icon name="search" size={48} className="mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-                <p className="text-gray-500">Try adjusting your search or filter criteria</p>
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* Create Project Modal */}
-        <CreateProjectModal 
-          isOpen={showCreateProjectModal} 
-          onClose={() => setShowCreateProjectModal(false)} 
-        />
+        <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
+          Enter Workspace
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
-    </motion.div>
+    </div>
+  </div>
+);
+
+const Collaboration = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            My Projects Hub
+          </h1>
+          <p className="text-gray-600">
+            Manage active research, handle invitations, and explore new
+            opportunities.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-5 rounded-full flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            New Project
+          </Button>
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-5 rounded-full flex items-center gap-2"
+            onClick={() => navigate('/dashboard/find-projects')}
+          >
+            <Search className="w-4 h-4" />
+            Find Projects
+          </Button>
+        </div>
+      </div>
+
+      {/* Incoming Requests & Schedule Section */}
+      <section>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          Collaboration Invitations
+        </h2>
+
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Request Cards - 2 columns */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {incomingRequests.map((request) => (
+                <RequestCard
+                  key={request.id}
+                  request={request}
+                  onAccept={() => console.log("Accepted:", request.id)}
+                  onDecline={() => console.log("Declined:", request.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Schedule Panel - 1 column */}
+          <div className="lg:col-span-1 self-start lg:-mt-12">
+            <div className="bg-slate-900 rounded-xl p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-white" />
+                  <h3 className="text-lg font-semibold">Your Schedule</h3>
+                </div>
+                <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                  View All
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {scheduleItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="border-l-4 border-yellow-400 pl-4 py-3 bg-slate-800 rounded-r"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="text-center flex-shrink-0">
+                        <div className="text-xs text-gray-400 font-medium">
+                          {item.month}
+                        </div>
+                        <div className="text-xl font-bold text-white">
+                          {item.day}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white mb-1">
+                          {item.title}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-blue-400">
+                          <Clock className="w-3 h-3" />
+                          <span>{item.time}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button className="w-full mt-4 py-2 text-sm text-blue-400 hover:text-blue-300 font-medium border border-slate-700 rounded hover:bg-slate-800 transition-colors">
+                + Schedule New
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* My Active Projects Section */}
+      <section>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Project Cards - 2 columns */}
+          <div className="lg:col-span-2 self-start">
+            <div className="flex items-center justify-between mb-4 px-3">
+              <h2 className="text-xl font-bold text-gray-900">
+                My Active Projects
+              </h2>
+              <button className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors">
+                View All
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {activeProjects.map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            </div>
+          </div>
+
+          {/* Upcoming Deadlines Panel - 1 column */}
+          <div className="lg:col-span-1 self-start">
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="flex items-center gap-2 mb-5">
+                <Calendar className="w-5 h-5 text-gray-700" />
+                <h3 className="text-lg font-bold text-gray-900">
+                  Upcoming Deadlines
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                {/* Deadline Item 1 */}
+                <div className="flex items-start gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="text-center min-w-[45px] bg-blue-50 rounded-lg py-2 px-2">
+                    <p className="text-xs text-blue-600 font-medium">OCT</p>
+                    <p className="text-xl font-bold text-gray-900">12</p>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 text-sm">
+                      Thesis Proposal Due
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      Architecture Mentorship
+                    </p>
+                  </div>
+                </div>
+
+                {/* Deadline Item 2 */}
+                <div className="flex items-start gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="text-center min-w-[45px] bg-blue-50 rounded-lg py-2 px-2">
+                    <p className="text-xs text-blue-600 font-medium">OCT</p>
+                    <p className="text-xl font-bold text-gray-900">15</p>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 text-sm">
+                      Quarterly Review
+                    </h4>
+                    <p className="text-xs text-gray-500">Sustainable Energy</p>
+                  </div>
+                </div>
+
+                {/* Deadline Item 3 */}
+                <div className="flex items-start gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="text-center min-w-[45px] bg-blue-50 rounded-lg py-2 px-2">
+                    <p className="text-xs text-blue-600 font-medium">NOV</p>
+                    <p className="text-xl font-bold text-gray-900">01</p>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 text-sm">
+                      Research Submission
+                    </h4>
+                    <p className="text-xs text-gray-500">Energy Research</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 };
 

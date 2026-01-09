@@ -19,27 +19,27 @@ const DashboardNavbar = () => {
   const navLinks = {
     teacher: [
       { name: 'Network', path: '/dashboard/directory' },
-      { name: 'Tribute', path: '/dashboard/tribute' },
-      { name: 'Blog', path: '/dashboard/blog' },
-      { name: 'Nexus', path: '/dashboard/media' },
       { name: 'Events', path: '/dashboard/events' },
+      { name: 'Nexus', path: '/dashboard/media' },
+      { name: 'Blog', path: '/dashboard/blog' },
+      { name: 'Tribute', path: '/dashboard/tribute' },
       { name: 'Feedbacks', path: '/dashboard/feedbacks' },
     ],
     student: [
       { name: 'Network', path: '/dashboard/directory' },
       { name: 'Mentorship', path: '/dashboard/mentorship' },
       { name: 'Events', path: '/dashboard/events' },
-      { name: 'Blog', path: '/dashboard/blog' },
       { name: 'Nexus', path: '/dashboard/media' },
-      { name: 'Tribute', path: '/dashboard/tribute' },
+      { name: 'Blogs', path: '/dashboard/blog' },
+      { name: 'Tributes', path: '/dashboard/tribute' },
     ],
     alumni: [
       { name: 'Network', path: '/dashboard/directory' },
       { name: 'Mentorship', path: '/dashboard/mentorship' },
       { name: 'Events', path: '/dashboard/events' },
-      { name: 'Tribute', path: '/dashboard/tribute' },
-      { name: 'Blog', path: '/dashboard/blog' },
       { name: 'Nexus', path: '/dashboard/media' },
+      { name: 'Blogs', path: '/dashboard/blog' },
+      { name: 'Tributes', path: '/dashboard/tribute' },
     ]
   };
   // Get links based on user role

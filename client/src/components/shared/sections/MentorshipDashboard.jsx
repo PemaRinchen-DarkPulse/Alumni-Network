@@ -305,17 +305,21 @@ const MentorshipDashboard = () => {
 
             {/* Incoming Request Cards in 2 columns */}
             {dashboardData.incomingRequests.length === 0 ? (
-              <Card className="p-12">
-                <div className="text-center py-8">
-                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <div className="bg-white rounded-xl border border-gray-200 p-12 min-h-[450px] flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 text-gray-300">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-full h-full">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     No Incoming Requests
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-500">
                     You don't have any pending mentorship requests at the moment.
                   </p>
                 </div>
-              </Card>
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {(showAllRequests ? dashboardData.incomingRequests : dashboardData.incomingRequests.slice(0, 4)).map((request) => (
@@ -524,20 +528,9 @@ const MentorshipDashboard = () => {
               </div>
 
               <button className="w-full mt-4 py-2 text-sm text-blue-600 hover:text-blue-700 font-medium border border-gray-200 rounded hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                <span>↓</span>
+                <span>↑</span>
                 Share New Resource
               </button>
-            </Card>
-
-            {/* Mentor Tips */}
-            <Card className="p-6 bg-gray-900 text-white">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-yellow-400 text-xl">💡</span>
-                <h3 className="font-semibold">Mentor Tips</h3>
-              </div>
-              <p className="text-sm text-gray-300">
-                Not sure how to handle a difficult conversation?
-              </p>
             </Card>
           </div>
         </div>
