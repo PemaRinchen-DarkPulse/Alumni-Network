@@ -25,6 +25,7 @@ import BlogListPage from './BlogListPage';
 import MyNetwork from '@/components/shared/sections/MyNetwork';
 import CreateEventPage from './CreateEventPage';
 import FindProjects from './FindProjects';
+import CreateNewProject from './CreateNewProject';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -57,6 +58,7 @@ const Home = () => {
                 <MediaGallerySection/>
               } />
               <Route path="/find-projects" element={<FindProjects />} />
+              <Route path="/create-new-project" element={<CreateNewProject />} />
                 <Route path="/tribute" element={
                 <TributeSection />
               } />

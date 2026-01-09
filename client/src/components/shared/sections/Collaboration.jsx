@@ -561,45 +561,48 @@ const Collaboration = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            My Projects Hub
-          </h1>
-          <p className="text-gray-600">
-            Manage active research, handle invitations, and explore new
-            opportunities.
-          </p>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">My Projects Hub</h1>
+              <p className="text-gray-600 mt-1">
+                Manage active research, handle invitations, and explore new opportunities.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-5 rounded-full flex items-center gap-2"
+                onClick={() => navigate('/dashboard/create-new-project')}
+              >
+                <Plus className="w-4 h-4" />
+                New Project
+              </Button>
+              <Button
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-5 rounded-full flex items-center gap-2"
+                onClick={() => navigate('/dashboard/find-projects')}
+              >
+                <Search className="w-4 h-4" />
+                Find Projects
+              </Button>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-3">
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-5 rounded-full flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            New Project
-          </Button>
-          <Button
-            variant="outline"
-            className="border-gray-300 text-gray-700 hover:bg-gray-50 font-medium px-5 rounded-full flex items-center gap-2"
-            onClick={() => navigate('/dashboard/find-projects')}
-          >
-            <Search className="w-4 h-4" />
-            Find Projects
-          </Button>
-        </div>
-      </div>
 
-      {/* Incoming Requests & Schedule Section */}
-      <section>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
-          Collaboration Invitations
-        </h2>
-
-
+        {/* Main Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Request Cards - 2 columns */}
+          {/* Left Section - Collaboration Invitations (2 columns) */}
           <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Section Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Collaboration Invitations</h2>
+            </div>
+
+            {/* Request Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {incomingRequests.map((request) => (
                 <RequestCard
                   key={request.id}
@@ -611,8 +614,8 @@ const Collaboration = () => {
             </div>
           </div>
 
-          {/* Schedule Panel - 1 column */}
-          <div className="lg:col-span-1 self-start lg:-mt-12">
+          {/* Right Section - Your Schedule (1 column) */}
+          <div className="lg:col-span-1">
             <div className="bg-slate-900 rounded-xl p-6 text-white">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -659,11 +662,9 @@ const Collaboration = () => {
             </div>
           </div>
         </div>
-      </section>
 
-      {/* My Active Projects Section */}
-      <section>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* My Active Projects Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           {/* Project Cards - 2 columns */}
           <div className="lg:col-span-2 self-start">
             <div className="flex items-center justify-between mb-4 px-3">
@@ -739,7 +740,7 @@ const Collaboration = () => {
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };
