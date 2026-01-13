@@ -714,4 +714,176 @@ export const eventAPI = {
   },
 };
 
+/**
+ * Blog API methods
+ */
+export const blogAPI = {
+  /**
+   * Save blog post as draft
+   * @param {Object} blogData - Blog post data
+   */
+  saveDraft: async (blogData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.SAVE_DRAFT, {
+      method: 'POST',
+      body: JSON.stringify(blogData),
+    });
+
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to save draft' };
+    }
+  },
+
+  /**
+   * Publish blog post
+   * @param {Object} blogData - Blog post data
+   */
+  publishPost: async (blogData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.PUBLISH, {
+      method: 'POST',
+      body: JSON.stringify(blogData),
+    });
+
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to publish post' };
+    }
+  },
+
+  /**
+   * Update existing blog post
+   * @param {number} id - Blog post ID
+   * @param {Object} blogData - Updated blog post data
+   */
+  updatePost: async (id, blogData) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.UPDATE(id), {
+      method: 'PUT',
+      body: JSON.stringify(blogData),
+    });
+
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to update post' };
+    }
+  },
+
+  /**
+   * Publish an existing draft
+   * @param {number} id - Blog post ID
+   */
+  publishDraft: async (id) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.PUBLISH_DRAFT(id), {
+      method: 'POST',
+    });
+
+    if (ok && data.success) {
+      return { success: true, data: data.data, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to publish draft' };
+    }
+  },
+
+  /**
+   * Get blog post by ID
+   * @param {number} id - Blog post ID
+   */
+  getPostById: async (id) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.GET_BY_ID(id));
+
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch post' };
+    }
+  },
+
+  /**
+   * Get all published blog posts
+   */
+  getAllPublishedPosts: async () => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.GET_ALL_PUBLISHED);
+
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch posts' };
+    }
+  },
+
+  /**
+   * Get blog posts by author
+   * @param {number} authorId - Author ID
+   */
+  getPostsByAuthor: async (authorId) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.GET_BY_AUTHOR(authorId));
+
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch posts' };
+    }
+  },
+
+  /**
+   * Get draft posts by author
+   * @param {number} authorId - Author ID
+   */
+  getDraftsByAuthor: async (authorId) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.GET_DRAFTS_BY_AUTHOR(authorId));
+
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch drafts' };
+    }
+  },
+
+  /**
+   * Get latest draft by author
+   * @param {number} authorId - Author ID
+   */
+  getLatestDraft: async (authorId) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.GET_LATEST_DRAFT(authorId));
+
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch draft' };
+    }
+  },
+
+  /**
+   * Get blog posts by category
+   * @param {string} category - Category name
+   */
+  getPostsByCategory: async (category) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.GET_BY_CATEGORY(category));
+
+    if (ok && data.success) {
+      return { success: true, data: data.data };
+    } else {
+      return { success: false, error: data.message || 'Failed to fetch posts' };
+    }
+  },
+
+  /**
+   * Delete blog post
+   * @param {number} id - Blog post ID
+   */
+  deletePost: async (id) => {
+    const { ok, data } = await apiFetch(API_ENDPOINTS.BLOG.DELETE(id), {
+      method: 'DELETE',
+    });
+
+    if (ok && data.success) {
+      return { success: true, message: data.message };
+    } else {
+      return { success: false, error: data.message || 'Failed to delete post' };
+    }
+  },
+};
+
 export default authAPI;

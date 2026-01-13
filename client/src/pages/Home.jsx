@@ -22,6 +22,7 @@ import SettingsPage from '@/components/settings/SettingsPage';
 import Network from './Network';
 import AlumniDetailPage from './AlumniDetailPage';
 import BlogListPage from './BlogListPage';
+import CreateBlogPage from './CreateBlogPage';
 import MyNetwork from '@/components/shared/sections/MyNetwork';
 import CreateEventPage from './CreateEventPage';
 import FindProjects from './FindProjects';
@@ -50,6 +51,7 @@ const Home = () => {
               
               {/* Legacy blog section route */}
               <Route path="/blog" element={<BlogListPage />} />
+              <Route path="/blog/create" element={<CreateBlogPage />} />
               
               <Route path="/events" element={<EventsPage />} />
               <Route path="/events/create" element={<CreateEventPage />} />

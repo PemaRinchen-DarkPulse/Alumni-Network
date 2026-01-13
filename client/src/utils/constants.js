@@ -46,4 +46,17 @@ export const API_ENDPOINTS = {
     UPDATE: (id) => `${API_BASE_URL}/events/${id}`,
     DELETE: (id) => `${API_BASE_URL}/events/${id}`,
   },
+  BLOG: {
+    SAVE_DRAFT: `${API_BASE_URL}/blog/draft`,
+    PUBLISH: `${API_BASE_URL}/blog/publish`,
+    GET_ALL_PUBLISHED: `${API_BASE_URL}/blog/published`,
+    GET_BY_ID: (id) => `${API_BASE_URL}/blog/${id}`,
+    GET_BY_AUTHOR: (authorId) => `${API_BASE_URL}/blog/author/${authorId}`,
+    GET_DRAFTS_BY_AUTHOR: (authorId) => `${API_BASE_URL}/blog/author/${authorId}/drafts`,
+    GET_LATEST_DRAFT: (authorId) => `${API_BASE_URL}/blog/author/${authorId}/latest-draft`,
+    GET_BY_CATEGORY: (category) => `${API_BASE_URL}/blog/category/${category}`,
+    UPDATE: (id) => `${API_BASE_URL}/blog/${id}`,
+    PUBLISH_DRAFT: (id) => `${API_BASE_URL}/blog/${id}/publish`,
+    DELETE: (id) => `${API_BASE_URL}/blog/${id}`,
+  },
 };
