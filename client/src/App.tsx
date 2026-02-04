@@ -1,0 +1,45 @@
+import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
+import Stats from './components/Stats'
+import ProblemSolution from './components/ProblemSolution'
+import HowItWorks from './components/HowItWorks'
+import AboutUs from './components/AboutUs'
+import CTA from './components/CTA'
+import Contact from './components/Contact'
+import Footer from './components/Footer'
+import Login from './components/Login'
+import SignUp from './components/SignUp'
+import Dashboard from './components/Dashboard'
+
+function App() {
+  return (
+    <Router>
+      <div className="app">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={
+            <>
+              <Navbar />
+              <main>
+                <Hero />
+                <ProblemSolution />
+                <Stats />
+                <HowItWorks />
+                <AboutUs />
+                <CTA />
+                <Contact />
+              </main>
+              <Footer />
+            </>
+          } />
+        </Routes>
+      </div>
+    </Router>
+  )
+}
+
+export default App

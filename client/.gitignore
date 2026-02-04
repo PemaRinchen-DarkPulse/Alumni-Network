@@ -1,6 +1,4 @@
-# ====================
 # Logs
-# ====================
 logs
 *.log
 npm-debug.log*
@@ -9,105 +7,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# ====================
-# Dependencies
-# ====================
 node_modules
-.pnp
-.pnp.js
-.yarn/
-.npm/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# ====================
-# Build Outputs
-# ====================
 dist
 dist-ssr
-build
 *.local
 
-# ====================
-# Environment Variables
-# ====================
-.env
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production
-.env.production.local
-.env*.local
-!.env.example
-
-# ====================
-# Testing
-# ====================
-coverage
-.nyc_output
-.vitest
-.jest
-test-results/
-playwright-report/
-playwright/.cache/
-
-# ====================
-# Vite
-# ====================
-.vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-# ====================
-# Editor & IDE
-# ====================
+# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-!.vscode/settings.json
-!.vscode/launch.json
-!.vscode/tasks.json
 .idea
+.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-*.swp
-*.swo
-*~
-.history/
-
-# ====================
-# OS Specific
-# ====================
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# ====================
-# Temporary Files
-# ====================
-*.tmp
-*.temp
-.cache
-*.bak
-*.backup
-*.old
-~*
-
-# ====================
-# Misc
-# ====================
-.vercel
-.netlify
-.turbo
-.next/
