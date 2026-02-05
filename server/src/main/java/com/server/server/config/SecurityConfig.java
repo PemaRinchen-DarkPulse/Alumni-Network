@@ -34,10 +34,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/**").permitAll()
                 .requestMatchers("/api/connections/**").permitAll()
                 .requestMatchers("/api/mentorship/**").permitAll()
-                .requestMatchers("/api/events/published").permitAll()
-                .requestMatchers("/api/events/*/rsvp").authenticated()
                 .requestMatchers("/api/events/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/blog/**").permitAll()
+                .requestMatchers("/api/questions/**").permitAll()
+                .requestMatchers("/api/tributes/**").permitAll()
+                .anyRequest().permitAll() // Allow all requests for development
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         

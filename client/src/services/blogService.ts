@@ -12,6 +12,7 @@ export interface BlogPost {
   category: string
   tags: string[]
   imageUrl?: string
+  featuredImageUrl?: string
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
   viewCount: number
   likeCount: number

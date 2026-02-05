@@ -64,20 +64,34 @@ const CreatePost = ({ onClose }: CreatePostProps) => {
     setError('')
 
     try {
-      const formDataToSend = new FormData()
-      formDataToSend.append('title', formData.title)
-      formDataToSend.append('content', formData.content)
-      formDataToSend.append('category', formData.category)
-      formDataToSend.append('status', status)
-      
       const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '')
-      tags.forEach(tag => formDataToSend.append('tags', tag))
       
+      // Convert image to base64 if present
+      let base64Image = ''
       if (imageFile) {
-        formDataToSend.append('image', imageFile)
+        base64Image = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result as string)
+          reader.readAsDataURL(imageFile)
+        })
       }
 
-      await blogService.createPost(formDataToSend)
+      // Get user info from localStorage
+      const userStr = localStorage.getItem('user')
+      const user = userStr ? JSON.parse(userStr) : null
+
+      const postData = {
+        title: formData.title,
+        content: formData.content,
+        category: formData.category,
+        tags: tags,
+        featuredImage: base64Image,
+        authorId: user?.id || null,
+        authorName: user?.name || null,
+        status: status
+      }
+
+      await blogService.createPost(postData)
       onClose()
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create post')

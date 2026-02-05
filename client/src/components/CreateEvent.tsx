@@ -22,6 +22,9 @@ const CreateEvent = ({ onClose }: CreateEventProps) => {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -37,6 +40,72 @@ const CreateEvent = ({ onClose }: CreateEventProps) => {
         ...prev,
         [name]: value
       }))
+    }
+  }
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file')
+        return
+      }
+
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB')
+        return
+      }
+
+      setImageFile(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+      setError('')
+    }
+  }
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleRemoveImage = () => {
+    setImageFile(null)
+    setImagePreview('')
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB')
+        return
+      }
+
+      setImageFile(file)
+      
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+      setError('')
     }
   }
 
@@ -70,6 +139,10 @@ const CreateEvent = ({ onClose }: CreateEventProps) => {
     setError('')
 
     try {
+      // Get user info from localStorage
+      const userStr = localStorage.getItem('user')
+      const user = userStr ? JSON.parse(userStr) : null
+
       const eventData = {
         title: formData.title,
         description: formData.description,
@@ -82,10 +155,11 @@ const CreateEvent = ({ onClose }: CreateEventProps) => {
         isFeatured: formData.isFeatured,
         visibility: formData.visibility,
         status,
-        bannerImageUrl: formData.imageUrl || null
+        bannerImageUrl: formData.imageUrl || null,
+        createdBy: user?.id || null
       }
 
-      await eventService.createEvent(eventData)
+      await eventService.createEventWithImage(eventData, imageFile || undefined)
       onClose()
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create event')
@@ -234,15 +308,46 @@ const CreateEvent = ({ onClose }: CreateEventProps) => {
               Upload a high-quality image to capture attention. Recommended size <strong>1200×600px</strong>.
             </p>
             
-            <div className="create-event__upload-area">
-              <div className="upload-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="1.5">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
-                </svg>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              style={{ display: 'none' }}
+            />
+
+            {imagePreview ? (
+              <div className="create-event__image-preview">
+                <img src={imagePreview} alt="Event banner preview" />
+                <button 
+                  type="button"
+                  className="create-event__remove-image"
+                  onClick={handleRemoveImage}
+                  title="Remove image"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
               </div>
-              <p className="upload-text">Click or drag image to upload</p>
-              <p className="upload-formats">SVG, PNG, JPG or GIF (max. 5MB)</p>
-            </div>
+            ) : (
+              <div 
+                className="create-event__upload-area"
+                onClick={handleUploadClick}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="upload-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                  </svg>
+                </div>
+                <p className="upload-text">Click or drag image to upload</p>
+                <p className="upload-formats">SVG, PNG, JPG or GIF (max. 5MB)</p>
+              </div>
+            )}
           </div>
 
           {/* Date & Time Section */}

@@ -64,8 +64,6 @@ public class EventController {
     @PostMapping("/draft")
     public ResponseEntity<Map<String, Object>> saveDraft(@RequestBody EventRequest request) {
         log.info("Received request to save event draft: {}", request.getTitle());
-        log.info("Request details - StartDateTime: {}, EndDateTime: {}, CreatedBy: {}, IsVirtual: {}", 
-                 request.getStartDateTime(), request.getEndDateTime(), request.getCreatedBy(), request.getIsVirtual());
         
         try {
             EventDTO event = eventService.saveDraft(request);
@@ -97,8 +95,6 @@ public class EventController {
     @PostMapping("/publish")
     public ResponseEntity<Map<String, Object>> publishEvent(@RequestBody EventRequest request) {
         log.info("Received request to publish event: {}", request.getTitle());
-        log.info("Request details - StartDateTime: {}, EndDateTime: {}, CreatedBy: {}, IsVirtual: {}", 
-                 request.getStartDateTime(), request.getEndDateTime(), request.getCreatedBy(), request.getIsVirtual());
         
         try {
             EventDTO event = eventService.publishEvent(request);

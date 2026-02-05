@@ -47,9 +47,10 @@ public class BlogPostDTO {
         dto.setUpdatedAt(blogPost.getUpdatedAt());
         dto.setPublishedAt(blogPost.getPublishedAt());
         
-        // Convert image to base64 if exists
+        // Convert image to base64 data URL if exists
         if (blogPost.getFeaturedImage() != null && blogPost.getFeaturedImage().length > 0) {
-            dto.setFeaturedImageUrl(Base64.getEncoder().encodeToString(blogPost.getFeaturedImage()));
+            String base64Image = Base64.getEncoder().encodeToString(blogPost.getFeaturedImage());
+            dto.setFeaturedImageUrl("data:image/jpeg;base64," + base64Image);
         }
         
         return dto;

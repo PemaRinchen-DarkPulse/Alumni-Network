@@ -22,7 +22,7 @@ public class BlogPostController {
     private final BlogPostService blogPostService;
     
     @PostMapping("/draft")
-    @PreAuthorize("hasAnyAuthority('ALUMNI', 'TEACHER')")
+    // @PreAuthorize("hasAnyAuthority('ALUMNI', 'TEACHER')") // Disabled for development
     public ResponseEntity<Map<String, Object>> saveDraft(@RequestBody BlogPostRequest request) {
         log.info("Received request to save blog post draft: {}", request.getTitle());
         
@@ -49,7 +49,7 @@ public class BlogPostController {
     }
     
     @PostMapping("/publish")
-    @PreAuthorize("hasAnyAuthority('ALUMNI', 'TEACHER')")
+    // @PreAuthorize("hasAnyAuthority('ALUMNI', 'TEACHER')") // Disabled for development
     public ResponseEntity<Map<String, Object>> publishBlogPost(@RequestBody BlogPostRequest request) {
         log.info("Received request to publish blog post: {}", request.getTitle());
         

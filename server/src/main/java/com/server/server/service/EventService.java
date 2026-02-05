@@ -218,7 +218,7 @@ public class EventService {
         event.setIsVirtual(request.getIsVirtual() != null ? request.getIsVirtual() : false);
         event.setMaxAttendees(request.getMaxAttendees());
         
-        // Convert base64 string to byte array for BLOB storage
+        // Handle base64 encoded image
         if (request.getBannerImageUrl() != null && !request.getBannerImageUrl().isEmpty()) {
             try {
                 // Remove data:image prefix if present

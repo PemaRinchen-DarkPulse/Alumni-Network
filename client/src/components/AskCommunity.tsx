@@ -1,11 +1,15 @@
 import React, { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import { questionService, type QuestionData } from '../services/questionService'
 import '../styles/AskCommunity.css'
 
 interface AskCommunityProps {
   onClose: () => void
+  onSuccess?: () => void
 }
 
-const AskCommunity = ({ onClose }: AskCommunityProps) => {
+const AskCommunity = ({ onClose, onSuccess }: AskCommunityProps) => {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -25,22 +29,40 @@ const AskCommunity = ({ onClose }: AskCommunityProps) => {
   }
 
   const handleSubmit = async (type: 'draft' | 'publish') => {
-    if (!formData.title.trim() || !formData.description.trim()) {
-      setError('Title and description are required')
-      return
-    }
-
     setLoading(true)
     setError('')
 
     try {
-      // TODO: Implement API call to submit question
-      console.log('Submitting question:', { ...formData, type })
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      onClose()
+      if (!user) {
+        setError('You must be logged in to post a question')
+        return
+      }
+
+      const questionData: QuestionData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
+        isAnonymous: isAnonymous,
+        authorId: user.id,
+        authorName: user.name
+      }
+
+      if (type === 'draft') {
+        await questionService.saveDraft(questionData)
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          onClose()
+        }
+      } else {
+        await questionService.publishQuestion(questionData)
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          onClose()
+        }
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to post question')
     } finally {

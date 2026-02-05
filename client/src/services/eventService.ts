@@ -43,6 +43,24 @@ export const eventService = {
     return response.data
   },
 
+  createEventWithImage: async (eventData: any, imageFile?: File) => {
+    // Determine the endpoint based on status
+    const endpoint = eventData.status === 'DRAFT' ? '/api/events/draft' : '/api/events/publish'
+    
+    // Convert image to base64 if present
+    if (imageFile) {
+      const base64Image = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.readAsDataURL(imageFile)
+      })
+      eventData.bannerImageUrl = base64Image
+    }
+
+    const response = await apiClient.post(endpoint, eventData)
+    return response.data
+  },
+
   updateEvent: async (id: number, eventData: any) => {
     const response = await apiClient.put(`/api/events/${id}`, eventData)
     return response.data

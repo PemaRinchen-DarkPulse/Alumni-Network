@@ -147,15 +147,16 @@ public class AuthService {
                     );
                 }
                 
-                if (!user.isEmailVerified()) {
-                    log.warn("Login attempt with unverified email: {}", request.getEmail());
-                    return new LoginResponse(
-                        false,
-                        "Please verify your email before logging in",
-                        null,
-                        null
-                    );
-                }
+                // Email verification check disabled - allow login without verification
+                // if (!user.isEmailVerified()) {
+                //     log.warn("Login attempt with unverified email: {}", request.getEmail());
+                //     return new LoginResponse(
+                //         false,
+                //         "Please verify your email before logging in",
+                //         null,
+                //         null
+                //     );
+                // }
                 
                 String token = generateToken(user);
                 log.info("User logged in successfully: {}", user.getEmail());

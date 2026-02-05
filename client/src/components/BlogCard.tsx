@@ -27,7 +27,7 @@ const BlogCard = ({ post }: BlogCardProps) => {
     <div className="blog-card">
       <div className="blog-card-image">
         <img
-          src={post.imageUrl || `https://source.unsplash.com/800x500/?${post.category.toLowerCase()}`}
+          src={post.featuredImageUrl || post.imageUrl || `https://source.unsplash.com/800x500/?${post.category.toLowerCase()}`}
           alt={post.title}
         />
       </div>

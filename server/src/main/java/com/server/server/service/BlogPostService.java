@@ -169,8 +169,11 @@ public class BlogPostService {
         blogPost.setContent(request.getContent());
         blogPost.setCategory(request.getCategory());
         blogPost.setTags(request.getTags());
-        blogPost.setAuthorId(request.getAuthorId());
-        blogPost.setAuthorName(request.getAuthorName());
+        
+        // Set author info with defaults for development if not provided
+        blogPost.setAuthorId(request.getAuthorId() != null ? request.getAuthorId() : 1L);
+        blogPost.setAuthorName(request.getAuthorName() != null && !request.getAuthorName().isEmpty() 
+            ? request.getAuthorName() : "Anonymous User");
         
         // Handle featured image
         if (request.getFeaturedImage() != null && !request.getFeaturedImage().isEmpty()) {

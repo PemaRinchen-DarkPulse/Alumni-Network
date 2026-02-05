@@ -1,139 +1,83 @@
 import { useState, useEffect } from 'react'
 import { Search, Plus, Calendar, Users } from 'lucide-react'
-import { eventService } from '../services/eventService'
+import { questionService, type Question } from '../services/questionService'
 import { useAuth } from '../context/AuthContext'
 import AskCommunity from './AskCommunity'
 import '../styles/Mentorship.css'
 
-interface Event {
-  id: number
-  title: string
-  description: string
-  startDateTime: string
-  endDateTime: string
-  location: string
-  attendeeCount: number
-  maxAttendees: number
-  status: string
-  createdBy: number
-  isFeatured?: boolean
-  bannerImageUrl?: string
-  isVirtual?: boolean
-  meetingLink?: string
-}
-
 const Mentorship = () => {
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'registered'>('upcoming')
+  const [activeTab, setActiveTab] = useState<'all' | 'myQuestions' | 'myAnswers'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [events, setEvents] = useState<Event[]>([])
+  const [questions, setQuestions] = useState<Question[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showAskCommunity, setShowAskCommunity] = useState(false)
   const { user } = useAuth()
 
   useEffect(() => {
-    fetchEvents()
+    fetchQuestions()
   }, [activeTab])
 
-  const fetchEvents = async () => {
+  const fetchQuestions = async () => {
     setLoading(true)
     setError('')
     
     try {
-      let response
+      let fetchedQuestions: Question[] = []
       
-      // For all tabs, fetch all published events
-      response = await eventService.getAllEvents()
-      
-      if (response.success && response.data) {
-        let fetchedEvents = response.data
-        
-        // Filter based on tab
-        const now = new Date()
-        if (activeTab === 'upcoming') {
-          fetchedEvents = fetchedEvents.filter((event: Event) => 
-            new Date(event.startDateTime) >= now
-          )
-        } else if (activeTab === 'past') {
-          fetchedEvents = fetchedEvents.filter((event: Event) => 
-            new Date(event.endDateTime) < now
-          )
-        } else if (activeTab === 'registered') {
-          // For registered events, we would need to check if user has RSVP'd
-          // For now, show empty or implement backend endpoint
-          fetchedEvents = []
-        }
-        
-        setEvents(fetchedEvents)
+      if (activeTab === 'all') {
+        fetchedQuestions = await questionService.getAllQuestions()
+      } else if (activeTab === 'myQuestions' && user) {
+        fetchedQuestions = await questionService.getUserQuestions(user.id)
+      } else if (activeTab === 'myAnswers') {
+        // TODO: Implement answers endpoint when available
+        fetchedQuestions = []
       }
-    } catch (err: any) {
-      console.error('Error fetching mentorship sessions:', err)
       
-      // Handle specific error cases
+      setQuestions(fetchedQuestions)
+    } catch (err: any) {
+      console.error('Error fetching questions:', err)
+      
       if (err.response?.status === 403) {
-        setError('You do not have permission to view mentorship sessions. Please log in.')
+        setError('You do not have permission to view questions. Please log in.')
       } else if (err.response?.status === 401) {
-        setError('Please log in to view mentorship sessions.')
+        setError('Please log in to view questions.')
       } else {
-        setError('Failed to load mentorship sessions. Please try again.')
+        setError('Failed to load questions. Please try again.')
       }
     } finally {
       setLoading(false)
     }
   }
 
-
-
-  const formatTime = (startDateTime: string, endDateTime: string) => {
-    const start = new Date(startDateTime)
-    const end = new Date(endDateTime)
-    const startTime = start.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    const endTime = end.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    return `${startTime} - ${endTime}`
-  }
-
   const categories = ['All Categories', 'Career Guidance', 'Technical Skills', 'Leadership', 'Personal Development', 'Industry Insights']
 
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === 'all'
-    // TODO: Add category filtering when backend supports it
+  const filteredQuestions = questions.filter(question => {
+    const matchesSearch = question.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         question.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory === 'all' || 
+                           question.category.toLowerCase().replace(' ', '-') === selectedCategory
     return matchesSearch && matchesCategory
   })
 
-  const handleRSVP = async (eventId: number) => {
-    if (!user) {
-      setError('Please log in to book mentorship sessions')
-      return
-    }
-    
-    try {
-      const response = await eventService.rsvpToEvent(eventId)
-      if (response.success) {
-        // Refresh events to update attendee count
-        fetchEvents()
-        // Show success message briefly
-        const successMsg = 'Successfully booked mentorship session!'
-        setError('')
-        setTimeout(() => {
-          // Could show a success toast here
-        }, 2000)
-      }
-    } catch (err: any) {
-      console.error('Error booking mentorship session:', err)
-      if (err.response?.status === 403 || err.response?.status === 401) {
-        setError('Please log in to book mentorship sessions')
-      } else {
-        setError('Failed to book session. Please try again.')
-      }
-    }
+  const handleAnswerClick = (questionId: number) => {
+    // TODO: Navigate to question detail page or open answer modal
+    console.log('Answer question:', questionId)
+  }
+
+  const handleQuestionPosted = () => {
+    setShowAskCommunity(false)
+    fetchQuestions() // Refresh the questions list
+  }
+
+  const handleCloseAskCommunity = () => {
+    setShowAskCommunity(false)
   }
 
   // If Ask Community modal is open, show it
   if (showAskCommunity) {
-    return <AskCommunity onClose={() => setShowAskCommunity(false)} />
+    return <AskCommunity onClose={handleCloseAskCommunity} onSuccess={handleQuestionPosted} />
   }
 
   return (
@@ -146,22 +90,22 @@ const Mentorship = () => {
 
         <div className="mentorship-tabs">
           <button
-            className={`mentorship-tab ${activeTab === 'upcoming' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upcoming')}
+            className={`mentorship-tab ${activeTab === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveTab('all')}
           >
-            Available All question
+            Available All Questions
           </button>
           <button
-            className={`mentorship-tab ${activeTab === 'past' ? 'active' : ''}`}
-            onClick={() => setActiveTab('past')}
+            className={`mentorship-tab ${activeTab === 'myQuestions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('myQuestions')}
           >
-            My Question
+            My Questions
           </button>
           <button
-            className={`mentorship-tab ${activeTab === 'registered' ? 'active' : ''}`}
-            onClick={() => setActiveTab('registered')}
+            className={`mentorship-tab ${activeTab === 'myAnswers' ? 'active' : ''}`}
+            onClick={() => setActiveTab('myAnswers')}
           >
-            My Answer
+            My Answers
           </button>
         </div>
       </div>
@@ -171,7 +115,7 @@ const Mentorship = () => {
           <Search size={18} />
           <input
             type="text"
-            placeholder="Search mentorship sessions..."
+            placeholder="Search questions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -202,73 +146,82 @@ const Mentorship = () => {
         {loading ? (
           <div className="loading-state">
             <div className="spinner"></div>
-            <p>Loading sessions...</p>
+            <p>Loading questions...</p>
           </div>
         ) : error ? (
           <div className="error-state">
             <p>{error}</p>
-            <button onClick={fetchEvents} className="retry-btn">Retry</button>
+            <button onClick={fetchQuestions} className="retry-btn">Retry</button>
           </div>
-        ) : activeTab === 'upcoming' && filteredEvents.length === 0 ? (
+        ) : activeTab === 'all' && filteredQuestions.length === 0 ? (
           <div className="empty-state">
             <Calendar size={48} />
             <h3>No Available Questions</h3>
             <p>There are no questions available at the moment. Check back later!</p>
           </div>
-        ) : activeTab === 'past' && filteredEvents.length === 0 ? (
+        ) : activeTab === 'myQuestions' && filteredQuestions.length === 0 ? (
           <div className="empty-state">
             <Calendar size={48} />
             <h3>No Questions Yet</h3>
             <p>Your questions will appear here once you post them.</p>
           </div>
-        ) : activeTab === 'registered' && filteredEvents.length === 0 ? (
+        ) : activeTab === 'myAnswers' && filteredQuestions.length === 0 ? (
           <div className="empty-state">
             <Users size={48} />
-            <h3>No Booked Sessions</h3>
-            <p>Mentorship sessions you've booked will appear here.</p>
+            <h3>No Answers Yet</h3>
+            <p>Questions you've answered will appear here.</p>
           </div>
         ) : (
           <div className="mentorship-grid">
-            {filteredEvents.map(event => {
+            {filteredQuestions.map(question => {
               return (
-                <div key={event.id} className="session-card">
+                <div key={question.id} className="session-card">
                   <div className="session-header">
                     <div className="session-profile">
                       <div className="mentor-avatar">
-                        {event.title.charAt(0).toUpperCase()}
+                        {question.authorName.charAt(0).toUpperCase()}
                       </div>
                       <div className="mentor-info">
-                        <h3 className="mentor-name">{event.title}</h3>
-                        <p className="session-category">MENTORSHIP</p>
+                        <h3 className="mentor-name">{question.authorName}</h3>
+                        <p className="session-category">{question.category.toUpperCase()}</p>
                       </div>
                     </div>
                   </div>
 
-                  <p className="session-description">{event.description}</p>
+                  <h4 className="question-title">{question.title}</h4>
+                  <p className="session-description">{question.description}</p>
+
+                  {question.tags && question.tags.length > 0 && (
+                    <div className="question-tags">
+                      {question.tags.map((tag, index) => (
+                        <span key={index} className="tag">{tag}</span>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="session-footer">
                     <div className="session-organizer">
                       <p className="organizer-time">
-                        {new Date(event.startDateTime).toLocaleDateString('en-US', { 
+                        {new Date(question.createdAt).toLocaleDateString('en-US', { 
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric'
-                        })} at {new Date(event.startDateTime).toLocaleTimeString('en-US', {
+                        })} at {new Date(question.createdAt).toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
                           hour12: true
                         })}
                       </p>
-                      <p className="organizer-name">Answers: {event.attendeeCount}</p>
+                      <p className="organizer-name">Answers: {question.answerCount}</p>
                     </div>
                     <button className="like-button">
-                      <span className="heart-icon">♡</span> {event.attendeeCount}
+                      <span className="heart-icon">♡</span> {question.upvoteCount}
                     </button>
                   </div>
 
                   <button 
                     className="book-session-btn"
-                    onClick={() => handleRSVP(event.id)}
+                    onClick={() => handleAnswerClick(question.id)}
                   >
                     Answer now
                   </button>

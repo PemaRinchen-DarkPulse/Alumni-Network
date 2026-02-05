@@ -42,6 +42,7 @@ const SignUp = () => {
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
+        role: formData.role.toUpperCase(),
         batch: formData.batch || undefined,
       }
 
