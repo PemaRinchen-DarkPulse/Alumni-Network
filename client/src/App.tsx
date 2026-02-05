@@ -1,5 +1,7 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Stats from './components/Stats'
@@ -15,30 +17,39 @@ import Dashboard from './components/Dashboard'
 
 function App() {
   return (
-    <Router>
-      <div className="app">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={
-            <>
-              <Navbar />
-              <main>
-                <Hero />
-                <ProblemSolution />
-                <Stats />
-                <HowItWorks />
-                <AboutUs />
-                <CTA />
-                <Contact />
-              </main>
-              <Footer />
-            </>
-          } />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div className="app">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={
+              <>
+                <Navbar />
+                <main>
+                  <Hero />
+                  <ProblemSolution />
+                  <Stats />
+                  <HowItWorks />
+                  <AboutUs />
+                  <CTA />
+                  <Contact />
+                </main>
+                <Footer />
+              </>
+            } />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   )
 }
 

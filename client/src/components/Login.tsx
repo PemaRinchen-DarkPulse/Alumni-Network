@@ -1,26 +1,49 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import heroImage from '../assets/images/hero.webp'
+import { authService } from '../services/authService'
+import { useAuth } from '../context/AuthContext'
 
 const Login = () => {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
   const [rememberMe, setRememberMe] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     })
+    setError('')
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log('Login submitted:', formData)
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await authService.login(formData)
+      
+      if (response.success && response.token && response.user) {
+        // Update AuthContext with user and token
+        login(response.token, response.user)
+        // Navigate to dashboard
+        navigate('/dashboard')
+      } else {
+        setError(response.message || 'Login failed')
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred during login')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -44,6 +67,19 @@ const Login = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="auth-form">
+              {error && (
+                <div style={{ 
+                  padding: '10px', 
+                  marginBottom: '15px', 
+                  backgroundColor: '#fee', 
+                  color: '#c33', 
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}>
+                  {error}
+                </div>
+              )}
+
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
                 <input
@@ -54,6 +90,7 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Enter your email"
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -70,6 +107,7 @@ const Login = () => {
                   onChange={handleChange}
                   placeholder="Enter your password"
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -79,13 +117,14 @@ const Login = () => {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={loading}
                   />
                   <span>Remember me</span>
                 </label>
               </div>
 
-              <button type="submit" className="auth-submit btn btn-primary">
-                Sign In
+              <button type="submit" className="auth-submit btn btn-primary" disabled={loading}>
+                {loading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import heroImage from '../assets/images/hero.webp'
+import { authService } from '../services/authService'
 
 const SignUp = () => {
   const navigate = useNavigate()
@@ -13,24 +14,50 @@ const SignUp = () => {
     batch: '',
   })
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     })
+    setError('')
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!acceptedTerms) {
-      alert('Please accept the terms and conditions')
+      setError('Please accept the terms and conditions')
       return
     }
 
-    // Handle signup logic here
-    console.log('Sign up submitted:', formData)
+    setLoading(true)
+    setError('')
+
+    try {
+      const registrationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        batch: formData.batch || undefined,
+      }
+
+      const response = await authService.register(registrationData)
+
+      if (response.success) {
+        alert('Registration successful! Please check your email to verify your account.')
+        navigate('/login')
+      } else {
+        setError(response.message || 'Registration failed')
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'An error occurred during registration')
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Generate years for batch selection
@@ -61,6 +88,19 @@ const SignUp = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="auth-form">
+              {error && (
+                <div style={{ 
+                  padding: '10px', 
+                  marginBottom: '15px', 
+                  backgroundColor: '#fee', 
+                  color: '#c33', 
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}>
+                  {error}
+                </div>
+              )}
+
               <div className="form-group">
                 <label htmlFor="firstName">Full Name</label>
                 <div className="form-row" style={{ gap: '10px', gridTemplateColumns: '1fr 1fr' }}>
@@ -72,6 +112,7 @@ const SignUp = () => {
                     onChange={handleChange}
                     placeholder="First Name"
                     required
+                    disabled={loading}
                   />
                   <input
                     type="text"
@@ -81,6 +122,7 @@ const SignUp = () => {
                     onChange={handleChange}
                     placeholder="Last Name"
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -95,6 +137,7 @@ const SignUp = () => {
                   onChange={handleChange}
                   placeholder="Enter your email"
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -107,6 +150,7 @@ const SignUp = () => {
                     value={formData.role}
                     onChange={handleChange}
                     required
+                    disabled={loading}
                   >
                     <option value="">Select Role</option>
                     <option value="student">Student</option>
@@ -130,6 +174,7 @@ const SignUp = () => {
                       min="1960"
                       max={currentYear}
                       required
+                      disabled={loading}
                     />
                   </div>
                 )}
@@ -146,16 +191,29 @@ const SignUp = () => {
                   placeholder="Create a password"
                   required
                   minLength={8}
+                  disabled={loading}
                 />
               </div>
 
-              <button type="submit" className="auth-submit btn btn-primary">
-                Create Account
+              <div className="form-options">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    disabled={loading}
+                  />
+                  <span>I accept the terms and conditions</span>
+                </label>
+              </div>
+
+              <button type="submit" className="auth-submit btn btn-primary" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>
 
             <div className="auth-footer">
-              <p>Already have an account? <Link to="/login">  Sign in</Link></p>
+              <p>Already have an account? <Link to="/login">Sign in</Link></p>
             </div>
           </div>
         </div>
