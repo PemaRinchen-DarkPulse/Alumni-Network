@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import CreateTribute from './CreateTribute';
 import '../styles/Tributes.css';
 
 interface Tribute {
@@ -17,9 +18,14 @@ interface Tribute {
 const Tributes = () => {
   const [activeFilter, setActiveFilter] = useState('All Departments');
   const [sortBy, setSortBy] = useState('Most Recent');
+  const [showCreateTribute, setShowCreateTribute] = useState(false);
   const { user } = useAuth();
   
   const isTeacher = user?.role?.toLowerCase() === 'teacher';
+
+  if (showCreateTribute) {
+    return <CreateTribute onClose={() => setShowCreateTribute(false)} />;
+  }
 
   // Sample data - replace with actual data from your backend
   const tributes: Tribute[] = [
@@ -112,7 +118,7 @@ const Tributes = () => {
                 A dedicated space to express gratitude to the mentors who made a<br />
                 difference in our lives. Share your story today.
               </p>
-              <button className="btn-write-tribute">
+              <button className="btn-write-tribute" onClick={() => setShowCreateTribute(true)}>
                 <span className="icon">✏️</span> Write a Tribute
               </button>
             </>

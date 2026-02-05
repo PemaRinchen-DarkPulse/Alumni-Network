@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Search, Plus, Calendar, MapPin, Users, Clock } from 'lucide-react'
 import { eventService } from '../services/eventService'
 import { useAuth } from '../context/AuthContext'
+import CreateEvent from './CreateEvent'
 import '../styles/Events.css'
 
 interface Event {
@@ -28,6 +29,7 @@ const Events = () => {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showCreateEvent, setShowCreateEvent] = useState(false)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -146,64 +148,71 @@ const Events = () => {
 
   return (
     <div className="events-page">
-      <div className="events-header">
-        <div className="events-title-section">
-          <h1>Events & Gatherings</h1>
-          <p>Connect with your peers at upcoming workshops, reunions, and webinars.</p>
-        </div>
+      {showCreateEvent ? (
+        <CreateEvent onClose={() => {
+          setShowCreateEvent(false)
+          fetchEvents()
+        }} />
+      ) : (
+        <>
+          <div className="events-header">
+            <div className="events-title-section">
+              <h1>Events & Gatherings</h1>
+              <p>Connect with your peers at upcoming workshops, reunions, and webinars.</p>
+            </div>
 
-        <div className="events-tabs">
-          <button
-            className={`events-tab ${activeTab === 'upcoming' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upcoming')}
-          >
-            Upcoming Events
-          </button>
-          <button
-            className={`events-tab ${activeTab === 'past' ? 'active' : ''}`}
-            onClick={() => setActiveTab('past')}
-          >
-            Past Events
-          </button>
-          <button
-            className={`events-tab ${activeTab === 'registered' ? 'active' : ''}`}
-            onClick={() => setActiveTab('registered')}
-          >
-            Registered Events
-          </button>
-        </div>
-      </div>
+            <div className="events-tabs">
+              <button
+                className={`events-tab ${activeTab === 'upcoming' ? 'active' : ''}`}
+                onClick={() => setActiveTab('upcoming')}
+              >
+                Upcoming Events
+              </button>
+              <button
+                className={`events-tab ${activeTab === 'past' ? 'active' : ''}`}
+                onClick={() => setActiveTab('past')}
+              >
+                Past Events
+              </button>
+              <button
+                className={`events-tab ${activeTab === 'registered' ? 'active' : ''}`}
+                onClick={() => setActiveTab('registered')}
+              >
+                Registered Events
+              </button>
+            </div>
+          </div>
 
-      <div className="events-controls">
-        <div className="events-search">
-          <Search size={18} />
-          <input
-            type="text"
-            placeholder="Search events..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+          <div className="events-controls">
+            <div className="events-search">
+              <Search size={18} />
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-        <select
-          className="events-category-filter"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          {categories.map(category => (
-            <option key={category} value={category.toLowerCase().replace(' ', '-')}>
-              {category}
-            </option>
-          ))}
-        </select>
+            <select
+              className="events-category-filter"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map(category => (
+                <option key={category} value={category.toLowerCase().replace(' ', '-')}>
+                  {category}
+                </option>
+              ))}
+            </select>
 
-        <button className="create-event-btn">
-          <Plus size={18} />
-          Create Event
-        </button>
-      </div>
+            <button className="create-event-btn" onClick={() => setShowCreateEvent(true)}>
+              <Plus size={18} />
+              Create Event
+            </button>
+          </div>
 
-      <div className="events-content">
+          <div className="events-content">
         {loading ? (
           <div className="loading-state">
             <div className="spinner"></div>
@@ -343,7 +352,9 @@ const Events = () => {
             </div>
           </>
         )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

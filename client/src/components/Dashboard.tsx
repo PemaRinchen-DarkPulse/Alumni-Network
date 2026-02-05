@@ -12,6 +12,7 @@ import Events from './Events'
 import Tributes from './Tributes'
 import Networking from './Networking'
 import Mentorship from './Mentorship'
+import Blog from './Blog'
 import { useAuth } from '../context/AuthContext'
 import '../styles/Dashboard.css'
 
@@ -143,6 +144,8 @@ const Dashboard = () => {
           <Networking />
         ) : activeMenu === 'Community Mentorship' ? (
           <Mentorship />
+        ) : activeMenu === 'Blogs' ? (
+          <Blog />
         ) : (
           <>
             <StatsRow stats={connectionStats} />

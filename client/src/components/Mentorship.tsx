@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Search, Plus, Calendar, Users } from 'lucide-react'
 import { eventService } from '../services/eventService'
 import { useAuth } from '../context/AuthContext'
+import AskCommunity from './AskCommunity'
 import '../styles/Mentorship.css'
 
 interface Event {
@@ -28,6 +29,7 @@ const Mentorship = () => {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showAskCommunity, setShowAskCommunity] = useState(false)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -129,6 +131,11 @@ const Mentorship = () => {
     }
   }
 
+  // If Ask Community modal is open, show it
+  if (showAskCommunity) {
+    return <AskCommunity onClose={() => setShowAskCommunity(false)} />
+  }
+
   return (
     <div className="mentorship-page">
       <div className="mentorship-header">
@@ -182,7 +189,10 @@ const Mentorship = () => {
           ))}
         </select>
 
-        <button className="create-session-btn">
+        <button 
+          className="create-session-btn"
+          onClick={() => setShowAskCommunity(true)}
+        >
           <Plus size={18} />
           Ask the Community
         </button>
