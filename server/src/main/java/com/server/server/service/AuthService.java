@@ -104,12 +104,22 @@ public class AuthService {
         if (userOptional.isEmpty()) {
             log.warn("Invalid verification token provided");
             response.put("success", false);
-            response.put("message", "Invalid verification token.");
+            response.put("message", "Invalid or already used verification token. If you've already verified your email, please try logging in.");
             return response;
         }
         
         User user = userOptional.get();
         log.debug("User found for verification: {}", user.getEmail());
+        
+        // Check if user is already verified
+        if (user.isEmailVerified()) {
+            log.info("User already verified, returning success: {}", user.getEmail());
+            response.put("success", true);
+            response.put("email", user.getEmail());
+            response.put("message", "Your email is already verified. You can log in to your account.");
+            response.put("alreadyVerified", true);
+            return response;
+        }
         
         if (user.getTokenExpiry().isBefore(LocalDateTime.now())) {
             log.warn("Verification token expired for user: {}", user.getEmail());
@@ -147,16 +157,16 @@ public class AuthService {
                     );
                 }
                 
-                // Email verification check disabled - allow login without verification
-                // if (!user.isEmailVerified()) {
-                //     log.warn("Login attempt with unverified email: {}", request.getEmail());
-                //     return new LoginResponse(
-                //         false,
-                //         "Please verify your email before logging in",
-                //         null,
-                //         null
-                //     );
-                // }
+                // Email verification check - only allow verified users to login
+                if (!user.isEmailVerified()) {
+                    log.warn("Login attempt with unverified email: {}", request.getEmail());
+                    return new LoginResponse(
+                        false,
+                        "Please verify your email before logging in. Check your inbox for the verification link.",
+                        null,
+                        null
+                    );
+                }
                 
                 String token = generateToken(user);
                 log.info("User logged in successfully: {}", user.getEmail());

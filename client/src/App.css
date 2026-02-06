@@ -1469,15 +1469,15 @@
 
 .btn-secondary {
   background-color: transparent;
-  color: #ffffff;
-  border: 2px solid #ffffff;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
 }
 
 .btn-secondary:hover {
-  background-color: #ffffff;
-  color: #1a1a1a;
+  background-color: #1a1a1a;
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 768px) {
@@ -1856,5 +1856,47 @@
   .auth-form-side {
     width: 100%;
     padding: 32px;
+  }
+}
+
+/* Verification Page Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-8px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }

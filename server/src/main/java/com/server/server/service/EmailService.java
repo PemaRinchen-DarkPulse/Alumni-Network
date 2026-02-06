@@ -51,7 +51,7 @@ public class EmailService {
                 "</div>" +
                 "<p>Or copy and paste this link in your browser:</p>" +
                 "<p><a href='%s'>%s</a></p>" +
-                "<p style='color: #666; font-size: 12px; margin-top: 30px;'>This link will expire in 5 minutes.</p>" +
+                "<p style='color: #666; font-size: 12px; margin-top: 30px;'>This link will expire in 24 hours.</p>" +
                 "<p style='color: #666; font-size: 12px;'>If you didn't create an account, please ignore this email.</p>" +
                 "</body></html>",
                 verificationLink, verificationLink, verificationLink

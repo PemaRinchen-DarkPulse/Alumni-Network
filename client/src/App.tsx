@@ -13,6 +13,9 @@ import Contact from './components/Contact'
 import Footer from './components/Footer'
 import Login from './components/Login'
 import SignUp from './components/SignUp'
+import VerifyEmail from './components/VerifyEmail'
+import ForgotPassword from './components/ForgotPassword'
+import ResetPassword from './components/ResetPassword'
 import Dashboard from './components/Dashboard'
 
 function App() {
@@ -23,6 +26,9 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route 
               path="/dashboard" 
               element={

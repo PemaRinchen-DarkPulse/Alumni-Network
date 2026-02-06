@@ -38,8 +38,7 @@ const SignUp = () => {
 
     try {
       const registrationData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
         email: formData.email,
         password: formData.password,
         role: formData.role.toUpperCase(),
@@ -208,7 +207,7 @@ const SignUp = () => {
                 </label>
               </div>
 
-              <button type="submit" className="auth-submit btn btn-primary" disabled={loading}>
+              <button type="submit" className="auth-submit" disabled={loading}>
                 {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </form>

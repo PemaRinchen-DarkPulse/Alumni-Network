@@ -19,16 +19,11 @@ export interface LoginResponse {
 }
 
 export interface RegistrationRequest {
-  firstName: string
-  lastName: string
+  name: string
   email: string
   password: string
-  phoneNumber?: string
+  role: string
   batch?: string
-  program?: string
-  currentCompany?: string
-  currentPosition?: string
-  linkedInUrl?: string
 }
 
 export interface RegistrationResponse {
@@ -60,6 +55,16 @@ export const authService = {
 
   forgotPassword: async (email: string) => {
     const response = await apiClient.post('/api/auth/forgot-password', { email })
+    return response.data
+  },
+
+  resetPassword: async (token: string, password: string) => {
+    const response = await apiClient.post('/api/auth/reset-password', { token, password })
+    return response.data
+  },
+
+  validateResetToken: async (token: string) => {
+    const response = await apiClient.get(`/api/auth/validate-reset-token?token=${token}`)
     return response.data
   },
 
