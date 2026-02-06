@@ -1,97 +1,91 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import CreateTribute from './CreateTribute';
+import tributeService from '../services/tributeService';
+import type { Tribute } from '../services/tributeService';
 import '../styles/Tributes.css';
-
-interface Tribute {
-  id: number;
-  teacherName: string;
-  department: string;
-  years: string;
-  quote: string;
-  studentName: string;
-  studentClass: string;
-  likes: number;
-  profileImage?: string;
-}
 
 const Tributes = () => {
   const [activeFilter, setActiveFilter] = useState('All Departments');
   const [sortBy, setSortBy] = useState('Most Recent');
   const [showCreateTribute, setShowCreateTribute] = useState(false);
+  const [tributes, setTributes] = useState<Tribute[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const { user } = useAuth();
   
   const isTeacher = user?.role?.toLowerCase() === 'teacher';
 
+  useEffect(() => {
+    fetchTributes();
+  }, [activeFilter, sortBy]);
+
+  const fetchTributes = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      let fetchedTributes: Tribute[] = [];
+      
+      if (activeFilter === 'All Departments') {
+        fetchedTributes = await tributeService.getAllPublishedTributes();
+      } else {
+        fetchedTributes = await tributeService.getTributesByDepartment(activeFilter);
+      }
+      
+      console.log('Fetched tributes:', fetchedTributes);
+      
+      // Sort tributes
+      if (sortBy === 'Most Liked') {
+        fetchedTributes.sort((a, b) => b.likeCount - a.likeCount);
+      } else if (sortBy === 'Oldest First') {
+        fetchedTributes.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      } else {
+        // Most Recent (default)
+        fetchedTributes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      }
+      
+      setTributes(fetchedTributes);
+    } catch (err: any) {
+      console.error('Error fetching tributes:', err);
+      console.error('Error response:', err.response);
+      setError('Failed to load tributes. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLike = async (tributeId: number) => {
+    try {
+      const updatedTribute = await tributeService.likeTribute(tributeId);
+      setTributes(prev => prev.map(t => t.id === tributeId ? updatedTribute : t));
+    } catch (err) {
+      console.error('Error liking tribute:', err);
+    }
+  };
+
+  const handleTributeCreated = () => {
+    setShowCreateTribute(false);
+    fetchTributes(); // Refresh the list
+  };
+
   if (showCreateTribute) {
-    return <CreateTribute onClose={() => setShowCreateTribute(false)} />;
+    return <CreateTribute onClose={handleTributeCreated} />;
   }
 
-  // Sample data - replace with actual data from your backend
-  const tributes: Tribute[] = [
-    {
-      id: 1,
-      teacherName: 'Mr. John Keating',
-      department: 'ENGLISH DEPT.',
-      years: '1968-1995',
-      quote: '"He taught me to look at things in a different way. \'O Captain! My Captain!\' will forever echo in my mind. He didn\'t teach poetry; he taught us to seize the day and make our lives extraordinary."',
-      studentName: 'Todd Anderson',
-      studentClass: 'Class of \'89',
-      likes: 124,
-    },
-    {
-      id: 2,
-      teacherName: 'Mrs. McGonagall',
-      department: 'SCIENCE DEPT.',
-      years: '1990-Present',
-      quote: '"Stern but fair. She pushed me harder than any other teacher because she saw potential I didn\'t see in myself. I wouldn\'t be a scientist today without her unwavering belief in my abilities."',
-      studentName: 'Hermione G.',
-      studentClass: 'Class of \'98',
-      likes: 89,
-    },
-    {
-      id: 3,
-      teacherName: 'Mr. George Feeny',
-      department: 'HISTORY',
-      years: '1985-2005',
-      quote: '"Believe in yourselves. Dream. Try. Do good. Mr. Feeny was more than a history teacher; he was a life mentor. His lessons extended far beyond the classroom walls."',
-      studentName: 'Cory Matthews',
-      studentClass: 'Class of \'00',
-      likes: 215,
-    },
-    {
-      id: 4,
-      teacherName: 'Ms. Jennifer Honey',
-      department: 'PRIMARY ED.',
-      years: '1996-2010',
-      quote: '"She was the first teacher who made me feel safe. Her kindness was her superpower. In a world that often feels harsh, she created a haven of learning and love."',
-      studentName: 'Matilda W.',
-      studentClass: 'Class of \'02',
-      likes: 156,
-    },
-    {
-      id: 5,
-      teacherName: 'Mr. Dewey Finn',
-      department: 'MUSIC',
-      years: '2003-2004',
-      quote: '"He wasn\'t exactly conventional, but man, did he teach us how to rock! He showed us the power of music to unite us and give us confidence we never knew we had."',
-      studentName: 'Zack M.',
-      studentClass: 'Class of \'04',
-      likes: 98,
-    },
-    {
-      id: 6,
-      teacherName: 'Prof. Charles Xavier',
-      department: 'HEADMASTER',
-      years: '1963-Present',
-      quote: '"He gave us a home when the world turned its back. His dream of coexistence is something truly great. A true visionary who saw the best in all of us."',
-      studentName: 'Scott S.',
-      studentClass: 'Class of \'85',
-      likes: 342,
-    },
+  const departments = [
+    'All Departments',
+    'Science',
+    'Mathematics',
+    'English',
+    'History',
+    'Arts',
+    'Music',
+    'Physical Education',
+    'Languages',
+    'Computer Science',
+    'Other'
   ];
-
-  const departments = ['All Departments', 'Science', 'Arts', 'Humanities', 'Sports'];
 
   return (
     <div className="tributes-page">
@@ -149,43 +143,68 @@ const Tributes = () => {
         </div>
       </div>
 
-      {/* Tributes Grid */}
-      <div className="tributes-grid">
-        {tributes.map((tribute) => (
-          <div key={tribute.id} className="tribute-card">
-            <div className="tribute-header">
-              <div className="tribute-profile">
-                <div className="profile-image">
-                  {tribute.profileImage ? (
-                    <img src={tribute.profileImage} alt={tribute.teacherName} />
-                  ) : (
-                    <div className="profile-placeholder">
-                      {tribute.teacherName.charAt(0)}
+      {/* Error Message */}
+      {error && (
+        <div className="tributes-error">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Loading State */}
+      {loading ? (
+        <div className="tributes-loading">
+          <p>Loading tributes...</p>
+        </div>
+      ) : tributes.length === 0 ? (
+        <div className="tributes-empty">
+          <p>No published tributes found yet.</p>
+          <p style={{ fontSize: '14px', color: '#999', marginTop: '8px' }}>
+            Tributes are reviewed before being published. Check back soon!
+          </p>
+        </div>
+      ) : (
+        /* Tributes Grid */
+        <div className="tributes-grid">
+          {tributes.map((tribute) => {
+            const years = tribute.yearsFrom && tribute.yearsTo
+              ? `${tribute.yearsFrom}-${tribute.yearsTo}`
+              : tribute.yearsFrom || tribute.yearsTo || '';
+            
+            return (
+              <div key={tribute.id} className="tribute-card">
+                <div className="tribute-header">
+                  <div className="tribute-profile">
+                    <div className="profile-image">
+                      <div className="profile-placeholder">
+                        {tribute.teacherName.charAt(0)}
+                      </div>
                     </div>
-                  )}
+                    <div className="profile-info">
+                      <h3 className="teacher-name">{tribute.teacherName}</h3>
+                      <p className="department">{tribute.department?.toUpperCase() || tribute.subject?.toUpperCase()}</p>
+                    </div>
+                  </div>
+                  {years && <span className="years">{years}</span>}
                 </div>
-                <div className="profile-info">
-                  <h3 className="teacher-name">{tribute.teacherName}</h3>
-                  <p className="department">{tribute.department}</p>
+
+                <p className="tribute-quote">"{tribute.message}"</p>
+
+                <div className="tribute-footer">
+                  <div className="student-info">
+                    <p className="student-name">{tribute.authorName}</p>
+                  </div>
+                  <button 
+                    className="like-button"
+                    onClick={() => handleLike(tribute.id)}
+                  >
+                    <span className="heart-icon">♡</span> {tribute.likeCount}
+                  </button>
                 </div>
               </div>
-              <span className="years">{tribute.years}</span>
-            </div>
-
-            <p className="tribute-quote">{tribute.quote}</p>
-
-            <div className="tribute-footer">
-              <div className="student-info">
-                <p className="student-name">{tribute.studentName}</p>
-                <p className="student-class">{tribute.studentClass}</p>
-              </div>
-              <button className="like-button">
-                <span className="heart-icon">♡</span> {tribute.likes}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

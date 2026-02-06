@@ -35,6 +35,7 @@ public class EventService {
         event.setStatus(Event.EventStatus.DRAFT);
         
         Event savedEvent = eventRepository.save(event);
+        populateCreatorName(savedEvent);
         log.info("Draft saved successfully with ID: {}", savedEvent.getId());
         
         return EventDTO.fromEntity(savedEvent);
@@ -113,6 +114,7 @@ public class EventService {
         event.setStatus(Event.EventStatus.PUBLISHED);
         
         Event savedEvent = eventRepository.save(event);
+        populateCreatorName(savedEvent);
         log.info("Event published successfully with ID: {}", savedEvent.getId());
         
         return EventDTO.fromEntity(savedEvent);
@@ -124,6 +126,7 @@ public class EventService {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found with ID: " + id));
         
+        populateCreatorName(event);
         return EventDTO.fromEntity(event);
     }
     
@@ -133,6 +136,7 @@ public class EventService {
         List<Event> events = eventRepository.findAllWithAttendeesByStatus(Event.EventStatus.PUBLISHED);
         
         return events.stream()
+                .peek(this::populateCreatorName)
                 .map(EventDTO::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -143,6 +147,7 @@ public class EventService {
         List<Event> events = eventRepository.findUpcomingPublishedEvents(LocalDateTime.now());
         
         return events.stream()
+                .peek(this::populateCreatorName)
                 .map(EventDTO::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -153,6 +158,7 @@ public class EventService {
         List<Event> events = eventRepository.findByCreatedBy(userId);
         
         return events.stream()
+                .peek(this::populateCreatorName)
                 .map(EventDTO::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -170,6 +176,10 @@ public class EventService {
         Event latestDraft = drafts.stream()
                 .max((e1, e2) -> e1.getUpdatedAt().compareTo(e2.getUpdatedAt()))
                 .orElse(null);
+        
+        if (latestDraft != null) {
+            populateCreatorName(latestDraft);
+        }
         
         return latestDraft != null ? EventDTO.fromEntity(latestDraft) : null;
     }
@@ -192,6 +202,7 @@ public class EventService {
         }
         
         Event savedEvent = eventRepository.save(event);
+        populateCreatorName(savedEvent);
         log.info("Event updated successfully with ID: {}", savedEvent.getId());
         
         return EventDTO.fromEntity(savedEvent);
@@ -248,6 +259,13 @@ public class EventService {
             }
         } else {
             event.setVisibility(Event.Visibility.PUBLIC);
+        }
+    }
+    
+    private void populateCreatorName(Event event) {
+        if (event.getCreatedBy() != null && (event.getCreatedByName() == null || event.getCreatedByName().isEmpty())) {
+            userRepository.findById(event.getCreatedBy())
+                    .ifPresent(user -> event.setCreatedByName(user.getName()));
         }
     }
 }

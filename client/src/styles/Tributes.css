@@ -258,6 +258,11 @@
   font-style: italic;
   margin: 0;
   flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tribute-footer {
@@ -362,4 +367,34 @@
   .filter-tab {
     white-space: nowrap;
   }
+}
+
+/* Loading, Error and Empty States */
+.tributes-loading,
+.tributes-error,
+.tributes-empty {
+  text-align: center;
+  padding: 60px 40px;
+  margin: 40px;
+  background: #f8f8f8;
+  border-radius: 12px;
+}
+
+.tributes-loading p {
+  font-size: 18px;
+  color: #666;
+}
+
+.tributes-error {
+  background: #fee2e2;
+}
+
+.tributes-error p {
+  font-size: 16px;
+  color: #dc2626;
+}
+
+.tributes-empty p {
+  font-size: 18px;
+  color: #666;
 }

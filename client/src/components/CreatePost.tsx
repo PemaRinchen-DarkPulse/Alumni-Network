@@ -4,9 +4,10 @@ import '../styles/CreatePost.css'
 
 interface CreatePostProps {
   onClose: () => void
+  onPostCreated?: () => void
 }
 
-const CreatePost = ({ onClose }: CreatePostProps) => {
+const CreatePost = ({ onClose, onPostCreated }: CreatePostProps) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -92,6 +93,7 @@ const CreatePost = ({ onClose }: CreatePostProps) => {
       }
 
       await blogService.createPost(postData)
+      onPostCreated?.() // Refresh the blog list
       onClose()
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create post')

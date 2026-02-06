@@ -92,6 +92,15 @@
   font-size: 14px;
 }
 
+.create-tribute__success {
+  background: #d1fae5;
+  color: #059669;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
 .create-tribute__content-wrapper {
   display: grid;
   grid-template-columns: 1fr 360px;

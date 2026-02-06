@@ -134,7 +134,11 @@ const Dashboard = () => {
       />
 
       <main className="dashboard-main">
-        <DashboardHeader />
+        <DashboardHeader 
+          userName={user?.name || 'User'}
+          userRole={user?.role || 'Member'}
+          userBatch={user?.batch}
+        />
 
         {activeMenu === 'Events' ? (
           <Events />
@@ -151,7 +155,10 @@ const Dashboard = () => {
             <StatsRow stats={connectionStats} />
 
             <div className="content-row">
-              <QuickActionsCard />
+              <QuickActionsCard 
+                userBatch={user?.batch}
+                userRole={user?.role}
+              />
               <NetworkActivityChart data={networkActivity} />
             </div>
 

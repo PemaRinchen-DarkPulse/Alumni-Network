@@ -1,14 +1,21 @@
 interface QuickActionsCardProps {
+  userBatch?: string
+  userRole?: string
   onConnectClick?: () => void
   onMentorshipClick?: () => void
   onEditProfileClick?: () => void
 }
 
 const QuickActionsCard = ({ 
+  userBatch,
+  userRole,
   onConnectClick, 
   onMentorshipClick,
   onEditProfileClick 
 }: QuickActionsCardProps) => {
+  const displayBatch = userBatch ? `Class of ${userBatch}` : 'Not specified'
+  const isMentor = userRole?.toLowerCase() === 'teacher' || userRole?.toLowerCase() === 'alumni'
+  
   return (
     <div className="quick-actions-card">
       <div className="card-header">
@@ -32,17 +39,19 @@ const QuickActionsCard = ({
         <div className="profile-card active">
           <span className="profile-flag">🎓</span>
           <div className="profile-info">
-            <span className="profile-type">Class of 2020</span>
+            <span className="profile-type">{displayBatch}</span>
             <span className="profile-status">Active</span>
           </div>
         </div>
-        <div className="profile-card">
-          <span className="profile-flag">💼</span>
-          <div className="profile-info">
-            <span className="profile-type">Mentor</span>
-            <span className="profile-status">Available</span>
+        {isMentor && (
+          <div className="profile-card">
+            <span className="profile-flag">💼</span>
+            <div className="profile-info">
+              <span className="profile-type">Mentor</span>
+              <span className="profile-status">Available</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

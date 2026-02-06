@@ -1,16 +1,21 @@
 import { HelpCircle, Bell, MessageCircle } from 'lucide-react'
 
 interface DashboardHeaderProps {
-  userName?: string
-  userRole?: string
-  userAvatar?: string
+  userName: string
+  userRole: string
+  userBatch?: string
+  userAvatar?: string | null
 }
 
 const DashboardHeader = ({ 
-  userName = 'John Doe', 
-  userRole = 'Class of 2020',
-  userAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
+  userName, 
+  userRole,
+  userBatch,
+  userAvatar
 }: DashboardHeaderProps) => {
+  const displayRole = userBatch ? `Class of ${userBatch}` : userRole
+  const avatarLetter = userName.charAt(0).toUpperCase()
+  
   return (
     <header className="dashboard-header">
       <div className="header-actions">
@@ -26,10 +31,16 @@ const DashboardHeader = ({
           </button>
         </div>
         <div className="header-profile">
-          <img src={userAvatar} alt="Profile" />
+          {userAvatar ? (
+            <img src={userAvatar} alt="Profile" />
+          ) : (
+            <div className="profile-avatar-letter">
+              {avatarLetter}
+            </div>
+          )}
           <div className="profile-info">
             <span className="profile-name">{userName}</span>
-            <span className="profile-role">{userRole}</span>
+            <span className="profile-role">{displayRole}</span>
           </div>
         </div>
       </div>

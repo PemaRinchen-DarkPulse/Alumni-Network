@@ -78,6 +78,9 @@ public class Event {
     @Column(nullable = false)
     private Long createdBy;
     
+    @Column
+    private String createdByName;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventStatus status = EventStatus.DRAFT;

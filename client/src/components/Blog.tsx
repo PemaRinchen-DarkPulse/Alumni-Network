@@ -155,6 +155,7 @@ const Blog = () => {
         {showCreatePost ? (
           <CreatePost
             onClose={() => setShowCreatePost(false)}
+            onPostCreated={handlePostCreated}
           />
         ) : loading ? (
           <div className="loading-state">Loading posts...</div>

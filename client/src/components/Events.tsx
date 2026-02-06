@@ -16,6 +16,7 @@ interface Event {
   maxAttendees: number
   status: string
   createdBy: number
+  createdByName?: string
   isFeatured?: boolean
   bannerImageUrl?: string
   isVirtual?: boolean
@@ -331,7 +332,7 @@ const Events = () => {
                       <div className="event-card-footer">
                         <div className="event-organizer">
                           <div className="organizer-avatar"></div>
-                          <span>Alumni Association</span>
+                          <span>{event.createdByName || 'Unknown'}</span>
                         </div>
                         <div className="event-attendees">
                           <Users size={14} />

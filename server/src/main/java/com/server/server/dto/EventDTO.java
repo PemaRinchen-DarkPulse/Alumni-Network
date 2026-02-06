@@ -28,6 +28,7 @@ public class EventDTO {
     private Integer maxAttendees;
     private String bannerImageUrl;
     private Long createdBy;
+    private String createdByName;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -55,6 +56,7 @@ public class EventDTO {
         }
         
         dto.setCreatedBy(event.getCreatedBy());
+        dto.setCreatedByName(event.getCreatedByName());
         dto.setStatus(event.getStatus().name().toLowerCase());
         dto.setCreatedAt(event.getCreatedAt());
         dto.setUpdatedAt(event.getUpdatedAt());

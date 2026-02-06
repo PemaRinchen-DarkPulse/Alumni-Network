@@ -2,17 +2,12 @@ import apiClient from '../config/api'
 
 export interface User {
   id: number
-  firstName: string
-  lastName: string
+  name: string
   email: string
   role: string
   batch?: string
-  program?: string
-  currentCompany?: string
-  currentPosition?: string
-  linkedInUrl?: string
-  bio?: string
-  profilePictureUrl?: string
+  emailVerified?: boolean
+  createdAt?: string
 }
 
 export const userService = {

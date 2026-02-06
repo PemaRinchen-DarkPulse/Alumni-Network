@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+import tributeService from '../services/tributeService'
 import '../styles/CreateTribute.css'
 
 interface CreateTributeProps {
@@ -6,6 +8,7 @@ interface CreateTributeProps {
 }
 
 const CreateTribute = ({ onClose }: CreateTributeProps) => {
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     teacherName: '',
     department: '',
@@ -25,9 +28,14 @@ const CreateTribute = ({ onClose }: CreateTributeProps) => {
     }))
   }
 
-  const handleSubmit = async (status: 'DRAFT' | 'PUBLISHED') => {
+  const handleSubmit = async () => {
     if (!formData.teacherName.trim() || !formData.message.trim()) {
       setError('Teacher name and message are required')
+      return
+    }
+
+    if (!user) {
+      setError('You must be logged in to submit a tribute')
       return
     }
 
@@ -35,20 +43,16 @@ const CreateTribute = ({ onClose }: CreateTributeProps) => {
     setError('')
 
     try {
-      // TODO: Replace with actual API call
-      const formDataToSend = new FormData()
-      formDataToSend.append('teacherName', formData.teacherName)
-      formDataToSend.append('department', formData.department)
-      formDataToSend.append('yearsFrom', formData.yearsFrom)
-      formDataToSend.append('yearsTo', formData.yearsTo)
-      formDataToSend.append('subject', formData.subject)
-      formDataToSend.append('message', formData.message)
-      formDataToSend.append('status', status)
-      
-      // await tributeService.createTribute(formDataToSend)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await tributeService.createTribute({
+        teacherName: formData.teacherName,
+        department: formData.department,
+        yearsFrom: formData.yearsFrom,
+        yearsTo: formData.yearsTo,
+        subject: formData.subject,
+        message: formData.message,
+        authorId: user.id,
+        authorName: user.name
+      })
       
       onClose()
     } catch (err: any) {
@@ -98,15 +102,8 @@ const CreateTribute = ({ onClose }: CreateTributeProps) => {
         </div>
         <div className="create-tribute__header-actions">
           <button 
-            className="create-tribute__draft-btn"
-            onClick={() => handleSubmit('DRAFT')}
-            disabled={loading}
-          >
-            Save as Draft
-          </button>
-          <button 
             className="create-tribute__publish-btn"
-            onClick={() => handleSubmit('PUBLISHED')}
+            onClick={handleSubmit}
             disabled={loading}
           >
             {loading ? 'Submitting...' : 'Submit Tribute'}
@@ -120,7 +117,6 @@ const CreateTribute = ({ onClose }: CreateTributeProps) => {
         <div className="create-tribute__main">
           <div className="create-tribute__section">
             <h2 className="create-tribute__section-title">Teacher Information</h2>
-            
             <div className="create-tribute__field">
               <label className="create-tribute__label">
                 Teacher's Name <span className="create-tribute__required">*</span>
