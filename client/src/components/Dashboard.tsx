@@ -13,6 +13,8 @@ import Tributes from './Tributes'
 import Networking from './Networking'
 import Mentorship from './Mentorship'
 import Blog from './Blog'
+import Settings from './Settings'
+import Nexus from './Nexus'
 import { useAuth } from '../context/AuthContext'
 import '../styles/Dashboard.css'
 
@@ -150,6 +152,10 @@ const Dashboard = () => {
           <Mentorship />
         ) : activeMenu === 'Blogs' ? (
           <Blog />
+        ) : activeMenu === 'Nexus' ? (
+          <Nexus />
+        ) : activeMenu === 'Settings' ? (
+          <Settings />
         ) : (
           <>
             <StatsRow stats={connectionStats} />
