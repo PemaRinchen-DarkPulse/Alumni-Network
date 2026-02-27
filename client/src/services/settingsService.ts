@@ -1,6 +1,85 @@
 import apiClient from '../config/api'
 
+// Alumni-specific settings interfaces
+export interface AlumniProfileSettings {
+  fullName: string
+  profilePhoto: string
+  coverPhoto: string
+  bio: string
+  graduationYear: string
+  department: string
+  studentId: string
+  university: string
+  course: string
+  country: string
+  currentJobTitle: string
+  company: string
+  industry: string
+  workLocation: string
+  linkedinUrl: string
+  portfolioUrl: string
+  skills: string[]
+  resumeUpload: string
+  availableAsMentor: boolean
+  mentorshipAreas: string[]
+  preferredContactMethod: string
+  availableTimeSlots: string
+}
+
+export interface AlumniPrivacySettings {
+  profileVisibility: string
+  showEmailTo: string
+  allowStudentConnectionRequests: boolean
+  allowTeacherContact: boolean
+  showInAlumniDirectory: boolean
+}
+
+export interface AlumniNotificationSettings {
+  email: {
+    connectionRequest: boolean
+    messageReceived: boolean
+    mentorshipRequest: boolean
+    eventInvitation: boolean
+    jobPostings: boolean
+    alumniAnnouncements: boolean
+  }
+  inApp: {
+    connectionRequest: boolean
+    messageReceived: boolean
+    mentorshipRequest: boolean
+    eventInvitation: boolean
+    jobPostings: boolean
+    alumniAnnouncements: boolean
+  }
+}
+
+export interface AlumniAccountSettings {
+  email: string
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+  twoFactorEnabled: boolean
+}
+
+export interface AlumniNetworkingSettings {
+  autoAcceptConnections: boolean
+  whoCanMessageMe: string
+  showOpenToWork: boolean
+  showOpenToMentor: boolean
+}
+
+export interface AlumniEventSettings {
+  eventReminderTime: string
+  interestedTopics: string[]
+  volunteerForEvents: boolean
+}
+
+export interface AlumniDataSecuritySettings {
+  // Read-only / action-based, no persistent state needed
+}
+
 export interface UserSettings {
+  // Legacy / shared
   account?: {
     fullName: string
     email: string
@@ -68,6 +147,13 @@ export interface UserSettings {
     locationPreference: string
     openToOpportunities: boolean
   }
+  // Alumni-specific
+  alumniProfile?: AlumniProfileSettings
+  alumniPrivacy?: AlumniPrivacySettings
+  alumniNotifications?: AlumniNotificationSettings
+  alumniAccount?: AlumniAccountSettings
+  alumniNetworking?: AlumniNetworkingSettings
+  alumniEvents?: AlumniEventSettings
 }
 
 export const settingsService = {

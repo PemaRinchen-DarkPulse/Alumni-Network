@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { 
   User, Lock, Eye, EyeOff, Bell, Palette, Shield, 
   Upload, Save, AlertCircle, CheckCircle, Globe,
-  Calendar, Briefcase, GraduationCap, Target, MapPin
+  Calendar, Briefcase, GraduationCap, Target, MapPin,
+  Link, FileText, Clock, Users, Wifi, Download,
+  History, Monitor, Trash2, Power, MessageSquare, ImagePlus
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { settingsService, type UserSettings } from '../services/settingsService'
@@ -10,12 +12,87 @@ import '../styles/Settings.css'
 
 const Settings = () => {
   const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState('account')
+  const isAlumni = user?.role?.toLowerCase() === 'alumni'
+  const [activeTab, setActiveTab] = useState(isAlumni ? 'profile' : 'account')
   const [loading, setLoading] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
-  // Global Settings State
+  // ─── Alumni Settings State ───
+  const [alumniProfile, setAlumniProfile] = useState({
+    fullName: user?.name || '',
+    profilePhoto: '',
+    coverPhoto: '',
+    bio: '',
+    graduationYear: '',
+    department: '',
+    studentId: '',
+    university: '',
+    course: '',
+    country: '',
+    currentJobTitle: '',
+    company: '',
+    industry: '',
+    workLocation: '',
+    linkedinUrl: '',
+    portfolioUrl: '',
+    skills: [] as string[],
+    resumeUpload: '',
+    availableAsMentor: false,
+    mentorshipAreas: [] as string[],
+    preferredContactMethod: 'email',
+    availableTimeSlots: ''
+  })
+
+  const [alumniPrivacy, setAlumniPrivacy] = useState({
+    profileVisibility: 'public',
+    showEmailTo: 'everyone',
+    allowStudentConnectionRequests: true,
+    allowTeacherContact: true,
+    showInAlumniDirectory: true
+  })
+
+  const [alumniNotifications, setAlumniNotifications] = useState({
+    email: {
+      connectionRequest: true,
+      messageReceived: true,
+      mentorshipRequest: true,
+      eventInvitation: true,
+      jobPostings: true,
+      alumniAnnouncements: true
+    },
+    inApp: {
+      connectionRequest: true,
+      messageReceived: true,
+      mentorshipRequest: true,
+      eventInvitation: true,
+      jobPostings: true,
+      alumniAnnouncements: true
+    }
+  })
+
+  const [alumniAccount, setAlumniAccount] = useState({
+    email: user?.email || '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+    twoFactorEnabled: false
+  })
+
+  const [alumniNetworking, setAlumniNetworking] = useState({
+    autoAcceptConnections: false,
+    whoCanMessageMe: 'everyone',
+    showOpenToWork: false,
+    showOpenToMentor: false
+  })
+
+  const [alumniEvents, setAlumniEvents] = useState({
+    eventReminderTime: '1day',
+    interestedTopics: [] as string[],
+    volunteerForEvents: false
+  })
+
+  // ─── Non-Alumni Settings State (Teacher / Student / Global) ───
   const [accountSettings, setAccountSettings] = useState({
     fullName: user?.name || '',
     email: user?.email || '',
@@ -53,23 +130,6 @@ const Settings = () => {
     dateFormat: 'MM/DD/YYYY'
   })
 
-  // Alumni-Specific Settings
-  const [mentorshipSettings, setMentorshipSettings] = useState({
-    mentorshipStatus: 'accepting',
-    expertiseAreas: [] as string[],
-    preferredMenteeLevel: 'student',
-    availability: 'monthly',
-    sessionFormat: ['chat', 'video']
-  })
-
-  const [professionalProfile, setProfessionalProfile] = useState({
-    currentRole: '',
-    organization: '',
-    industry: '',
-    skills: [] as string[],
-    willingToHelp: [] as string[]
-  })
-
   // Teacher-Specific Settings
   const [teachingSettings, setTeachingSettings] = useState({
     academicExpertise: [] as string[],
@@ -105,7 +165,27 @@ const Settings = () => {
       setLoading(true)
       const settings = await settingsService.getUserSettings()
       
-      // Populate all settings from backend
+      // Alumni-specific settings
+      if (settings.alumniProfile) {
+        setAlumniProfile(prev => ({ ...prev, ...settings.alumniProfile }))
+      }
+      if (settings.alumniPrivacy) {
+        setAlumniPrivacy(prev => ({ ...prev, ...settings.alumniPrivacy }))
+      }
+      if (settings.alumniNotifications) {
+        setAlumniNotifications(prev => ({ ...prev, ...settings.alumniNotifications }))
+      }
+      if (settings.alumniAccount) {
+        setAlumniAccount(prev => ({ ...prev, ...settings.alumniAccount }))
+      }
+      if (settings.alumniNetworking) {
+        setAlumniNetworking(prev => ({ ...prev, ...settings.alumniNetworking }))
+      }
+      if (settings.alumniEvents) {
+        setAlumniEvents(prev => ({ ...prev, ...settings.alumniEvents }))
+      }
+
+      // Non-alumni shared settings
       if (settings.account) {
         setAccountSettings(prev => ({ ...prev, ...settings.account }))
       }
@@ -117,12 +197,6 @@ const Settings = () => {
       }
       if (settings.appearance) {
         setAppearanceSettings(settings.appearance)
-      }
-      if (settings.mentorship) {
-        setMentorshipSettings(settings.mentorship)
-      }
-      if (settings.professional) {
-        setProfessionalProfile(settings.professional)
       }
       if (settings.teaching) {
         setTeachingSettings(settings.teaching)
@@ -148,23 +222,29 @@ const Settings = () => {
       setSaveStatus('saving')
       setMessage('')
 
-      const settingsData: Partial<UserSettings> = {
-        account: accountSettings,
-        privacy: privacySettings,
-        notifications: notificationSettings,
-        appearance: appearanceSettings
-      }
+      const settingsData: Partial<UserSettings> = {}
 
-      // Add role-specific settings
-      if (user?.role?.toLowerCase() === 'alumni') {
-        settingsData.mentorship = mentorshipSettings
-        settingsData.professional = professionalProfile
-      } else if (user?.role?.toLowerCase() === 'teacher') {
-        settingsData.teaching = teachingSettings
-        settingsData.moderation = moderationSettings
-      } else if (user?.role?.toLowerCase() === 'student') {
-        settingsData.learning = learningSettings
-        settingsData.career = careerSettings
+      // Alumni saves all 7 sections
+      if (isAlumni) {
+        settingsData.alumniProfile = alumniProfile
+        settingsData.alumniPrivacy = alumniPrivacy
+        settingsData.alumniNotifications = alumniNotifications
+        settingsData.alumniAccount = alumniAccount
+        settingsData.alumniNetworking = alumniNetworking
+        settingsData.alumniEvents = alumniEvents
+      } else {
+        settingsData.account = accountSettings
+        settingsData.privacy = privacySettings
+        settingsData.notifications = notificationSettings
+        settingsData.appearance = appearanceSettings
+
+        if (user?.role?.toLowerCase() === 'teacher') {
+          settingsData.teaching = teachingSettings
+          settingsData.moderation = moderationSettings
+        } else if (user?.role?.toLowerCase() === 'student') {
+          settingsData.learning = learningSettings
+          settingsData.career = careerSettings
+        }
       }
 
       await settingsService.updateSettings(settingsData)
@@ -185,19 +265,828 @@ const Settings = () => {
     }
   }
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'profilePhoto' | 'coverPhoto') => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        setAccountSettings(prev => ({
-          ...prev,
-          profilePhoto: reader.result as string
-        }))
+        if (isAlumni) {
+          setAlumniProfile(prev => ({ ...prev, [field]: reader.result as string }))
+        } else {
+          setAccountSettings(prev => ({ ...prev, profilePhoto: reader.result as string }))
+        }
       }
       reader.readAsDataURL(file)
     }
   }
+
+  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file && file.type === 'application/pdf') {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAlumniProfile(prev => ({ ...prev, resumeUpload: reader.result as string }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const toggleSkill = (skill: string) => {
+    setAlumniProfile(prev => ({
+      ...prev,
+      skills: prev.skills.includes(skill)
+        ? prev.skills.filter(s => s !== skill)
+        : [...prev.skills, skill]
+    }))
+  }
+
+  const toggleMentorshipArea = (area: string) => {
+    setAlumniProfile(prev => ({
+      ...prev,
+      mentorshipAreas: prev.mentorshipAreas.includes(area)
+        ? prev.mentorshipAreas.filter(a => a !== area)
+        : [...prev.mentorshipAreas, area]
+    }))
+  }
+
+  const toggleInterestedTopic = (topic: string) => {
+    setAlumniEvents(prev => ({
+      ...prev,
+      interestedTopics: prev.interestedTopics.includes(topic)
+        ? prev.interestedTopics.filter(t => t !== topic)
+        : [...prev.interestedTopics, topic]
+    }))
+  }
+
+  // ═══════════════════════════════════════════════
+  // ALUMNI RENDER FUNCTIONS (7 Tabs)
+  // ═══════════════════════════════════════════════
+
+  const renderAlumniProfileSettings = () => (
+    <div className="settings-section">
+      {/* Basic Information */}
+      <h2 className="section-title">
+        <User size={20} />
+        Basic Information
+      </h2>
+      <div className="settings-card">
+        {/* Cover Photo */}
+        <div className="form-group">
+          <label>Cover Photo</label>
+          <label htmlFor="cover-photo-upload" className={`cover-upload-zone${alumniProfile.coverPhoto ? ' has-image' : ''}`}>
+            {alumniProfile.coverPhoto ? (
+              <>
+                <img src={alumniProfile.coverPhoto} alt="Cover" />
+                <div className="cover-overlay">
+                  <Upload size={22} />
+                  <span>Change Cover Photo</span>
+                </div>
+              </>
+            ) : (
+              <div className="cover-placeholder-content">
+                <ImagePlus size={32} />
+                <span>Click to upload a cover photo</span>
+                <small>Recommended: 1200 × 300px</small>
+              </div>
+            )}
+          </label>
+          <input
+            id="cover-photo-upload"
+            type="file"
+            accept="image/*"
+            onChange={(e) => handlePhotoUpload(e, 'coverPhoto')}
+            style={{ display: 'none' }}
+          />
+        </div>
+
+        <h3 className="subsection-title">Personal Details</h3>
+
+        {/* Profile Hero: Photo left, Key info right */}
+        <div className="profile-hero">
+          <div className="profile-hero-photo">
+            <div className="profile-avatar">
+              {alumniProfile.profilePhoto ? (
+                <img src={alumniProfile.profilePhoto} alt="Profile" />
+              ) : (
+                <User size={64} />
+              )}
+            </div>
+            <label htmlFor="profile-photo-upload" className="avatar-text-btn">
+              <Upload size={14} />
+              {alumniProfile.profilePhoto ? 'Change Photo' : 'Upload Photo'}
+            </label>
+            <input
+              id="profile-photo-upload"
+              type="file"
+              accept="image/*"
+              onChange={(e) => handlePhotoUpload(e, 'profilePhoto')}
+              style={{ display: 'none' }}
+            />
+          </div>
+
+          <div className="profile-hero-info">
+            <div className="form-row form-row-60-40">
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  value={alumniProfile.fullName}
+                  onChange={(e) => setAlumniProfile(prev => ({ ...prev, fullName: e.target.value }))}
+                  className="form-input"
+                  placeholder="Your full name"
+                />
+              </div>
+              <div className="form-group">
+                <label>Batch</label>
+                <input
+                  type="text"
+                  value={alumniProfile.graduationYear}
+                  onChange={(e) => setAlumniProfile(prev => ({ ...prev, graduationYear: e.target.value }))}
+                  className="form-input"
+                  placeholder="e.g., 2020"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Course</label>
+              <input
+                type="text"
+                value={alumniProfile.course}
+                onChange={(e) => setAlumniProfile(prev => ({ ...prev, course: e.target.value }))}
+                className="form-input"
+                placeholder="e.g., BSc Computer Science"
+              />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>University / Institution</label>
+                <input
+                  type="text"
+                  value={alumniProfile.university}
+                  onChange={(e) => setAlumniProfile(prev => ({ ...prev, university: e.target.value }))}
+                  className="form-input"
+                  placeholder="e.g., MIT, Oxford University"
+                />
+              </div>
+              <div className="form-group">
+                <label>Country</label>
+                <input
+                  type="text"
+                  value={alumniProfile.country}
+                  onChange={(e) => setAlumniProfile(prev => ({ ...prev, country: e.target.value }))}
+                  className="form-input"
+                  placeholder="e.g., United States"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Bio / About Me</label>
+          <textarea
+            value={alumniProfile.bio}
+            onChange={(e) => setAlumniProfile(prev => ({ ...prev, bio: e.target.value }))}
+            className="form-textarea"
+            placeholder="Tell the community about yourself..."
+            rows={4}
+          />
+        </div>
+      </div>
+
+      {/* Professional Information */}
+      <h2 className="section-title" style={{ marginTop: 32 }}>
+        <Briefcase size={20} />
+        Professional Information
+      </h2>
+      <div className="settings-card">
+        <div className="form-row">
+          <div className="form-group">
+            <label>Current Job Title</label>
+            <input
+              type="text"
+              value={alumniProfile.currentJobTitle}
+              onChange={(e) => setAlumniProfile(prev => ({ ...prev, currentJobTitle: e.target.value }))}
+              className="form-input"
+              placeholder="e.g., Senior Software Engineer"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Company / Organization</label>
+            <input
+              type="text"
+              value={alumniProfile.company}
+              onChange={(e) => setAlumniProfile(prev => ({ ...prev, company: e.target.value }))}
+              className="form-input"
+              placeholder="e.g., Google"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Industry</label>
+            <select
+              value={alumniProfile.industry}
+              onChange={(e) => setAlumniProfile(prev => ({ ...prev, industry: e.target.value }))}
+              className="form-select"
+            >
+              <option value="">Select Industry</option>
+              <option value="technology">Technology</option>
+              <option value="finance">Finance & Banking</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="education">Education</option>
+              <option value="consulting">Consulting</option>
+              <option value="marketing">Marketing & Advertising</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="government">Government</option>
+              <option value="nonprofit">Non-Profit</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <MapPin size={16} />
+              Work Location
+            </label>
+            <input
+              type="text"
+              value={alumniProfile.workLocation}
+              onChange={(e) => setAlumniProfile(prev => ({ ...prev, workLocation: e.target.value }))}
+              className="form-input"
+              placeholder="e.g., San Francisco, CA"
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>
+              <Link size={16} />
+              LinkedIn URL
+            </label>
+            <input
+              type="url"
+              value={alumniProfile.linkedinUrl}
+              onChange={(e) => setAlumniProfile(prev => ({ ...prev, linkedinUrl: e.target.value }))}
+              className="form-input"
+              placeholder="https://linkedin.com/in/yourprofile"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>
+              <Globe size={16} />
+              Portfolio / Personal Website
+            </label>
+            <input
+              type="url"
+              value={alumniProfile.portfolioUrl}
+              onChange={(e) => setAlumniProfile(prev => ({ ...prev, portfolioUrl: e.target.value }))}
+              className="form-input"
+              placeholder="https://yourwebsite.com"
+            />
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Skills</label>
+          <div className="tags-input">
+            {['JavaScript', 'Python', 'React', 'Node.js', 'Java', 'SQL', 'AWS', 'Docker', 'Machine Learning', 'Data Analysis', 'Project Management', 'Leadership', 'Marketing', 'Design', 'Communication'].map(skill => (
+              <button
+                key={skill}
+                type="button"
+                className={`tag-btn ${alumniProfile.skills.includes(skill) ? 'active' : ''}`}
+                onClick={() => toggleSkill(skill)}
+              >
+                {skill}
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            placeholder="Add custom skills (comma separated)"
+            className="form-input"
+            style={{ marginTop: 8 }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                const val = (e.target as HTMLInputElement).value.trim()
+                if (val) {
+                  const newSkills = val.split(',').map(s => s.trim()).filter(Boolean)
+                  setAlumniProfile(prev => ({
+                    ...prev,
+                    skills: [...new Set([...prev.skills, ...newSkills])]
+                  }))
+                  ;(e.target as HTMLInputElement).value = ''
+                }
+              }
+            }}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>
+            <FileText size={16} />
+            Resume Upload (PDF)
+          </label>
+          <div className="file-upload-area">
+            <label htmlFor="resume-upload" className="upload-btn">
+              <Upload size={16} />
+              {alumniProfile.resumeUpload ? 'Replace Resume' : 'Upload Resume'}
+            </label>
+            {alumniProfile.resumeUpload && (
+              <span className="file-status">
+                <CheckCircle size={14} />
+                Resume uploaded
+              </span>
+            )}
+            <input
+              id="resume-upload"
+              type="file"
+              accept="application/pdf"
+              onChange={handleResumeUpload}
+              style={{ display: 'none' }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderAlumniPrivacySettings = () => (
+    <div className="settings-section">
+      <h2 className="section-title">
+        <Eye size={20} />
+        Privacy & Visibility
+      </h2>
+
+      {/* Profile Visibility */}
+      <div className="settings-card">
+        <h3 className="subsection-title">Profile Visibility</h3>
+        <div className="form-group">
+          <label>Who can see your profile?</label>
+          <div className="radio-group">
+            {[
+              { value: 'public', label: 'Public', desc: 'Visible to all users' },
+              { value: 'logged-in', label: 'Logged-in Users', desc: 'Only users who are signed in' },
+              { value: 'alumni', label: 'Only Alumni', desc: 'Visible to verified alumni only' },
+              { value: 'private', label: 'Private', desc: 'Only you can see your profile' }
+            ].map(opt => (
+              <label key={opt.value} className="radio-item">
+                <input
+                  type="radio"
+                  name="profileVisibility"
+                  value={opt.value}
+                  checked={alumniPrivacy.profileVisibility === opt.value}
+                  onChange={(e) => setAlumniPrivacy(prev => ({ ...prev, profileVisibility: e.target.value }))}
+                />
+                <div>
+                  <h4>{opt.label}</h4>
+                  <p>{opt.desc}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Contact Info Visibility */}
+      <div className="settings-card" style={{ marginTop: 24 }}>
+        <h3 className="subsection-title">Contact Information Visibility</h3>
+        <div className="form-group">
+          <label>Show Email to:</label>
+          <select
+            value={alumniPrivacy.showEmailTo}
+            onChange={(e) => setAlumniPrivacy(prev => ({ ...prev, showEmailTo: e.target.value }))}
+            className="form-select"
+          >
+            <option value="everyone">Everyone</option>
+            <option value="connections">Connections Only</option>
+            <option value="nobody">Nobody</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Profile Discoverability */}
+      <div className="settings-card" style={{ marginTop: 24 }}>
+        <h3 className="subsection-title">Profile Discoverability</h3>
+        <div className="toggle-group">
+          <div className="toggle-item">
+            <div>
+              <h4>Allow students to send connection requests</h4>
+              <p>Students can request to connect with you</p>
+            </div>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={alumniPrivacy.allowStudentConnectionRequests}
+                onChange={(e) => setAlumniPrivacy(prev => ({ ...prev, allowStudentConnectionRequests: e.target.checked }))}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div className="toggle-item">
+            <div>
+              <h4>Allow teachers to contact directly</h4>
+              <p>Teachers can send you direct messages</p>
+            </div>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={alumniPrivacy.allowTeacherContact}
+                onChange={(e) => setAlumniPrivacy(prev => ({ ...prev, allowTeacherContact: e.target.checked }))}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div className="toggle-item">
+            <div>
+              <h4>Show in Alumni Directory</h4>
+              <p>Appear in search results of the alumni directory</p>
+            </div>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={alumniPrivacy.showInAlumniDirectory}
+                onChange={(e) => setAlumniPrivacy(prev => ({ ...prev, showInAlumniDirectory: e.target.checked }))}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderAlumniNotificationSettings = () => {
+    const notifKeys = [
+      { key: 'connectionRequest', label: 'New connection request', desc: 'When someone wants to connect' },
+      { key: 'messageReceived', label: 'Message received', desc: 'When you get a new message' },
+      { key: 'mentorshipRequest', label: 'Mentorship request', desc: 'When someone requests mentorship' },
+      { key: 'eventInvitation', label: 'Event invitation', desc: 'When you\'re invited to an event' },
+      { key: 'jobPostings', label: 'Job postings', desc: 'New job opportunities shared' },
+      { key: 'alumniAnnouncements', label: 'Alumni announcements', desc: 'Important alumni community updates' }
+    ] as const
+
+    return (
+      <div className="settings-section">
+        <h2 className="section-title">
+          <Bell size={20} />
+          Notification Settings
+        </h2>
+
+        {/* Email Notifications */}
+        <div className="settings-card">
+          <h3 className="subsection-title">Email Notifications</h3>
+          <div className="toggle-group">
+            {notifKeys.map(({ key, label, desc }) => (
+              <div className="toggle-item" key={`email-${key}`}>
+                <div>
+                  <h4>{label}</h4>
+                  <p>{desc}</p>
+                </div>
+                <label className="toggle">
+                  <input
+                    type="checkbox"
+                    checked={alumniNotifications.email[key]}
+                    onChange={(e) => setAlumniNotifications(prev => ({
+                      ...prev,
+                      email: { ...prev.email, [key]: e.target.checked }
+                    }))}
+                  />
+                  <span className="toggle-slider"></span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* In-App Notifications */}
+        <div className="settings-card" style={{ marginTop: 24 }}>
+          <h3 className="subsection-title">In-App Notifications</h3>
+          <div className="toggle-group">
+            {notifKeys.map(({ key, label, desc }) => (
+              <div className="toggle-item" key={`inapp-${key}`}>
+                <div>
+                  <h4>{label}</h4>
+                  <p>{desc}</p>
+                </div>
+                <label className="toggle">
+                  <input
+                    type="checkbox"
+                    checked={alumniNotifications.inApp[key]}
+                    onChange={(e) => setAlumniNotifications(prev => ({
+                      ...prev,
+                      inApp: { ...prev.inApp, [key]: e.target.checked }
+                    }))}
+                  />
+                  <span className="toggle-slider"></span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderAlumniAccountSettings = () => (
+    <div className="settings-section">
+      <h2 className="section-title">
+        <User size={20} />
+        Account Settings
+      </h2>
+
+      <div className="settings-card">
+        <div className="form-group">
+          <label>Email Address</label>
+          <div className="input-with-badge">
+            <input
+              type="email"
+              value={alumniAccount.email}
+              onChange={(e) => setAlumniAccount(prev => ({ ...prev, email: e.target.value }))}
+              className="form-input"
+            />
+            {user?.emailVerified && (
+              <span className="verified-badge">
+                <CheckCircle size={16} />
+                Verified
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="form-divider" />
+
+        <h3 className="subsection-title">Change Password</h3>
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Current Password"
+            value={alumniAccount.currentPassword}
+            onChange={(e) => setAlumniAccount(prev => ({ ...prev, currentPassword: e.target.value }))}
+            className="form-input"
+          />
+          <input
+            type="password"
+            placeholder="New Password"
+            value={alumniAccount.newPassword}
+            onChange={(e) => setAlumniAccount(prev => ({ ...prev, newPassword: e.target.value }))}
+            className="form-input"
+          />
+          <input
+            type="password"
+            placeholder="Confirm New Password"
+            value={alumniAccount.confirmPassword}
+            onChange={(e) => setAlumniAccount(prev => ({ ...prev, confirmPassword: e.target.value }))}
+            className="form-input"
+          />
+        </div>
+
+        <div className="form-divider" />
+
+        <div className="toggle-item">
+          <div>
+            <h4>Two-Factor Authentication</h4>
+            <p>Add an extra layer of security to your account (Recommended)</p>
+          </div>
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={alumniAccount.twoFactorEnabled}
+              onChange={(e) => setAlumniAccount(prev => ({ ...prev, twoFactorEnabled: e.target.checked }))}
+            />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div className="form-divider" />
+
+        <div className="safety-links">
+          <button className="link-btn">
+            <Monitor size={18} />
+            <div>
+              <h4>Login Activity / Active Sessions</h4>
+              <p>View and manage your active sessions</p>
+            </div>
+          </button>
+        </div>
+
+        <div className="form-divider" />
+
+        <div className="danger-actions">
+          <button className="danger-btn">
+            <Power size={16} />
+            Deactivate Account
+          </button>
+          <button className="danger-btn destructive">
+            <Trash2 size={16} />
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderAlumniNetworkingSettings = () => (
+    <div className="settings-section">
+      <h2 className="section-title">
+        <Users size={20} />
+        Networking & Connection Settings
+      </h2>
+
+      <div className="settings-card">
+        <div className="toggle-group">
+          <div className="toggle-item">
+            <div>
+              <h4>Auto-accept connection requests</h4>
+              <p>Automatically accept all incoming connection requests</p>
+            </div>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={alumniNetworking.autoAcceptConnections}
+                onChange={(e) => setAlumniNetworking(prev => ({ ...prev, autoAcceptConnections: e.target.checked }))}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div className="form-divider" />
+
+        <div className="form-group">
+          <label>
+            <MessageSquare size={16} />
+            Who can send me messages?
+          </label>
+          <select
+            value={alumniNetworking.whoCanMessageMe}
+            onChange={(e) => setAlumniNetworking(prev => ({ ...prev, whoCanMessageMe: e.target.value }))}
+            className="form-select"
+          >
+            <option value="everyone">Everyone</option>
+            <option value="connections">Connections Only</option>
+          </select>
+        </div>
+
+        <div className="form-divider" />
+
+        <div className="toggle-group">
+          <div className="toggle-item">
+            <div>
+              <h4>Show "Open to Work" badge</h4>
+              <p>Let others know you're actively looking for opportunities</p>
+            </div>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={alumniNetworking.showOpenToWork}
+                onChange={(e) => setAlumniNetworking(prev => ({ ...prev, showOpenToWork: e.target.checked }))}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div className="toggle-item">
+            <div>
+              <h4>Show "Open to Mentor" badge</h4>
+              <p>Display that you're available to mentor others</p>
+            </div>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={alumniNetworking.showOpenToMentor}
+                onChange={(e) => setAlumniNetworking(prev => ({ ...prev, showOpenToMentor: e.target.checked }))}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderAlumniEventSettings = () => (
+    <div className="settings-section">
+      <h2 className="section-title">
+        <Calendar size={20} />
+        Event & Community Preferences
+      </h2>
+
+      <div className="settings-card">
+        <div className="form-group">
+          <label>Event Reminder Time</label>
+          <select
+            value={alumniEvents.eventReminderTime}
+            onChange={(e) => setAlumniEvents(prev => ({ ...prev, eventReminderTime: e.target.value }))}
+            className="form-select"
+          >
+            <option value="1hour">1 hour before</option>
+            <option value="1day">1 day before</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+
+        <div className="form-divider" />
+
+        <div className="form-group">
+          <label>Interested Topics</label>
+          <div className="tags-input">
+            {['Tech', 'Business', 'Tourism', 'AI', 'Entrepreneurship', 'Healthcare', 'Design', 'Finance', 'Education', 'Science', 'Arts', 'Sports'].map(topic => (
+              <button
+                key={topic}
+                type="button"
+                className={`tag-btn ${alumniEvents.interestedTopics.includes(topic) ? 'active' : ''}`}
+                onClick={() => toggleInterestedTopic(topic)}
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-divider" />
+
+        <div className="toggle-item">
+          <div>
+            <h4>Volunteer for Alumni Events</h4>
+            <p>Show interest in helping organize or participate in alumni events</p>
+          </div>
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={alumniEvents.volunteerForEvents}
+              onChange={(e) => setAlumniEvents(prev => ({ ...prev, volunteerForEvents: e.target.checked }))}
+            />
+            <span className="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderAlumniDataSecuritySettings = () => (
+    <div className="settings-section">
+      <h2 className="section-title">
+        <Shield size={20} />
+        Data & Security
+      </h2>
+
+      <div className="settings-card">
+        <div className="safety-links">
+          <button className="link-btn">
+            <Download size={18} />
+            <div>
+              <h4>Download My Data</h4>
+              <p>Request a copy of all your data</p>
+            </div>
+          </button>
+
+          <button className="link-btn">
+            <History size={18} />
+            <div>
+              <h4>Activity History</h4>
+              <p>View your recent activity on the platform</p>
+            </div>
+          </button>
+
+          <button className="link-btn">
+            <Wifi size={18} />
+            <div>
+              <h4>Connected Devices</h4>
+              <p>Manage devices that have access to your account</p>
+            </div>
+          </button>
+
+          <button className="link-btn">
+            <EyeOff size={18} />
+            <div>
+              <h4>Privacy Policy</h4>
+              <p>Read our data privacy and handling policy</p>
+            </div>
+          </button>
+
+          <button className="link-btn">
+            <FileText size={18} />
+            <div>
+              <h4>Terms & Conditions</h4>
+              <p>View the platform terms of service</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  // ═══════════════════════════════════════════════
+  // NON-ALUMNI RENDER FUNCTIONS (Teacher / Student / Global)
+  // ═══════════════════════════════════════════════
 
   const renderAccountSettings = () => (
     <div className="settings-section">
@@ -225,7 +1114,7 @@ const Settings = () => {
               id="photo-upload"
               type="file"
               accept="image/*"
-              onChange={handlePhotoUpload}
+              onChange={(e) => handlePhotoUpload(e, 'profilePhoto')}
               style={{ display: 'none' }}
             />
           </div>
@@ -631,219 +1520,6 @@ const Settings = () => {
     </div>
   )
 
-  // Alumni-Specific Sections
-  const renderMentorshipSettings = () => (
-    <div className="settings-section">
-      <h2 className="section-title">
-        <GraduationCap size={20} />
-        Mentorship Settings
-      </h2>
-      
-      <div className="settings-card">
-        <div className="form-group">
-          <label>Mentorship Status</label>
-          <select
-            value={mentorshipSettings.mentorshipStatus}
-            onChange={(e) => setMentorshipSettings(prev => ({ ...prev, mentorshipStatus: e.target.value }))}
-            className="form-select"
-          >
-            <option value="accepting">Accepting Requests</option>
-            <option value="paused">Paused</option>
-            <option value="not-available">Not Available</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>Expertise Areas</label>
-          <input
-            type="text"
-            placeholder="e.g., Software Development, Marketing"
-            value={mentorshipSettings.expertiseAreas.join(', ')}
-            onChange={(e) => setMentorshipSettings(prev => ({
-              ...prev,
-              expertiseAreas: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-            }))}
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Preferred Mentee Level</label>
-          <select
-            value={mentorshipSettings.preferredMenteeLevel}
-            onChange={(e) => setMentorshipSettings(prev => ({ ...prev, preferredMenteeLevel: e.target.value }))}
-            className="form-select"
-          >
-            <option value="student">Students Only</option>
-            <option value="alumni">Alumni Only</option>
-            <option value="both">Both</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>Availability</label>
-          <select
-            value={mentorshipSettings.availability}
-            onChange={(e) => setMentorshipSettings(prev => ({ ...prev, availability: e.target.value }))}
-            className="form-select"
-          >
-            <option value="monthly">Once a Month</option>
-            <option value="quarterly">Once a Quarter</option>
-            <option value="on-demand">On Demand</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>Session Format</label>
-          <div className="checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={mentorshipSettings.sessionFormat.includes('chat')}
-                onChange={(e) => {
-                  const formats = e.target.checked
-                    ? [...mentorshipSettings.sessionFormat, 'chat']
-                    : mentorshipSettings.sessionFormat.filter(f => f !== 'chat')
-                  setMentorshipSettings(prev => ({ ...prev, sessionFormat: formats }))
-                }}
-              />
-              Chat
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={mentorshipSettings.sessionFormat.includes('video')}
-                onChange={(e) => {
-                  const formats = e.target.checked
-                    ? [...mentorshipSettings.sessionFormat, 'video']
-                    : mentorshipSettings.sessionFormat.filter(f => f !== 'video')
-                  setMentorshipSettings(prev => ({ ...prev, sessionFormat: formats }))
-                }}
-              />
-              Video Call
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={mentorshipSettings.sessionFormat.includes('in-person')}
-                onChange={(e) => {
-                  const formats = e.target.checked
-                    ? [...mentorshipSettings.sessionFormat, 'in-person']
-                    : mentorshipSettings.sessionFormat.filter(f => f !== 'in-person')
-                  setMentorshipSettings(prev => ({ ...prev, sessionFormat: formats }))
-                }}
-              />
-              In-Person
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderProfessionalProfile = () => (
-    <div className="settings-section">
-      <h2 className="section-title">
-        <Briefcase size={20} />
-        Professional Profile
-      </h2>
-      
-      <div className="settings-card">
-        <div className="form-group">
-          <label>Current Role</label>
-          <input
-            type="text"
-            placeholder="e.g., Senior Software Engineer"
-            value={professionalProfile.currentRole}
-            onChange={(e) => setProfessionalProfile(prev => ({ ...prev, currentRole: e.target.value }))}
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Organization</label>
-          <input
-            type="text"
-            placeholder="e.g., Google"
-            value={professionalProfile.organization}
-            onChange={(e) => setProfessionalProfile(prev => ({ ...prev, organization: e.target.value }))}
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Industry</label>
-          <input
-            type="text"
-            placeholder="e.g., Technology"
-            value={professionalProfile.industry}
-            onChange={(e) => setProfessionalProfile(prev => ({ ...prev, industry: e.target.value }))}
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Skills & Interests</label>
-          <input
-            type="text"
-            placeholder="e.g., JavaScript, React, Node.js"
-            value={professionalProfile.skills.join(', ')}
-            onChange={(e) => setProfessionalProfile(prev => ({
-              ...prev,
-              skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-            }))}
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Willing to Help With</label>
-          <div className="checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={professionalProfile.willingToHelp.includes('career-guidance')}
-                onChange={(e) => {
-                  const help = e.target.checked
-                    ? [...professionalProfile.willingToHelp, 'career-guidance']
-                    : professionalProfile.willingToHelp.filter(h => h !== 'career-guidance')
-                  setProfessionalProfile(prev => ({ ...prev, willingToHelp: help }))
-                }}
-              />
-              Career Guidance
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={professionalProfile.willingToHelp.includes('internships')}
-                onChange={(e) => {
-                  const help = e.target.checked
-                    ? [...professionalProfile.willingToHelp, 'internships']
-                    : professionalProfile.willingToHelp.filter(h => h !== 'internships')
-                  setProfessionalProfile(prev => ({ ...prev, willingToHelp: help }))
-                }}
-              />
-              Internships
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={professionalProfile.willingToHelp.includes('referrals')}
-                onChange={(e) => {
-                  const help = e.target.checked
-                    ? [...professionalProfile.willingToHelp, 'referrals']
-                    : professionalProfile.willingToHelp.filter(h => h !== 'referrals')
-                  setProfessionalProfile(prev => ({ ...prev, willingToHelp: help }))
-                }}
-              />
-              Referrals
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
   // Teacher-Specific Sections
   const renderTeachingSettings = () => (
     <div className="settings-section">
@@ -1116,31 +1792,46 @@ const Settings = () => {
   const renderContent = () => {
     const role = user?.role?.toLowerCase()
 
+    // Alumni gets dedicated 7-tab experience
+    if (role === 'alumni') {
+      switch (activeTab) {
+        case 'profile': return renderAlumniProfileSettings()
+        case 'privacy': return renderAlumniPrivacySettings()
+        case 'notifications': return renderAlumniNotificationSettings()
+        case 'account': return renderAlumniAccountSettings()
+        case 'networking': return renderAlumniNetworkingSettings()
+        case 'events': return renderAlumniEventSettings()
+        case 'data-security': return renderAlumniDataSecuritySettings()
+        default: return renderAlumniProfileSettings()
+      }
+    }
+
+    // Non-alumni (teacher / student) uses shared tabs
     switch (activeTab) {
-      case 'account':
-        return renderAccountSettings()
-      case 'privacy':
-        return renderPrivacySettings()
-      case 'notifications':
-        return renderNotificationSettings()
-      case 'safety':
-        return renderSafetySettings()
-      
-      // Alumni-specific
-      case 'professional':
-        return role === 'alumni' ? renderProfessionalProfile() : null
-      
-      // Teacher-specific
-      case 'moderation':
-        return role === 'teacher' ? renderModerationSettings() : null
-      
-      default:
-        return renderAccountSettings()
+      case 'account': return renderAccountSettings()
+      case 'privacy': return renderPrivacySettings()
+      case 'notifications': return renderNotificationSettings()
+      case 'safety': return renderSafetySettings()
+      case 'moderation': return role === 'teacher' ? renderModerationSettings() : null
+      default: return renderAccountSettings()
     }
   }
 
   const getTabsForRole = () => {
     const role = user?.role?.toLowerCase()
+
+    if (role === 'alumni') {
+      return [
+        { id: 'profile', label: 'Profile', icon: User },
+        { id: 'privacy', label: 'Privacy & Visibility', icon: Eye },
+        { id: 'notifications', label: 'Notifications', icon: Bell },
+        { id: 'account', label: 'Account', icon: Lock },
+        { id: 'networking', label: 'Networking', icon: Users },
+        { id: 'events', label: 'Events & Community', icon: Calendar },
+        { id: 'data-security', label: 'Data & Security', icon: Shield }
+      ]
+    }
+
     const globalTabs = [
       { id: 'account', label: 'Account', icon: User },
       { id: 'privacy', label: 'Privacy & Visibility', icon: Eye },
@@ -1148,12 +1839,7 @@ const Settings = () => {
       { id: 'safety', label: 'Safety & Support', icon: Shield }
     ]
 
-    if (role === 'alumni') {
-      return [
-        ...globalTabs,
-        { id: 'professional', label: 'Professional Profile', icon: Briefcase }
-      ]
-    } else if (role === 'teacher') {
+    if (role === 'teacher') {
       return [
         ...globalTabs,
         { id: 'moderation', label: 'Community & Moderation', icon: Shield }
